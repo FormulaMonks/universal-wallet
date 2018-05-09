@@ -2,6 +2,12 @@
   "name": "universal-wallet",
   "version": "0.0.1",
   "description": "Universal wallet",
+  "devDependencies": {
+    "lerna": "^2.11.0"
+  },
+  "scripts": {
+    "bootstrap": "lerna bootstrap"
+  },
   "contributors": [
     "Gorka Ludlow <gorka@citrusbyte.com> (http://aquigorka.com/)"
   ],
