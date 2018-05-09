@@ -1,0 +1,9 @@
+{
+  "name": "universal-wallet",
+  "version": "0.0.1",
+  "description": "Universal wallet",
+  "contributors": [
+    "Gorka Ludlow <gorka@citrusbyte.com> (http://aquigorka.com/)"
+  ],
+  "license": "MIT"
+}
