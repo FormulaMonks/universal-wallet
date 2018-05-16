@@ -1,7 +1,31 @@
 import React, { Component, Fragment } from 'react';
 import { getFile, putFile } from 'blockstack';
 import uuid from 'uuid';
-import { Header } from '../../components'
+import { Header } from '../../components';
+
+const getWalletValues = ({
+  inputPrivateKey,
+  inputPublicAddress,
+  inputAlias,
+  inputBalanceURL,
+  inputBalanceProp,
+  inputBalanceUnit,
+  inputTransactionsURL,
+  inputTransactionsProp,
+  inputSymbol,
+}) => {
+  return {
+    privateKey: inputPrivateKey.value,
+    publicAddress: inputPublicAddress.value,
+    alias: inputAlias.value,
+    balanceURL: inputBalanceURL.value,
+    balanceProp: inputBalanceProp.value,
+    balanceUnit: inputBalanceUnit.value,
+    transactionsURL: inputTransactionsURL.value,
+    transactionsProp: inputTransactionsProp.value,
+    symbol: inputSymbol.value,
+  };
+};
 
 class Form extends Component {
   render() {
@@ -11,7 +35,10 @@ class Form extends Component {
       publicAddress = '',
       alias = '',
       transactionsURL = '',
+      transactionsProp = '',
       balanceURL = '',
+      balanceProp = '',
+      balanceUnit = '',
       symbol = '',
     } = defaultValues;
     return (
@@ -46,15 +73,31 @@ class Form extends Component {
           placeholder="Balance URL"
           type="text"
           name="inputBalanceURL"
-          required
           defaultValue={balanceURL}
+        />
+        <input
+          placeholder="Balance Prop"
+          type="text"
+          name="inputBalanceProp"
+          defaultValue={balanceProp}
+        />
+        <input
+          placeholder="Balance Unit"
+          type="text"
+          name="inputBalanceUnit"
+          defaultValue={balanceUnit}
         />
         <input
           placeholder="Transactions URL"
           type="text"
           name="inputTransactionsURL"
-          required
           defaultValue={transactionsURL}
+        />
+        <input
+          placeholder="Transactions Prop"
+          type="text"
+          name="inputTransactionsProp"
+          defaultValue={transactionsProp}
         />
         <select name="inputSymbol" required defaultValue={symbol}>
           <option disabled value="" hidden>
@@ -82,8 +125,8 @@ export default class Wallets extends Component {
   state = {
     list: [],
     currencies: [],
-    currenciesError: false,
-    listError: false,
+    currenciesError: null,
+    listError: null,
     loading: true,
     editWallet: null,
   };
@@ -103,64 +146,66 @@ export default class Wallets extends Component {
       editWallet,
     } = this.state;
     const sortedList = list.sort((a, b) => b.lastModified - a.lastModified);
-    return <Fragment>
-      <Header />
-      <div>
-        {currenciesError && (
-          <div>
-            There was an error fetching the available currencies:{' '}
-            {currenciesError}
-          </div>
-        )}
-        {listError && (
-          <div>There was an error fetching the wallets: {listError}</div>
-        )}
-        {editWallet ? (
-          <Form
-            defaultValues={{ ...list.find(({ id }) => id === editWallet) }}
-            currencies={currencies}
-            onSubmit={this.onEdit}
-            btnLabel={'Save'}
-          />
-        ) : (
-          <Form
-            currencies={currencies}
-            onSubmit={this.onNew}
-            btnLabel={'Add new'}
-          />
-        )}
-        {loading ? (
-          <div>loading</div>
-        ) : (
-          <ul>
-            {sortedList.map(
-              ({ id, createdAt, lastModified, alias, symbol }, index) => {
-                const { name, imageSmall } = currencies.find(
-                  item => item.symbol === symbol,
-                );
-                const created = new Date(createdAt);
-                const modified = new Date(lastModified);
-                return (
-                  <li key={`wallets-${id}`}>
-                    <button onClick={() => this.setState({ editWallet: id })}>
-                      Edit
-                    </button>
-                    <img alt={`${name}`} src={imageSmall} />
-                    <div>{alias}</div>
-                    <div>
-                      {name} ({symbol})
-                    </div>
-                    <div>created {created.toDateString()}</div>
-                    <div>last modified {modified.toDateString()}</div>
-                    <button onClick={() => this.onDelete(id)}>Delete</button>
-                  </li>
-                );
-              },
-            )}
-          </ul>
-        )}
-      </div>
-    </Fragment>
+    return (
+      <Fragment>
+        <Header />
+        <div>
+          {currenciesError && (
+            <div>
+              There was an error fetching the available currencies:{' '}
+              {currenciesError}
+            </div>
+          )}
+          {listError && (
+            <div>There was an error fetching the wallets: {listError}</div>
+          )}
+          {editWallet ? (
+            <Form
+              defaultValues={{ ...list.find(({ id }) => id === editWallet) }}
+              currencies={currencies}
+              onSubmit={this.onEdit}
+              btnLabel={'Save'}
+            />
+          ) : (
+            <Form
+              currencies={currencies}
+              onSubmit={this.onNew}
+              btnLabel={'Add new'}
+            />
+          )}
+          {loading ? (
+            <div>loading</div>
+          ) : (
+            <ul>
+              {sortedList.map(
+                ({ id, createdAt, lastModified, alias, symbol }, index) => {
+                  const { name, imageSmall } = currencies.find(
+                    item => item.symbol === symbol,
+                  );
+                  const created = new Date(createdAt);
+                  const modified = new Date(lastModified);
+                  return (
+                    <li key={`wallets-${id}`}>
+                      <button onClick={() => this.setState({ editWallet: id })}>
+                        Edit
+                      </button>
+                      <img alt={`${name}`} src={imageSmall} />
+                      <div>{alias}</div>
+                      <div>
+                        {name} ({symbol})
+                      </div>
+                      <div>created {created.toDateString()}</div>
+                      <div>last modified {modified.toDateString()}</div>
+                      <button onClick={() => this.onDelete(id)}>Delete</button>
+                    </li>
+                  );
+                },
+              )}
+            </ul>
+          )}
+        </div>
+      </Fragment>
+    );
   }
 
   fetchCurrencies = async () => {
@@ -169,18 +214,19 @@ export default class Wallets extends Component {
       const currencies = await res.json();
       this.setState({ currencies: Object.values(currencies) });
     } catch (e) {
-      this.setState({ currenciesError: e });
+      this.setState({ currenciesError: e.toString() });
     }
   };
 
   fetchWallets = async () => {
     this.setState({ loading: true });
+
     try {
       const file = await getFile('wallets.json');
       const list = JSON.parse(file || '[]');
       this.setState({ list, loading: false });
     } catch (e) {
-      this.setState({ listError: e });
+      this.setState({ listError: e.toString() });
     }
   };
 
@@ -195,28 +241,12 @@ export default class Wallets extends Component {
   onEdit = async form => {
     this.setState({ loading: true });
 
-    const {
-      inputPrivateKey,
-      inputPublicAddress,
-      inputAlias,
-      inputBalanceURL,
-      inputTransactionsURL,
-      inputSymbol,
-    } = form.elements;
     const { list, editWallet } = this.state;
     const current = list.find(({ id }) => id === editWallet);
+    const { id, createdAt, lastModified, ...values } = getWalletValues(form);
     const newList = [
       ...list.filter(({ id }) => id !== editWallet),
-      {
-        ...current,
-        lastModified: Date.now(),
-        privateKey: inputPrivateKey.value,
-        publicAddress: inputPublicAddress.value,
-        alias: inputAlias.value,
-        balanceURL: inputBalanceURL.value,
-        transactionsURL: inputTransactionsURL.value,
-        symbol: inputSymbol.value,
-      },
+      { ...current, ...values, lastModified: Date.now() },
     ];
     await putFile('wallets.json', JSON.stringify(newList));
     form.reset();
@@ -226,26 +256,14 @@ export default class Wallets extends Component {
   onNew = async form => {
     this.setState({ loading: true });
 
-    const {
-      inputPrivateKey,
-      inputPublicAddress,
-      inputAlias,
-      inputBalanceURL,
-      inputTransactionsURL,
-      inputSymbol,
-    } = form.elements;
+    const values = getWalletValues(form);
     const newList = [
       ...this.state.list,
       {
         id: uuid(),
         createdAt: Date.now(),
         lastModified: Date.now(),
-        privateKey: inputPrivateKey.value,
-        publicAddress: inputPublicAddress.value,
-        alias: inputAlias.value,
-        balanceURL: inputBalanceURL.value,
-        transactionsURL: inputTransactionsURL.value,
-        symbol: inputSymbol.value,
+        ...values,
       },
     ];
     await putFile('wallets.json', JSON.stringify(newList));
