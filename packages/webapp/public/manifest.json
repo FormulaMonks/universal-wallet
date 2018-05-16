@@ -1,14 +1,16 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Universal Wallet",
+  "name": "Universal Wallet",
+  "description": "A universal crypto wallet",
+  "_start_url": "./index.html",
+  "start_url": "localhost:3000",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "http://localhost:3000/citrusbyte.jpg",
+      "sizes": "200x200",
+      "type": "image/jpg"
     }
   ],
-  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
