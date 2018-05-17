@@ -2,6 +2,11 @@ import React, { Component, Fragment } from 'react';
 import qr from 'qr-encode';
 import { Header } from '../../components';
 import { getFile } from 'blockstack';
+import {
+  WALLETS_JSON,
+  BTC_TO_USD,
+  SHAPESHIFT_MARKETINFO,
+} from '../../../utils/constants';
 
 const Wallet = ({
   balance,
@@ -156,16 +161,15 @@ export default class Balance extends Component {
     // if not BTC get value in BTC
     const { wallets, walletBalance } = this.state;
     const { symbol } = wallets.find(i => i.id === id);
+    const symbolCased = symbol.toLowerCase()
     let toBTC = 1;
-    if (symbol.toLowerCase() !== 'btc') {
-      const res = await fetch(`https://shapeshift.io/marketinfo/${symbol}_btc`);
+    if (symbolCased !== 'btc') {
+      const res = await fetch(`${SHAPESHIFT_MARKETINFO}${symbolCased}_btc`);
       const { rate } = await res.json();
       toBTC = rate;
     }
-    const res2 = await fetch(
-      'https://www.bitstamp.net/api/v2/ticker/btcusd/?cors=1',
-    );
-    const { last: toUSD } = await res2.json();
+    const rate = await fetch(BTC_TO_USD);
+    const { last: toUSD } = await rate.json();
     const walletBalanceCurrency = walletBalance * toBTC * toUSD;
 
     this.setState({
@@ -176,7 +180,7 @@ export default class Balance extends Component {
 
   fetchWallets = async () => {
     try {
-      const file = await getFile('wallets.json');
+      const file = await getFile(WALLETS_JSON);
       const wallets = JSON.parse(file || '[]');
       this.setState({ wallets, walletsLoading: false });
     } catch (e) {
