@@ -10,3 +10,5 @@ export const SHAPESHIFT = 'https://shapeshift.io/'
 export const SHAPESHIFT_MARKETINFO = `${SHAPESHIFT}marketinfo/`;
 
 export const SHAPESHIFT_GETCOINS = `${SHAPESHIFT}getcoins/`;
+
+export const BITCOIN_SYMBOL_LOWER_CASED = 'btc'
