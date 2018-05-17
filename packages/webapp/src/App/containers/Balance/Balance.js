@@ -9,21 +9,24 @@ const Wallet = ({
   balanceCurrencyLoading,
   balanceLoading,
   balanceLoadingError,
-  wallet: { publicAddress },
+  wallet: { publicAddress, balanceURL, balanceProp, balanceUnit },
 }) => {
   return (
     <div>
-      {!balanceLoadingError && (
-        <Fragment>
-          <div>Balance</div>
-          {balanceLoading ? <div>loading</div> : <div>{balance}</div>}
-          {balanceCurrencyLoading ? (
-            <div>loading</div>
-          ) : (
-            <div>{balanceCurrency}</div>
-          )}
-        </Fragment>
-      )}
+      {!balanceLoadingError &&
+        balanceURL &&
+        balanceProp &&
+        balanceURL && (
+          <Fragment>
+            <div>Balance</div>
+            {balanceLoading ? <div>loading</div> : <div>{balance}</div>}
+            {balanceCurrencyLoading ? (
+              <div>loading</div>
+            ) : (
+              <div>{balanceCurrency} USD</div>
+            )}
+          </Fragment>
+        )}
       <div>
         <img src={qr(publicAddress)} alt="QR code public address" />
       </div>
@@ -121,9 +124,12 @@ export default class Balance extends Component {
   }
 
   fetchBalance = async id => {
-    const { publicAddress, balanceURL, balanceProp, balanceUnit } = this.state.wallets.find(
-      i => i.id === id,
-    );
+    const {
+      publicAddress,
+      balanceURL,
+      balanceProp,
+      balanceUnit,
+    } = this.state.wallets.find(i => i.id === id);
     if (!balanceURL || !balanceProp || !balanceUnit) {
       return;
     }
@@ -132,7 +138,8 @@ export default class Balance extends Component {
       const data = await res.json();
       if (!data.hasOwnProperty(balanceProp)) {
         this.setState({
-          walletBalanceError: 'The response did not include the balance property',
+          walletBalanceError:
+            'The response did not include the balance property',
         });
         return;
       }
