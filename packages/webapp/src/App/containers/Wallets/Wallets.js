@@ -30,7 +30,7 @@ const getWalletValues = ({
 
 class Form extends Component {
   render() {
-    const { btnLabel, currencies, defaultValues = {} } = this.props;
+    const { btnLabel, currencies, onCancel, defaultValues = {} } = this.props;
     const {
       privateKey = '',
       publicAddress = '',
@@ -49,6 +49,7 @@ class Form extends Component {
         key={Date.now()}
       >
         <input type="submit" value={btnLabel} />
+        {onCancel && <button onClick={onCancel}>Cancel</button>}
         <input
           placeholder="Private Key (unencrypted)"
           type="text"
@@ -164,6 +165,7 @@ export default class Wallets extends Component {
             <Form
               defaultValues={{ ...list.find(({ id }) => id === editWallet) }}
               currencies={currencies}
+              onCancel={this.onEditCancel}
               onSubmit={this.onEdit}
               btnLabel={'Save'}
             />
@@ -249,9 +251,14 @@ export default class Wallets extends Component {
       ...list.filter(({ id }) => id !== editWallet),
       { ...current, ...values, lastModified: Date.now() },
     ];
-    await putFile('wallets.json', JSON.stringify(newList));
+    await putFile(WALLETS_JSON, JSON.stringify(newList));
     form.reset();
     this.fetchWallets();
+  };
+
+  onEditCancel = e => {
+    e.preventDefault();
+    this.setState({ editWallet: null });
   };
 
   onNew = async form => {
