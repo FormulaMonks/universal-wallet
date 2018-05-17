@@ -19,7 +19,7 @@ export default class Wallets extends Component {
     const { children, ...rest } = this.props;
     return (
       <Fragment>
-        {Children.map(this.props.children, child =>
+        {Children.map(children, child =>
           cloneElement(child, {
             wallets,
             walletsError: error && (
