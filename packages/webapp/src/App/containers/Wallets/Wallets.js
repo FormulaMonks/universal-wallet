@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { getFile, putFile } from 'blockstack';
 import uuid from 'uuid';
 import { Header } from '../../components';
+import { WALLETS_JSON, SHAPESHIFT_GETCOINS } from '../../../utils/constants';
 
 const getWalletValues = ({
   inputPrivateKey,
@@ -210,7 +211,7 @@ export default class Wallets extends Component {
 
   fetchCurrencies = async () => {
     try {
-      const res = await fetch('https://shapeshift.io/getcoins');
+      const res = await fetch(SHAPESHIFT_GETCOINS);
       const currencies = await res.json();
       this.setState({ currencies: Object.values(currencies) });
     } catch (e) {
@@ -222,7 +223,7 @@ export default class Wallets extends Component {
     this.setState({ loading: true });
 
     try {
-      const file = await getFile('wallets.json');
+      const file = await getFile(WALLETS_JSON);
       const list = JSON.parse(file || '[]');
       this.setState({ list, loading: false });
     } catch (e) {
@@ -234,7 +235,7 @@ export default class Wallets extends Component {
     this.setState({ loading: true });
 
     const newList = this.state.list.filter(item => item.id !== id);
-    await putFile('wallets.json', JSON.stringify(newList));
+    await putFile(WALLETS_JSON, JSON.stringify(newList));
     this.fetchWallets();
   };
 
@@ -266,7 +267,7 @@ export default class Wallets extends Component {
         ...values,
       },
     ];
-    await putFile('wallets.json', JSON.stringify(newList));
+    await putFile(WALLETS_JSON, JSON.stringify(newList));
     form.reset();
     this.fetchWallets();
   };
