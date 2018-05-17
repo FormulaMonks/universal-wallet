@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import qr from 'qr-encode';
-import { Header } from '../../components';
+import { Header } from '../components';
 import { getFile } from 'blockstack';
 import {
   WALLETS_JSON,
   BTC_TO_USD,
   SHAPESHIFT_MARKETINFO,
-} from '../../../utils/constants';
+} from '../utils/constants';
 
 const Wallet = ({
   balance,
