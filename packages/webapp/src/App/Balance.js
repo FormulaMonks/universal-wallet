@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import qr from 'qr-encode';
-import { Header, Balance as BalanceHOC } from '../components';
-import { WalletsStore } from '../stores';
+import { Header } from '../components';
+import { WalletsStore, BalanceStore } from '../stores';
 
 const WalletBalance = ({
   balance,
@@ -80,9 +80,7 @@ class Balance extends Component {
           )}
           {wallet && (
             <Fragment>
-              <BalanceHOC wallet={wallet}>
-                <WalletBalance />
-              </BalanceHOC>
+              <WalletBalance {...this.props} />
               {wallet.publicAddress && (
                 <Fragment>
                   <div>
@@ -109,7 +107,7 @@ class Balance extends Component {
     const { wallets, walletPick } = this.props;
     if (wallets.length) {
       const { id } = wallets.sort((a, b) => b.lastModified - a.lastModifie)[0];
-      this.select.value = id
+      this.select.value = id;
       walletPick(id);
     }
   };
@@ -119,7 +117,9 @@ export default () => (
   <Fragment>
     <Header />
     <WalletsStore>
-      <Balance />
+      <BalanceStore>
+        <Balance />
+      </BalanceStore>
     </WalletsStore>
   </Fragment>
 );
