@@ -8,6 +8,7 @@ export default class Wallets extends Component {
     error: null,
     loading: true,
     wallets: [],
+    wallet: null,
   };
 
   componentDidMount() {
@@ -30,6 +31,9 @@ export default class Wallets extends Component {
             walletsDelete: this.delete,
             walletsPut: this.put,
             walletsPost: this.post,
+            wallet: this.state.wallet,
+            walletPick: this.pick,
+            walletRelease: this.release,
             ...rest,
           }),
         )}
@@ -38,7 +42,7 @@ export default class Wallets extends Component {
   }
 
   delete = async walletId => {
-    this.setState({ loading: true })
+    this.setState({ loading: true });
 
     const newList = this.state.wallets.filter(({ id }) => id !== walletId);
     await putFile(WALLETS_JSON, JSON.stringify(newList));
@@ -73,11 +77,25 @@ export default class Wallets extends Component {
     this.setState({ loading: true });
 
     const { wallets } = this.state;
-    const { id, createdAt, lastModified, ...current } = wallets.find(({ id }) => id === walletId);
+    const { id, createdAt, lastModified, ...current } = wallets.find(
+      ({ id }) => id === walletId,
+    );
     const newList = [
       ...wallets.filter(w => w.id !== id),
       { ...current, ...obj, id, createdAt, lastModified: Date.now() },
     ];
     await putFile(WALLETS_JSON, JSON.stringify(newList));
+  };
+
+  pick = walletId => {
+    const wallet = this.state.wallets.find(({ id }) => walletId === id);
+    if (!wallet) {
+      return;
+    }
+    this.setState({ wallet });
+  };
+
+  release = () => {
+    this.setState({ wallet: null });
   };
 }
