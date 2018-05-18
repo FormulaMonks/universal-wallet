@@ -18,9 +18,9 @@ const INITIAL_STATE = {
 const stateIsInitial = state =>
   Object.keys(INITIAL_STATE).every(k => INITIAL_STATE[k] === state[k]);
 
-export default class BalanceStore extends Component {
+export default class Balance extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.wallet.id !== prevState.prevId) {
+    if (nextProps.wallet && nextProps.wallet.id !== prevState.prevId) {
       return {
         ...INITIAL_STATE,
         prevId: nextProps.wallet.id,
@@ -79,7 +79,11 @@ export default class BalanceStore extends Component {
   }
 
   check = async () => {
-    const { balanceURL, balanceProp, balanceUnit } = this.props.wallet;
+    const { wallet } = this.props
+    if (!wallet) {
+      return
+    }
+    const { balanceURL, balanceProp, balanceUnit } = wallet;
     if (!balanceURL || !balanceProp || !balanceUnit) {
       return;
     }
