@@ -3,25 +3,6 @@ import qr from 'qr-encode';
 import { Header, Balance as BalanceHOC } from '../components';
 import { WalletsStore } from '../stores';
 
-const WalletBalanceWrap = ({ wallet }) => {
-  const { publicAddress } = wallet;
-  return (
-    <Fragment>
-      <BalanceHOC wallet={wallet}>
-        <WalletBalance />
-      </BalanceHOC>
-      {publicAddress && (
-        <Fragment>
-          <div>
-            <img src={qr(publicAddress)} alt="QR code public address" />
-          </div>
-          <div>{publicAddress}</div>
-        </Fragment>
-      )}
-    </Fragment>
-  );
-};
-
 const WalletBalance = ({
   balance,
   balanceCurrency,
@@ -51,24 +32,29 @@ const WalletBalance = ({
 };
 
 class Balance extends Component {
-  state = { selectedWallet: null };
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.wallets.length !== prevState.prevLength) {
+      return {
+        prevLength: nextProps.wallets.length,
+      };
+    }
+    return null;
+  }
+
+  state = {};
 
   componentDidMount() {
-    //this.fetchWallets().then(() => {
-    //const { wallets } = this.state;
-    //if (wallets.length) {
-    //const { id } = wallets.sort(
-    //(a, b) => b.lastModified - a.lastModified,
-    //)[0];
-    //this.walletSelect.value = id;
-    //this.onWalletChange(id);
-    //}
-    //});
+    this.pickWallet();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.wallet === null) {
+      this.pickWallet();
+    }
   }
 
   render() {
-    const { wallets, walletsError, walletsLoading } = this.props;
-    const { selectedWallet } = this.state;
+    const { wallet, wallets, walletsError, walletsLoading } = this.props;
 
     return (
       <Fragment>
@@ -92,10 +78,23 @@ class Balance extends Component {
               ))}
             </select>
           )}
-          {selectedWallet && (
-            <WalletBalanceWrap
-              wallet={wallets.find(({ id }) => id === selectedWallet)}
-            />
+          {wallet && (
+            <Fragment>
+              <BalanceHOC wallet={wallet}>
+                <WalletBalance />
+              </BalanceHOC>
+              {wallet.publicAddress && (
+                <Fragment>
+                  <div>
+                    <img
+                      src={qr(wallet.publicAddress)}
+                      alt="QR code public address"
+                    />
+                  </div>
+                  <div>{wallet.publicAddress}</div>
+                </Fragment>
+              )}
+            </Fragment>
           )}
         </div>
       </Fragment>
@@ -103,7 +102,16 @@ class Balance extends Component {
   }
 
   onWalletChange = () => {
-    this.setState({ selectedWallet: this.select.value });
+    this.props.walletPick(this.select.value);
+  };
+
+  pickWallet = () => {
+    const { wallets, walletPick } = this.props;
+    if (wallets.length) {
+      const { id } = wallets.sort((a, b) => b.lastModified - a.lastModifie)[0];
+      this.select.value = id
+      walletPick(id);
+    }
   };
 }
 
