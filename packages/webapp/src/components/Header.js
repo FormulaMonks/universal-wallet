@@ -10,7 +10,7 @@ export default class Header extends Component {
       <li><Link to="in-wallet-exchange">In wallet exchange</Link></li>
       <li><Link to="wallets">Wallets</Link></li>
       <li><Link to="transactions">Transaction History</Link></li>
-      <li><Link to="address-book">Address book</Link></li>
+      <li><Link to="contacts">Contacts</Link></li>
       <li><button onClick={this.onLogout}>Logout</button></li>
     </ul>
   }
