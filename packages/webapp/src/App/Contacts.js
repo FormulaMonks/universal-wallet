@@ -1,18 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { Header } from '../components';
-import { ContactsStore } from '../stores';
+import { ContactsStore, CoinsStore } from '../stores';
 
-const getFormValues = ({ inputAlias, inputPublicAddress }) => {
+const getFormValues = ({ inputAlias, inputPublicAddress, inputSymbol }) => {
   return {
     alias: inputAlias.value,
     publicAddress: inputPublicAddress.value,
+    symbol: inputSymbol.value,
   };
 };
 
 class Form extends Component {
   render() {
-    const { btnLabel, onCancel, defaultValues = {} } = this.props;
-    const { publicAddress = '', alias = '' } = defaultValues;
+    const { coins, btnLabel, onCancel, defaultValues = {} } = this.props;
+    const { publicAddress = '', alias = '', symbol = '' } = defaultValues;
     return (
       <form
         ref={f => (this.form = f)}
@@ -35,6 +36,18 @@ class Form extends Component {
           required
           defaultValue={alias}
         />
+        <select name="inputSymbol" required defaultValue={symbol}>
+          <option key="wallets-coins-label" disabled value="" hidden>
+            Coin
+          </option>
+          {coins.map(({ name, symbol }, index) => {
+            return (
+              <option key={`wallets-coins-${index}`} value={symbol}>
+                {symbol} - {name}
+              </option>
+            );
+          })}
+        </select>
       </form>
     );
   }
@@ -51,7 +64,14 @@ class Contacts extends Component {
   };
 
   render() {
-    const { contacts, contactsError, contactsLoading } = this.props;
+    const {
+      contacts,
+      contactsError,
+      contactsLoading,
+      coins,
+      coinsError,
+      coinsLoading,
+    } = this.props;
     const { edit } = this.state;
     const sortedList = contacts.sort((a, b) => b.lastModified - a.lastModified);
 
@@ -59,22 +79,31 @@ class Contacts extends Component {
       <Fragment>
         <div>
           {contactsError}
+          {coinsError}
           {edit ? (
             <Form
+              coins={coins}
               defaultValues={{ ...contacts.find(({ id }) => id === edit) }}
-              onCancel={this.onCancelEdit}
+              onCancel={this.onEditCancel}
               onSubmit={this.onEdit}
               btnLabel={'Save'}
             />
           ) : (
-            <Form onSubmit={this.onNew} btnLabel={'Add new'} />
+            <Form
+              onSubmit={this.onNew}
+              btnLabel={'Add new'}
+              coins={coins}
+            />
           )}
-          {contactsLoading ? (
+          {contactsLoading || coinsLoading ? (
             <div>loading</div>
           ) : (
             <ul>
               {sortedList.map(
-                ({ id, createdAt, lastModified, alias }, index) => {
+                ({ id, createdAt, lastModified, alias, symbol }, index) => {
+                  const { name, imageSmall } = coins.find(
+                    item => item.symbol === symbol,
+                  );
                   const created = new Date(createdAt);
                   const modified = new Date(lastModified);
                   return (
@@ -82,6 +111,7 @@ class Contacts extends Component {
                       <button onClick={() => this.setState({ edit: id })}>
                         Edit
                       </button>
+                      <img alt={`${name}`} src={imageSmall} />
                       <div>{alias}</div>
                       <div>created {created.toDateString()}</div>
                       <div>last modified {modified.toDateString()}</div>
@@ -123,8 +153,10 @@ class Contacts extends Component {
 export default () => (
   <Fragment>
     <Header />
-    <ContactsStore>
-      <Contacts />
-    </ContactsStore>
+    <CoinsStore>
+      <ContactsStore>
+        <Contacts />
+      </ContactsStore>
+    </CoinsStore>
   </Fragment>
 );
