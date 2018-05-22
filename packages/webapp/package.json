@@ -2,6 +2,8 @@
   "name": "universal-wallet-webapp",
   "version": "0.0.1",
   "dependencies": {
+    "bitcore-explorers": "^1.0.1",
+    "bitcore-lib": "^0.15.0",
     "blockstack": "^17.2.0",
     "qr-encode": "^0.3.0",
     "react": "^16.3.2",
