@@ -1,5 +1,9 @@
 module.exports = {
   webpack: function(config, env) {
+    if (env !== 'development') {
+      const newConfig = require(__dirname + '/config/webpack.config.prod')
+      return newConfig
+    }
     return config;
   },
   jest: function(config) {

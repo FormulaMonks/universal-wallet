@@ -1,6 +1,7 @@
 {
   "name": "universal-wallet-webapp",
   "version": "0.0.1",
+  "homepage": "https://universal-wallet.surge.sh",
   "dependencies": {
     "bitcore-explorers": "^1.0.1",
     "bitcore-lib": "^0.15.0",
@@ -15,11 +16,19 @@
   "scripts": {
     "start:cors": "react-app-rewired start",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-app-rewired build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
     "react-app-rewired": "^1.5.2"
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }
