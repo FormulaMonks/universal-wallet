@@ -1,11 +1,12 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { broadcast, fetchFee, validateAddress } from '../utils/btcTx';
+import { broadcast, fetchFee, validateAddress } from '../../utils/btcTx';
+import { BITCOIN_SYMBOL_LOWER_CASED } from '../../utils/constants'
 
 const INITIAL_STATE = {
   broadcasting: false,
   checking: false,
   error: null,
-  fee: null,
+  info: null,
   txId: null,
   valid: false,
 };
@@ -36,20 +37,20 @@ export default class BtcTx extends Component {
   }
 
   render() {
-    const { valid, error, checking, fee, broadcasting, txId } = this.state;
+    const { valid, error, checking, info, broadcasting, txId } = this.state;
     const { children, ...rest } = this.props;
 
     return (
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
-            btcTxBroadcast: this.broadcast,
-            btcTxBroadcasting: broadcasting,
-            btcTxChecking: checking,
-            btcTxError: error,
-            btcTxFee: fee,
-            btcTxId: txId,
-            btcTxValid: valid,
+            txBroadcast: this.broadcast,
+            txBroadcasting: broadcasting,
+            txChecking: checking,
+            txError: error,
+            txInfo: info,
+            txId: txId,
+            txValid: valid,
             ...rest,
           }),
         )}
@@ -121,6 +122,11 @@ export default class BtcTx extends Component {
   }
 
   validate = async () => {
+    const { fromSymbol } = this.props
+    if (!fromSymbol || fromSymbol.toLowerCase() !== BITCOIN_SYMBOL_LOWER_CASED) {
+      return;
+    }
+
     this.setState({ ...INITIAL_STATE, checking: true });
     const { to, from, amount, balance, privateKey } = this.props;
     if (
@@ -132,7 +138,7 @@ export default class BtcTx extends Component {
       try {
         const fee = await fetchFee({ to, from, privateKey, amount });
         const valid = this.validAmountFeeBalance(amount, fee, balance);
-        this.setState({ fee, valid });
+        this.setState({ info: <div>Fee: {fee}</div>, valid });
       } catch (e) {
         this.setState({ error: <div>JSON.stringify(e)</div> });
       }
