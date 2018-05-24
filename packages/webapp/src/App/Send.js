@@ -5,43 +5,52 @@ import {
   WalletsStore,
   BalanceStore,
   ContactsStore,
-  BtcTxStore,
+  TxStore,
 } from '../stores';
-import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
 
-const BtcTx = ({
-  btcTxId,
-  btcTxBroadcast,
-  btcTxBroadcasting,
-  btcTxValid,
-  btcTxError,
-  btcTxChecking,
-  btcTxFee,
+const Tx = ({
+  txId,
+  txBroadcast,
+  txBroadcasting,
+  txValid,
+  txError,
+  txChecking,
+  txInfo,
 }) => {
   return (
     <Fragment>
-      {btcTxError}
-      {btcTxChecking && <div>Performing checks</div>}
-      {btcTxFee && <div>Fee: {btcTxFee}</div>}
-      {!btcTxId &&
-        btcTxValid &&
-        (btcTxBroadcasting ? (
+      {txError}
+      {txChecking && <div>Performing checks</div>}
+      {txInfo}
+      {!txId &&
+        txValid &&
+        (txBroadcasting ? (
           <Fragment>
             <div>Transaction taking place</div>
           </Fragment>
         ) : (
           <Fragment>
             <div>Tx can take place</div>
-            <button onClick={btcTxBroadcast}>Send Tx</button>
+            <button onClick={txBroadcast}>Send Tx</button>
           </Fragment>
         ))}
-      {btcTxId && <div>Transaction id: {btcTxId}</div>}
+      {txId && <div>Transaction id: {txId}</div>}
     </Fragment>
   );
 };
 
 class Send extends Component {
-  state = { to: '', from: null, amount: null };
+  state = { to: '', toId: '', amount: null };
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.wallet &&
+      prevProps.wallet.id !== this.props.wallet.id &&
+      prevProps.wallet.symbol !== this.props.wallet.symbol
+    ) {
+      this.setState({ to: '', toId: '' });
+    }
+  }
 
   render() {
     const {
@@ -59,15 +68,19 @@ class Send extends Component {
       walletsError,
       walletsLoading,
     } = this.props;
-    const { to, from, amount } = this.state;
-    const contactsToBtc = contacts.filter(
-      ({ symbol }) =>
-        symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED,
-    );
-    const walletsToBtc = wallets.filter(
-      ({ symbol }) =>
-        symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED,
-    );
+    const { to, toId, amount } = this.state;
+    const filteredContacts = wallet
+      ? contacts.filter(
+          ({ symbol }) =>
+            symbol && symbol.toLowerCase() === wallet.symbol.toLowerCase(),
+        )
+      : [];
+    const filteredWallets = wallet
+      ? wallets.filter(
+          ({ symbol }) =>
+            symbol && symbol.toLowerCase() === wallet.symbol.toLowerCase(),
+        )
+      : [];
 
     return (
       <Fragment>
@@ -79,59 +92,15 @@ class Send extends Component {
           <div>loading</div>
         ) : (
           <Fragment>
-            <input
-              type="text"
-              name="to"
-              placeholder="to"
-              value={to}
-              onBlur={this.onInputToBlur}
-            />
-            <select
-              defaultValue=""
-              onChange={this.onSelectToChange}
-            >
-              <option key="send-to-label" disabled value="" hidden>
-                Contacts & My Wallets
-              </option>
-              {contactsToBtc.length && (
-                <optgroup key="send-to-contacts" label="Contacts">
-                  {contactsToBtc.map(({ id, alias }) => (
-                    <option
-                      key={`send-to-contact-${id}`}
-                      value={`contact-${id}`}
-                    >
-                      {alias}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-              {walletsToBtc.length && (
-                <optgroup key="send-to-my-wallets" label="My Wallets">
-                  {walletsToBtc.map(({ id, alias }) => (
-                    <option
-                      key={`send-to-my-wallets-${id}`}
-                      value={`wallet-${id}`}
-                    >
-                      {alias}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-            <input
-              type="text"
-              name="amount"
-              placeholder="amount"
-              onBlur={this.onInputAmountBlur}
-            />
-            {walletsToBtc.length ? (
+            <div>From</div>
+            {wallets.length ? (
               <select defaultValue="" onChange={this.onSelectFromChange}>
                 <option key="send-from-label" disabled value="" hidden>
                   My Wallets
                 </option>
-                {walletsToBtc.map(({ id, alias }) => (
+                {wallets.map(({ id, alias, symbol }) => (
                   <option key={`send-from-${id}`} value={id}>
-                    {alias}
+                    {alias} ({symbol})
                   </option>
                 ))}
               </select>
@@ -143,21 +112,72 @@ class Send extends Component {
                 {balanceLoading ? (
                   <div>loading</div>
                 ) : (
-                  <Fragment>
-                    <div>Balance: {balance}</div>
-                    <BtcTxStore
-                      to={to}
-                      from={from}
-                      amount={amount}
-                      balance={balance}
-                      privateKey={wallet.privateKey}
-                    >
-                      <BtcTx />
-                    </BtcTxStore>
-                  </Fragment>
+                  <div>Balance: {balance}</div>
                 )}
               </Fragment>
             )}
+            {wallet && (
+              <Fragment>
+                <div>To</div>
+                <input
+                  type="text"
+                  name="to"
+                  placeholder="to"
+                  value={to}
+                  onChange={this.onInputToChange}
+                />
+                <select value={toId} onChange={this.onSelectToChange}>
+                  <option key="send-to-label" disabled value="" hidden>
+                    Contacts & My Wallets
+                  </option>
+                  {filteredContacts.length && (
+                    <optgroup key="send-to-contacts" label="Contacts">
+                      {filteredContacts.map(({ id, alias }) => (
+                        <option
+                          key={`send-to-contact-${id}`}
+                          value={`contact-${id}`}
+                        >
+                          {alias}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {filteredWallets.length && (
+                    <optgroup key="send-to-my-wallets" label="My Wallets">
+                      {filteredWallets.map(({ id, alias }) => (
+                        <option
+                          key={`send-to-my-wallets-${id}`}
+                          value={`wallet-${id}`}
+                        >
+                          {alias}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+                <input
+                  type="text"
+                  name="amount"
+                  placeholder="amount"
+                  onBlur={this.onInputAmountBlur}
+                />
+              </Fragment>
+            )}
+            {wallet &&
+              to &&
+              amount &&
+              balance && (
+                <TxStore
+                  to={to}
+                  from={wallet.publicAddress}
+                  fromSymmbol={wallet.symbol}
+                  amount={amount}
+                  balance={balance}
+                  privateKey={wallet.privateKey}
+                >
+                  <Tx />
+                </TxStore>
+              )}
           </Fragment>
         )}
       </Fragment>
@@ -168,17 +188,13 @@ class Send extends Component {
     this.setState({ amount: parseFloat(e.currentTarget.value) });
   };
 
-  onInputToBlur = e => {
-    this.setState({ to: e.currentTarget.value });
+  onInputToChange = e => {
+    this.setState({ to: e.currentTarget.value, toId: '' });
   };
 
   onSelectFromChange = e => {
     const walletId = e.currentTarget.value;
     this.props.walletPick(walletId);
-    const { publicAddress: from } = this.props.wallets.find(
-      ({ id }) => id === walletId,
-    );
-    this.setState({ from });
   };
 
   onSelectToChange = e => {
@@ -189,10 +205,10 @@ class Send extends Component {
       prefix = 'contact-';
       list = this.props.contacts;
     }
-    const { publicAddress: to } = list.find(
+    const { publicAddress: to, id } = list.find(
       ({ id }) => `${prefix}${id}` === value,
     );
-    this.setState({ to });
+    this.setState({ to, toId: `${prefix}${id}` });
   };
 }
 
