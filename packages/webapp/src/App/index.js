@@ -10,17 +10,10 @@ import Send from './Send';
 import Wallets from './Wallets';
 import Contacts from './Contacts';
 import Transactions from './Transactions';
+import Exchange from './Exchange'
 import { Auth } from '../components';
 
-import { Header } from '../components';
-const Mock = ({ section }) => (
-  <div>
-    <Header />
-    {section}
-  </div>
-);
-const Exchange = () => <Mock section="in wallet exchange" />;
-const NotFound = () => <Mock section="404" />;
+const NotFound = () => <div>404</div>;
 
 class App extends Component {
   render() {

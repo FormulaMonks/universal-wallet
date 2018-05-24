@@ -7,43 +7,38 @@ import {
   ContactsStore,
   BtcTxStore,
 } from '../stores';
-import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants'
+import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
 
-class BtcTx extends Component {
-  componentDidMount() {}
-
-  render() {
-    const {
-      btcTxId,
-      btcTxBroadcast,
-      btcTxBroadcasting,
-      btcTxCheck,
-      btcTxCheckError,
-      btcTxChecking,
-      btcTxFee,
-    } = this.props;
-
-    return (
-      <Fragment>
-        {btcTxCheckError}
-        {btcTxChecking && <div>Performing checks</div>}
-        {btcTxFee && <div>Fee: {btcTxFee}</div>}
-        {!btcTxId && btcTxCheck &&
-          (btcTxBroadcasting ? (
-            <Fragment>
-              <div>Transaction taking place</div>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <div>Tx can take place</div>
-              <button onClick={btcTxBroadcast}>Send Tx</button>
-            </Fragment>
-          ))}
-        {btcTxId && <div>Transaction id: {btcTxId}</div>}
-      </Fragment>
-    );
-  }
-}
+const BtcTx = ({
+  btcTxId,
+  btcTxBroadcast,
+  btcTxBroadcasting,
+  btcTxValid,
+  btcTxError,
+  btcTxChecking,
+  btcTxFee,
+}) => {
+  return (
+    <Fragment>
+      {btcTxError}
+      {btcTxChecking && <div>Performing checks</div>}
+      {btcTxFee && <div>Fee: {btcTxFee}</div>}
+      {!btcTxId &&
+        btcTxValid &&
+        (btcTxBroadcasting ? (
+          <Fragment>
+            <div>Transaction taking place</div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div>Tx can take place</div>
+            <button onClick={btcTxBroadcast}>Send Tx</button>
+          </Fragment>
+        ))}
+      {btcTxId && <div>Transaction id: {btcTxId}</div>}
+    </Fragment>
+  );
+};
 
 class Send extends Component {
   state = { to: '', from: null, amount: null };
@@ -65,8 +60,14 @@ class Send extends Component {
       walletsLoading,
     } = this.props;
     const { to, from, amount } = this.state;
-    const contactsToBtc = contacts.filter(({ symbol }) => symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED)
-    const walletsToBtc = wallets.filter(({ symbol }) => symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED)
+    const contactsToBtc = contacts.filter(
+      ({ symbol }) =>
+        symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED,
+    );
+    const walletsToBtc = wallets.filter(
+      ({ symbol }) =>
+        symbol && symbol.toLowerCase() === BITCOIN_SYMBOL_LOWER_CASED,
+    );
 
     return (
       <Fragment>
@@ -88,7 +89,6 @@ class Send extends Component {
             <select
               defaultValue=""
               onChange={this.onSelectToChange}
-              ref={e => (this.selectTo = e)}
             >
               <option key="send-to-label" disabled value="" hidden>
                 Contacts & My Wallets
@@ -124,18 +124,20 @@ class Send extends Component {
               placeholder="amount"
               onBlur={this.onInputAmountBlur}
             />
-            {walletsToBtc.length
-              ? <select defaultValue="" onChange={this.onSelectFromChange}>
-              <option key="send-from-label" disabled value="" hidden>
-                My Wallets
-              </option>
-              {walletsToBtc.map(({ id, alias, publicAddress }) => (
-                <option key={`send-from-${id}`} value={id}>
-                  {alias}
+            {walletsToBtc.length ? (
+              <select defaultValue="" onChange={this.onSelectFromChange}>
+                <option key="send-from-label" disabled value="" hidden>
+                  My Wallets
                 </option>
-              ))}
-            </select>
-            : <div>You neet to add at least one BTC wallet</div>}
+                {walletsToBtc.map(({ id, alias }) => (
+                  <option key={`send-from-${id}`} value={id}>
+                    {alias}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div>You neet to add at least one BTC wallet</div>
+            )}
             {balanceHas && (
               <Fragment>
                 {balanceLoading ? (

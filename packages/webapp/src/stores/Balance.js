@@ -1,9 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import {
-  BTC_TO_USD,
-  SHAPESHIFT_MARKETINFO,
-  BITCOIN_SYMBOL_LOWER_CASED,
-} from '../utils/constants';
+import { BTC_TO_USD, BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
+import { fetchMarketInfo } from '../utils/ssTx';
 
 const INITIAL_STATE = {
   balance: null,
@@ -15,28 +12,18 @@ const INITIAL_STATE = {
   loadingCurrency: true,
 };
 
-const stateIsInitial = state =>
-  Object.keys(INITIAL_STATE).every(k => INITIAL_STATE[k] === state[k]);
-
 export default class Balance extends Component {
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.wallet && nextProps.wallet.id !== prevState.prevId) {
-      return {
-        ...INITIAL_STATE,
-        prevId: nextProps.wallet.id,
-      };
-    }
-    return null;
-  }
-
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
     this.check();
   }
 
-  componentDidUpdate() {
-    if (stateIsInitial(this.state)) {
+  componentDidUpdate(prevProps) {
+    if (
+      (!prevProps.wallet && this.props.wallet) ||
+      (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
+    ) {
       this.check();
     }
   }
@@ -79,9 +66,10 @@ export default class Balance extends Component {
   }
 
   check = async () => {
-    const { wallet } = this.props
+    this.setState({ ...INITIAL_STATE });
+    const { wallet } = this.props;
     if (!wallet) {
-      return
+      return;
     }
     const { balanceURL, balanceProp, balanceUnit } = wallet;
     if (!balanceURL || !balanceProp || !balanceUnit) {
@@ -121,10 +109,10 @@ export default class Balance extends Component {
     const symbolCased = symbol.toLowerCase();
     let toBTC = 1;
     if (symbolCased !== BITCOIN_SYMBOL_LOWER_CASED) {
-      const res = await fetch(
-        `${SHAPESHIFT_MARKETINFO}${symbolCased}_${BITCOIN_SYMBOL_LOWER_CASED}`,
+      const { rate } = await fetchMarketInfo(
+        symbolCased,
+        BITCOIN_SYMBOL_LOWER_CASED,
       );
-      const { rate } = await res.json();
       toBTC = rate;
     }
     const res = await fetch(BTC_TO_USD);
