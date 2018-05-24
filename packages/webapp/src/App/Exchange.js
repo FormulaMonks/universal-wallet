@@ -47,8 +47,6 @@ const ShapeShiftTx = props => {
   );
 };
 
-let once = 0;
-
 class Exchange extends Component {
   state = { to: '', toSymbol: '', amount: null };
 
