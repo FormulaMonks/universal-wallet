@@ -2,11 +2,10 @@
   "short_name": "Universal Wallet",
   "name": "Universal Wallet",
   "description": "A universal crypto wallet",
-  "_start_url": "./index.html",
-  "start_url": "localhost:3000",
+  "start_url": "universal-wallet.surge.sh",
   "icons": [
     {
-      "src": "http://localhost:3000/citrusbyte.jpg",
+      "src": "https://universal-wallet.surge.sh/citrusbyte.jpg",
       "sizes": "200x200",
       "type": "image/jpg"
     }

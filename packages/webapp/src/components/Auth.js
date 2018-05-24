@@ -34,7 +34,7 @@ export default class Auth extends Component {
   }
 
   onSignIn = () => {
-    const url = window.location.href;
+    const url = document.location.href;
     redirectToSignIn(url, document.location.origin + '/manifest.json');
   };
 }

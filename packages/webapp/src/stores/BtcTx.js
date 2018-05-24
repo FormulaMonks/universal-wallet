@@ -1,23 +1,20 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import bitcore from 'bitcore-lib';
-import { Insight } from 'bitcore-explorers';
+import { broadcast, fetchFee, validateAddress } from '../utils/btcTx';
 
-const { Address } = bitcore;
-const insight = new Insight('testnet');
-const toSatoshi = btc => btc * 100000000;
-const toBTC = satoshi => satoshi / 100000000;
 const INITIAL_STATE = {
-  checking: true,
-  check: false,
-  checkError: null,
+  broadcasting: false,
+  checking: false,
+  error: null,
   fee: null,
+  txId: null,
+  valid: false,
 };
 
 export default class BtcTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    this.goCheck();
+    this.validate();
   }
 
   componentDidUpdate(prevProps) {
@@ -25,7 +22,7 @@ export default class BtcTx extends Component {
     if (
       to &&
       from &&
-      this.props.hasOwnProperty('amount') &&
+      amount &&
       balance &&
       privateKey &&
       (to !== prevProps.to ||
@@ -34,12 +31,12 @@ export default class BtcTx extends Component {
         balance !== prevProps.balance ||
         privateKey !== prevProps.privateKey)
     ) {
-      this.goCheck();
+      this.validate();
     }
   }
 
   render() {
-    const { check, checkError, checking, fee, broadcasting, txId } = this.state;
+    const { valid, error, checking, fee, broadcasting, txId } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -48,11 +45,11 @@ export default class BtcTx extends Component {
           cloneElement(child, {
             btcTxBroadcast: this.broadcast,
             btcTxBroadcasting: broadcasting,
-            btcTxCheck: check,
-            btcTxCheckError: checkError,
             btcTxChecking: checking,
+            btcTxError: error,
             btcTxFee: fee,
             btcTxId: txId,
+            btcTxValid: valid,
             ...rest,
           }),
         )}
@@ -62,144 +59,84 @@ export default class BtcTx extends Component {
 
   broadcast = async () => {
     this.setState({ broadcasting: true });
-
-    const { to, from, amount, privateKey } = this.props;
-
-    // get min fee and look for min amount
-    const fromAddress = Address.fromString(from);
-    const toAddress = Address.fromString(to);
-    let txId;
     try {
-      txId = await new Promise(r => {
-        insight.getUnspentUtxos(fromAddress, (err, utxos) => {
-          if (err) {
-            throw err;
-          }
-          const tx = bitcore.Transaction();
-          tx.from(utxos);
-          tx.to(toAddress, toSatoshi(amount));
-          tx.change(fromAddress);
-          tx.sign(privateKey);
-          tx.serialize();
-          insight.broadcast(tx.toString(), (err, txId) => {
-            if (err) {
-              console.log('err in broadcast: ', err);
-            }
-            console.log('Transaction Id: ', JSON.stringify(txId, null, 2));
-            r(txId);
-          });
-        });
-      });
+      const txId = await broadcast(this.props);
       this.setState({ txId });
     } catch (e) {
-      this.setState({
-        check: false,
-        checking: false,
-        broadcasting: false,
-        checkError: <div>JSON.stringify(e)</div>,
-      });
-      return;
+      this.setState({ error: <div>JSON.stringify(e)</div> });
     }
-
     this.setState({ broadcasting: false });
   };
 
-  goCheck = async () => {
-    this.setState({ ...INITIAL_STATE, checking: true });
-
-    const { to, from, amount, balance, privateKey } = this.props;
-    if (!to || !from || !amount || !balance || !privateKey) {
-      this.setState({ check: false, checkError: null, checking: false });
-      return;
-    }
-
-    if (from === to) {
+  validDiffAddresses(address1, address2) {
+    if (address1 === address2) {
       this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>Cannot perform Tx from wallet to same wallet</div>,
+        error: <div>Cannot perform Tx from wallet to same wallet</div>,
       });
-      return;
+      return false;
     }
+    return true;
+  }
 
+  validAmount(amount) {
     if (!(amount > 0)) {
       this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>Amount should be a number bigger than 0</div>,
+        error: <div>Amount should be a number greater than 0</div>,
       });
-      return;
+      return false;
     }
+    return true;
+  }
 
+  validAmounBalance(amount, balance) {
     if (amount >= balance) {
       this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>Cannot send amount equal or bigger than balance</div>,
+        error: <div>Cannot send amount equal or bigger than balance</div>,
       });
-      return;
+      return false;
     }
+    return true;
+  }
 
-    // valid addresses?
-    if (!Address.isValid(to)) {
-      this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>To is not a valid bitcoin address</div>,
-      });
-      return;
-    }
-    if (!Address.isValid(from)) {
-      this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>From is not a valid bitcoin address</div>,
-      });
-      return;
-    }
-
-    // get min fee and look for min amount
-    const fromAddress = Address.fromString(from);
-    const toAddress = Address.fromString(to);
-    let fee;
-    try {
-      fee = await new Promise(r => {
-        insight.getUnspentUtxos(fromAddress, (err, utxos) => {
-          if (err) {
-            throw err;
-          }
-          const tx = bitcore.Transaction();
-          tx.from(utxos);
-          tx.to(toAddress, toSatoshi(amount));
-          tx.change(fromAddress);
-          tx.sign(privateKey);
-          tx.serialize();
-          //console.log(JSON.stringify(tx.toObject(), null, 2));
-          const { inputs, outputs } = tx.toObject();
-          const totalInputs = inputs.reduce((p, c) => p + c.output.satoshis, 0);
-          const totalOutputs = outputs.reduce((p, c) => p + c.satoshis, 0);
-          const fee = totalInputs - totalOutputs;
-          r(toBTC(fee));
-        });
-      });
-      this.setState({ fee });
-    } catch (e) {
-      this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>JSON.stringify(e)</div>,
-      });
-      return;
-    }
+  validAmountFeeBalance(amount, fee, balance) {
     if (amount + fee > balance) {
       this.setState({
-        check: false,
-        checking: false,
-        checkError: <div>Cannot send amount bigger than balance + fee</div>,
+        error: <div>Cannot send amount bigger than balance + fee</div>,
       });
-      return;
+      return false;
     }
+    return true;
+  }
 
-    this.setState({ check: true, checking: false, checkError: null });
+  validAddresses(to, from) {
+    if (!validateAddress(to)) {
+      this.setState({ error: <div>To is not a valid bitcoin address</div> });
+      return false;
+    }
+    if (!validateAddress(from)) {
+      this.setState({ error: <div>From is not a valid bitcoin address</div> });
+      return false;
+    }
+    return true;
+  }
+
+  validate = async () => {
+    this.setState({ ...INITIAL_STATE, checking: true });
+    const { to, from, amount, balance, privateKey } = this.props;
+    if (
+      this.validDiffAddresses(to, from) &&
+      this.validAmount(amount) &&
+      this.validAmounBalance(amount, balance) &&
+      this.validAddresses(to, from)
+    ) {
+      try {
+        const fee = await fetchFee({ to, from, privateKey, amount });
+        const valid = this.validAmountFeeBalance(amount, fee, balance);
+        this.setState({ fee, valid });
+      } catch (e) {
+        this.setState({ error: <div>JSON.stringify(e)</div> });
+      }
+    }
+    this.setState({ checking: false });
   };
 }
