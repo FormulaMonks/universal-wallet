@@ -170,7 +170,7 @@ class Send extends Component {
                 <TxStore
                   to={to}
                   from={wallet.publicAddress}
-                  fromSymmbol={wallet.symbol}
+                  fromSymbol={wallet.symbol}
                   amount={amount}
                   balance={balance}
                   privateKey={wallet.privateKey}
