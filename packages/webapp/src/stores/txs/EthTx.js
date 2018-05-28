@@ -1,11 +1,17 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { broadcast, fetchFee, validateAddress } from '../utils/btcTx';
+import {
+  broadcast,
+  validateAddress,
+  generateTx,
+  getTxInfo,
+} from '../../utils/ethTx';
+import { ETHER_SYMBOL_LOWER_CASED } from '../../utils/constants';
 
 const INITIAL_STATE = {
   broadcasting: false,
   checking: false,
   error: null,
-  fee: null,
+  info: null,
   txId: null,
   valid: false,
 };
@@ -36,20 +42,29 @@ export default class BtcTx extends Component {
   }
 
   render() {
-    const { valid, error, checking, fee, broadcasting, txId } = this.state;
+    const { valid, error, checking, info, broadcasting, txId } = this.state;
     const { children, ...rest } = this.props;
+
+    const { fromSymbol } = this.props;
+    if (!fromSymbol || fromSymbol.toLowerCase() !== ETHER_SYMBOL_LOWER_CASED) {
+      return (
+        <Fragment>
+          {Children.map(children, child => cloneElement(child, { ...rest }))}
+        </Fragment>
+      );
+    }
 
     return (
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
-            btcTxBroadcast: this.broadcast,
-            btcTxBroadcasting: broadcasting,
-            btcTxChecking: checking,
-            btcTxError: error,
-            btcTxFee: fee,
-            btcTxId: txId,
-            btcTxValid: valid,
+            txBroadcast: this.broadcast,
+            txBroadcasting: broadcasting,
+            txChecking: checking,
+            txError: error,
+            txInfo: info,
+            txId: txId,
+            txValid: valid,
             ...rest,
           }),
         )}
@@ -63,7 +78,9 @@ export default class BtcTx extends Component {
       const txId = await broadcast(this.props);
       this.setState({ txId });
     } catch (e) {
-      this.setState({ error: <div>JSON.stringify(e)</div> });
+      this.setState({
+        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+      });
     }
     this.setState({ broadcasting: false });
   };
@@ -110,17 +127,22 @@ export default class BtcTx extends Component {
 
   validAddresses(to, from) {
     if (!validateAddress(to)) {
-      this.setState({ error: <div>To is not a valid bitcoin address</div> });
+      this.setState({ error: <div>To is not a valid ethereum address</div> });
       return false;
     }
     if (!validateAddress(from)) {
-      this.setState({ error: <div>From is not a valid bitcoin address</div> });
+      this.setState({ error: <div>From is not a valid ethereum address</div> });
       return false;
     }
     return true;
   }
 
   validate = async () => {
+    const { fromSymbol } = this.props;
+    if (!fromSymbol || fromSymbol.toLowerCase() !== ETHER_SYMBOL_LOWER_CASED) {
+      return;
+    }
+
     this.setState({ ...INITIAL_STATE, checking: true });
     const { to, from, amount, balance, privateKey } = this.props;
     if (
@@ -130,11 +152,23 @@ export default class BtcTx extends Component {
       this.validAddresses(to, from)
     ) {
       try {
-        const fee = await fetchFee({ to, from, privateKey, amount });
-        const valid = this.validAmountFeeBalance(amount, fee, balance);
-        this.setState({ fee, valid });
+        const { ether, wei, gwei } = await getTxInfo();
+        await generateTx({ to, from, privateKey, amount });
+        this.setState({
+          info: (
+            <Fragment>
+              <div>Gas price: {gwei.price} gwei</div>
+              <div>Gas limit: {wei.limit} wei</div>
+              <div>Approximate fee: {ether.aproxFee} ether</div>
+              <div>Max fee: {ether.maxFee} ether</div>
+            </Fragment>
+          ),
+          valid: true,
+        });
       } catch (e) {
-        this.setState({ error: <div>JSON.stringify(e)</div> });
+        this.setState({
+          error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+        });
       }
     }
     this.setState({ checking: false });
