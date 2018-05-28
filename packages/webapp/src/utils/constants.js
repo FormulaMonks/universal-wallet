@@ -18,3 +18,12 @@ export const SHAPESHIFT_SEND_AMOUNT = `${SHAPESHIFT}sendamount/`;
 export const SHAPESHIFT_VALIDATE_ADDRESS = `${SHAPESHIFT}validateAddress/`;
 
 export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
+
+export const ETHER_SYMBOL_LOWER_CASED = 'eth';
+
+export const INFURA_URL = 'https://rinkeby.infura.io/';
+
+export const INFURA_NETWORK = `${INFURA_URL}${process.env.REACT_APP_INFURA_API_KEY}`
+
+// chainId - mainnet: 1, rinkeby: 4
+export const INFURA_CHAIN_ID = 4
