@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { broadcast, fetchFee, validateAddress } from '../../utils/btcTx';
-import { BITCOIN_SYMBOL_LOWER_CASED } from '../../utils/constants'
+import { BITCOIN_SYMBOL_LOWER_CASED } from '../../utils/constants';
 
 const INITIAL_STATE = {
   broadcasting: false,
@@ -40,6 +40,18 @@ export default class BtcTx extends Component {
     const { valid, error, checking, info, broadcasting, txId } = this.state;
     const { children, ...rest } = this.props;
 
+    const { fromSymbol } = this.props;
+    if (
+      !fromSymbol ||
+      fromSymbol.toLowerCase() !== BITCOIN_SYMBOL_LOWER_CASED
+    ) {
+      return (
+        <Fragment>
+          {Children.map(children, child => cloneElement(child, { ...rest }))}
+        </Fragment>
+      );
+    }
+
     return (
       <Fragment>
         {Children.map(children, child =>
@@ -64,7 +76,9 @@ export default class BtcTx extends Component {
       const txId = await broadcast(this.props);
       this.setState({ txId });
     } catch (e) {
-      this.setState({ error: <div>JSON.stringify(e)</div> });
+      this.setState({
+        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+      });
     }
     this.setState({ broadcasting: false });
   };
@@ -122,8 +136,11 @@ export default class BtcTx extends Component {
   }
 
   validate = async () => {
-    const { fromSymbol } = this.props
-    if (!fromSymbol || fromSymbol.toLowerCase() !== BITCOIN_SYMBOL_LOWER_CASED) {
+    const { fromSymbol } = this.props;
+    if (
+      !fromSymbol ||
+      fromSymbol.toLowerCase() !== BITCOIN_SYMBOL_LOWER_CASED
+    ) {
       return;
     }
 
@@ -140,7 +157,9 @@ export default class BtcTx extends Component {
         const valid = this.validAmountFeeBalance(amount, fee, balance);
         this.setState({ info: <div>Fee: {fee}</div>, valid });
       } catch (e) {
-        this.setState({ error: <div>JSON.stringify(e)</div> });
+        this.setState({
+          error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+        });
       }
     }
     this.setState({ checking: false });
