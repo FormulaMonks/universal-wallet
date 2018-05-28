@@ -1,5 +1,5 @@
 import React, { Fragment, Children, cloneElement } from 'react';
-import { BtcTxStore } from './txs';
+import { BtcTxStore, EthTxStore } from './txs';
 
 const Tx = ({ children, ...rest }) => (
   <Fragment>
@@ -9,6 +9,8 @@ const Tx = ({ children, ...rest }) => (
 
 export default ({ children, ...props }) => (
   <BtcTxStore {...props}>
-    <Tx>{children}</Tx>
+    <EthTxStore>
+      <Tx>{children}</Tx>
+    </EthTxStore>
   </BtcTxStore>
 );
