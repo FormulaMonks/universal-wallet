@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import EthereumTx from 'ethereumjs-tx';
-import { INFURA_NETWORK, INFURA_CHAIN_ID } from '../utils/constants';
+import { INFURA_NETWORK, INFURA_CHAIN_ID } from './constants';
 
 const { eth, utils } = new Web3(
   new Web3.providers.HttpProvider(INFURA_NETWORK),
@@ -15,6 +15,8 @@ const sendTx = async tx =>
       r(res);
     }),
   );
+
+export const createAccount = () => eth.accounts.create();
 
 export const getTxInfo = async () => {
   const { gasLimit: gasLimitInWei, gasUsed: gasUsedInWei } = await eth.getBlock(
