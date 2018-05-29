@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Header } from '../components';
-import { ContactsStore, CoinsStore } from '../stores';
+import { Header, ContactsStore, CoinsStore } from '../components';
 
 const getFormValues = ({ inputAlias, inputPublicAddress, inputSymbol }) => {
   return {
@@ -59,20 +58,17 @@ class Form extends Component {
 }
 
 class Contacts extends Component {
-  state = {
-    edit: null,
-  };
-
   render() {
     const {
+      contact,
       contacts,
       contactsError,
       contactsLoading,
+      contactPick,
       coins,
       coinsError,
       coinsLoading,
     } = this.props;
-    const { edit } = this.state;
     const sortedList = contacts.sort((a, b) => b.lastModified - a.lastModified);
 
     return (
@@ -80,10 +76,10 @@ class Contacts extends Component {
         <div>
           {contactsError}
           {coinsError}
-          {edit ? (
+          {contact ? (
             <Form
               coins={coins}
-              defaultValues={{ ...contacts.find(({ id }) => id === edit) }}
+              defaultValues={{ ...contact }}
               onCancel={this.onEditCancel}
               onSubmit={this.onEdit}
               btnLabel={'Save'}
@@ -108,7 +104,7 @@ class Contacts extends Component {
                   const modified = new Date(lastModified);
                   return (
                     <li key={`contacts-${id}`}>
-                      <button onClick={() => this.setState({ edit: id })}>
+                      <button onClick={() => contactPick(id)}>
                         Edit
                       </button>
                       <img alt={`${name}`} src={imageSmall} />
@@ -129,24 +125,21 @@ class Contacts extends Component {
 
   onDelete = async id => {
     await this.props.contactsDelete(id);
-    this.props.contactsGet();
   };
 
   onEdit = async form => {
-    await this.props.contactsPut(this.state.edit, getFormValues(form));
+    await this.props.contactsPut(this.props.contact.id, getFormValues(form));
     form.reset();
-    this.props.contactsGet();
   };
 
   onEditCancel = e => {
     e.preventDefault();
-    this.setState({ edit: null });
+    this.props.contactRelease()
   };
 
   onNew = async form => {
     await this.props.contactsPost(getFormValues(form));
     form.reset();
-    this.props.contactsGet();
   };
 }
 

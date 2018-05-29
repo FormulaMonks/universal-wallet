@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 
-export default class Transactions extends Component {
+export class Store extends Component {
   state = {
     transactions: [],
     error: null,
@@ -29,6 +29,7 @@ export default class Transactions extends Component {
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
+            ...rest,
             transactions,
             transactionsHas: hasTransactions,
             transactionsLoading: loading,
@@ -37,7 +38,6 @@ export default class Transactions extends Component {
                 There was an error fetching the wallet transactions: {error}
               </div>
             ),
-            ...rest,
           }),
         )}
       </Fragment>
@@ -88,3 +88,34 @@ export default class Transactions extends Component {
     }
   };
 }
+
+export const View = ({
+  transactions,
+  transactionsHas,
+  transactionsLoading,
+  transactionsError,
+  wallet,
+}) => {
+  if (!transactionsHas) {
+    return null;
+  }
+  return (
+    <Fragment>
+      {transactionsLoading ? (
+        <div>loading</div>
+      ) : (
+        <Fragment>
+          <ul>
+            {transactions.map((transaction, index) => {
+              return (
+                <li key={`transactions-${wallet.id}-${index}`}>
+                  {JSON.stringify(transaction)}
+                </li>
+              );
+            })}
+          </ul>
+        </Fragment>
+      )}
+    </Fragment>
+  );
+};

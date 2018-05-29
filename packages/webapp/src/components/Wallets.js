@@ -2,18 +2,37 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import { WALLETS_JSON } from '../utils/constants';
+import composeStore from '../utils/composeStore';
 
-export default class Wallets extends Component {
+export const sort = (a, b) => a.alias.localeCompare(b.alias);
+
+export const View = ({ wallets, walletsError, walletsLoading, walletPick }) => (
+  <Fragment>
+    {walletsError}
+    {walletsLoading ? (
+      <div>loading</div>
+    ) : (
+      <select defaultValue="" onChange={e => walletPick(e.currentTarget.value)}>
+        <option disabled value="" hidden>
+          Wallet
+        </option>
+        {wallets.map(({ id, alias }) => (
+          <option key={`wallets-${id}`} value={id}>
+            {alias}
+          </option>
+        ))}
+      </select>
+    )}
+  </Fragment>
+);
+
+class Store extends Component {
   state = {
     error: null,
-    loading: true,
+    loading: false,
     wallets: [],
     wallet: null,
   };
-
-  componentDidMount() {
-    this.get();
-  }
 
   render() {
     const { wallets, loading, error } = this.state;
@@ -22,6 +41,7 @@ export default class Wallets extends Component {
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
+            ...rest,
             wallets,
             walletsError: error && (
               <div>There was an error fetching the wallets: {error}</div>
@@ -34,7 +54,6 @@ export default class Wallets extends Component {
             wallet: this.state.wallet,
             walletPick: this.pick,
             walletRelease: this.release,
-            ...rest,
           }),
         )}
       </Fragment>
@@ -53,7 +72,8 @@ export default class Wallets extends Component {
 
     try {
       const file = await getFile(WALLETS_JSON);
-      const wallets = JSON.parse(file || '[]');
+      const rawWallets = JSON.parse(file || '[]');
+      const wallets = rawWallets.sort(sort);
       this.setState({ wallets, loading: false });
     } catch (e) {
       this.setState({ error: e.toString() });
@@ -71,6 +91,7 @@ export default class Wallets extends Component {
     };
     const newList = [...this.state.wallets, newObj];
     await putFile(WALLETS_JSON, JSON.stringify(newList));
+    return newObj;
   };
 
   put = async (walletId, obj) => {
@@ -99,3 +120,59 @@ export default class Wallets extends Component {
     this.setState({ wallet: null });
   };
 }
+
+class Saga extends Component {
+  componentDidMount() {
+    this.props.walletsGet();
+  }
+
+  render() {
+    const {
+      children,
+      walletsDelete,
+      walletsPost,
+      walletsPut,
+      ...rest
+    } = this.props;
+    return (
+      <Fragment>
+        {Children.map(children, child =>
+          cloneElement(child, {
+            ...rest,
+            walletsDelete: this.delete,
+            walletsPut: this.put,
+            walletsPost: this.post,
+          }),
+        )}
+      </Fragment>
+    );
+  }
+
+  delete = async walletId => {
+    const { wallet, walletsGet, walletRelease, walletsDelete } = this.props;
+    if (wallet && wallet.id === walletId) {
+      walletRelease();
+    }
+    await walletsDelete(walletId);
+    await walletsGet();
+  };
+
+  put = async (walletId, data) => {
+    const { walletRelease, walletsPut, walletPick, walletsGet } = this.props;
+    walletRelease();
+    await walletsPut(walletId, data);
+    await walletsGet();
+    walletPick(walletId);
+  };
+
+  post = async data => {
+    const { walletsPost, walletsGet, walletPick } = this.props;
+    const newWallet = await walletsPost(data);
+    await walletsGet();
+    walletPick(newWallet.id);
+  };
+}
+
+const store = composeStore(Store, Saga);
+
+export { store as Store };

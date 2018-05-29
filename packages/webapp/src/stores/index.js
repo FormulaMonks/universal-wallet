@@ -1,7 +1,0 @@
-export { default as WalletsStore } from './Wallets'
-export { default as CoinsStore } from './Coins'
-export { default as ContactsStore } from './Contacts'
-export { default as BalanceStore } from './Balance'
-export { default as TxStore } from './Tx'
-export { default as TransactionsStore } from './Transactions'
-export { default as ShapeShiftTxStore } from './ShapeShift'

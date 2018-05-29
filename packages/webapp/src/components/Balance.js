@@ -12,7 +12,7 @@ const INITIAL_STATE = {
   loadingCurrency: true,
 };
 
-export default class Balance extends Component {
+export class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -44,6 +44,7 @@ export default class Balance extends Component {
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
+            ...rest,
             balance,
             balanceHas: hasBalance,
             balanceLoading: loading,
@@ -58,7 +59,6 @@ export default class Balance extends Component {
                 {errorCurrency}
               </div>
             ),
-            ...rest,
           }),
         )}
       </Fragment>
@@ -121,3 +121,31 @@ export default class Balance extends Component {
     this.setState({ balanceCurrency, loadingCurrency: false });
   };
 }
+
+export const View = ({
+  balance,
+  balanceCurrency,
+  balanceCurrencyLoading,
+  balanceError,
+  balanceErrorCurrency,
+  balanceHas,
+  balanceLoading,
+}) => {
+  return (
+    <Fragment>
+      {balanceError}
+      {balanceErrorCurrency}
+      {balanceHas && (
+        <Fragment>
+          <div>Balance</div>
+          {balanceLoading ? <div>loading</div> : <div>{balance}</div>}
+          {balanceCurrencyLoading ? (
+            <div>loading</div>
+          ) : (
+            <div>{balanceCurrency} USD</div>
+          )}
+        </Fragment>
+      )}
+    </Fragment>
+  );
+};

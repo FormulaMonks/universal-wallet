@@ -1,9 +1,12 @@
 import {
   SHAPESHIFT_SEND_AMOUNT,
   SHAPESHIFT_VALIDATE_ADDRESS,
-  SHAPESHIFT_MARKET_INFO
+  SHAPESHIFT_MARKET_INFO,
+  ETHER_SYMBOL_LOWER_CASED,
+  BITCOIN_SYMBOL_LOWER_CASED,
 } from './constants';
 import { broadcast as btcBroadcast } from './btcTx';
+import { broadcast as ethBroadcast } from './ethTx';
 
 export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
   const res = await fetch(
@@ -13,7 +16,6 @@ export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
 };
 
 export const validAddressSymbol = async (address, symbol) => {
-  console.log(`${SHAPESHIFT_VALIDATE_ADDRESS}${address}/${symbol}`)
   const res = await fetch(`${SHAPESHIFT_VALIDATE_ADDRESS}${address}/${symbol}`);
   return await res.json();
 };
@@ -28,18 +30,21 @@ export const postTx = async opts => {
     body: JSON.stringify(opts),
   });
   const tx = await res.json();
-  console.log('postTx res: ', tx)
 
   if (tx.hasOwnProperty('error')) {
-    throw tx.error
+    throw tx.error;
   }
   if (!tx.hasOwnProperty('success')) {
-    throw tx
+    throw tx;
   }
   return tx.success;
 };
 
-export const broadcast = async params => {
-  // type of tx?
-  return btcBroadcast(params)
+// whitelist for txs that can be automated
+export const canBroadcast = () => false;
+
+export const broadcast = async ({ fromSymbol, params }) => {
+  return fromSymbol === ETHER_SYMBOL_LOWER_CASED
+    ? ethBroadcast(params)
+    : btcBroadcast(params)
 };
