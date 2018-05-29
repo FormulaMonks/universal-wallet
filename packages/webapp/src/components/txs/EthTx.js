@@ -6,6 +6,7 @@ import {
   getTxInfo,
 } from '../../utils/ethTx';
 import { ETHER_SYMBOL_LOWER_CASED } from '../../utils/constants';
+import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
   broadcasting: false,
@@ -16,37 +17,31 @@ const INITIAL_STATE = {
   valid: false,
 };
 
-export default class BtcTx extends Component {
+const validSymbols = ({ toSymbol, fromSymbol }) =>
+  toSymbol.toLowerCase() === ETHER_SYMBOL_LOWER_CASED &&
+  fromSymbol.toLowerCase() === ETHER_SYMBOL_LOWER_CASED;
+
+const txValidProps = props => validProps(props) && validSymbols(props);
+
+export default class EthTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    this.validate();
+    txValidProps(this.props) && this.validate();
   }
 
   componentDidUpdate(prevProps) {
-    const { to, from, amount, balance, privateKey } = this.props;
-    if (
-      to &&
-      from &&
-      amount &&
-      balance &&
-      privateKey &&
-      (to !== prevProps.to ||
-        from !== prevProps.from ||
-        amount !== prevProps.amount ||
-        balance !== prevProps.balance ||
-        privateKey !== prevProps.privateKey)
-    ) {
+    propsChanged(this.props, prevProps) &&
+      txValidProps(this.props) &&
       this.validate();
-    }
   }
 
   render() {
     const { valid, error, checking, info, broadcasting, txId } = this.state;
     const { children, ...rest } = this.props;
+    const { txError, txValid, txChecking } = rest;
 
-    const { fromSymbol } = this.props;
-    if (!fromSymbol || fromSymbol.toLowerCase() !== ETHER_SYMBOL_LOWER_CASED) {
+    if (!txValid || txError || txChecking || !txValidProps(this.props)) {
       return (
         <Fragment>
           {Children.map(children, child => cloneElement(child, { ...rest }))}
@@ -58,6 +53,7 @@ export default class BtcTx extends Component {
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
+            ...rest,
             txBroadcast: this.broadcast,
             txBroadcasting: broadcasting,
             txChecking: checking,
@@ -65,7 +61,6 @@ export default class BtcTx extends Component {
             txInfo: info,
             txId: txId,
             txValid: valid,
-            ...rest,
           }),
         )}
       </Fragment>
@@ -73,63 +68,25 @@ export default class BtcTx extends Component {
   }
 
   broadcast = async () => {
-    this.setState({ broadcasting: true });
+    this.setState({ broadcasting: <div>Broadcasting transaction</div> });
     try {
       const txId = await broadcast(this.props);
-      this.setState({ txId });
+      this.setState({ txId, broadcasting: <div>Transaction broadcasted</div> });
     } catch (e) {
       this.setState({
         error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+        broadcasting: <div>The transaction was not broadcasted</div>,
       });
     }
-    this.setState({ broadcasting: false });
   };
 
-  validDiffAddresses(address1, address2) {
-    if (address1 === address2) {
-      this.setState({
-        error: <div>Cannot perform Tx from wallet to same wallet</div>,
-      });
-      return false;
-    }
-    return true;
-  }
-
-  validAmount(amount) {
-    if (!(amount > 0)) {
-      this.setState({
-        error: <div>Amount should be a number greater than 0</div>,
-      });
-      return false;
-    }
-    return true;
-  }
-
-  validAmounBalance(amount, balance) {
-    if (amount >= balance) {
-      this.setState({
-        error: <div>Cannot send amount equal or bigger than balance</div>,
-      });
-      return false;
-    }
-    return true;
-  }
-
-  validAmountFeeBalance(amount, fee, balance) {
-    if (amount + fee > balance) {
-      this.setState({
-        error: <div>Cannot send amount bigger than balance + fee</div>,
-      });
-      return false;
-    }
-    return true;
-  }
-
   validAddresses(to, from) {
+    this.setState({ checking: <div>Validating To address</div> });
     if (!validateAddress(to)) {
       this.setState({ error: <div>To is not a valid ethereum address</div> });
       return false;
     }
+    this.setState({ checking: <div>Validating From address</div> });
     if (!validateAddress(from)) {
       this.setState({ error: <div>From is not a valid ethereum address</div> });
       return false;
@@ -138,19 +95,9 @@ export default class BtcTx extends Component {
   }
 
   validate = async () => {
-    const { fromSymbol } = this.props;
-    if (!fromSymbol || fromSymbol.toLowerCase() !== ETHER_SYMBOL_LOWER_CASED) {
-      return;
-    }
-
-    this.setState({ ...INITIAL_STATE, checking: true });
-    const { to, from, amount, balance, privateKey } = this.props;
-    if (
-      this.validDiffAddresses(to, from) &&
-      this.validAmount(amount) &&
-      this.validAmounBalance(amount, balance) &&
-      this.validAddresses(to, from)
-    ) {
+    this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
+    const { to, from, amount, privateKey } = this.props;
+    if (this.validAddresses(to, from)) {
       try {
         const { ether, wei, gwei } = await getTxInfo();
         await generateTx({ to, from, privateKey, amount });
@@ -171,6 +118,6 @@ export default class BtcTx extends Component {
         });
       }
     }
-    this.setState({ checking: false });
+    this.setState({ checking: null });
   };
 }

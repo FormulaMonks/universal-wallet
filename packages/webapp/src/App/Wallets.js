@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Header } from '../components';
-import { WalletsStore, CoinsStore } from '../stores';
+import { Header, WalletsStore, CoinsStore } from '../components';
 
 const getWalletValues = ({
   inputPrivateKey,
@@ -122,29 +121,26 @@ class Form extends Component {
 }
 
 class Wallets extends Component {
-  state = {
-    editWallet: null,
-  };
-
   render() {
     const {
       coins,
       coinsError,
       coinsLoading,
+      wallet,
       wallets,
       walletsError,
       walletsLoading,
+      walletPick,
     } = this.props;
-    const { editWallet } = this.state;
     const sortedList = wallets.sort((a, b) => b.lastModified - a.lastModified);
 
     return (
       <Fragment>
         {coinsError}
         {walletsError}
-        {editWallet ? (
+        {wallet ? (
           <Form
-            defaultValues={{ ...wallets.find(({ id }) => id === editWallet) }}
+            defaultValues={{ ...wallet }}
             coins={coins}
             onCancel={this.onEditCancel}
             onSubmit={this.onEdit}
@@ -166,7 +162,7 @@ class Wallets extends Component {
                 const modified = new Date(lastModified);
                 return (
                   <li key={`wallets-${id}`}>
-                    <button onClick={() => this.setState({ editWallet: id })}>
+                    <button onClick={() => walletPick(id)}>
                       Edit
                     </button>
                     <img alt={`${name}`} src={imageSmall} />
@@ -188,25 +184,25 @@ class Wallets extends Component {
   }
 
   onDelete = async id => {
-    await this.props.walletsDelete(id)
-    this.props.walletsGet();
+    const msg = 'You are about to delete a Wallet, this action cannot be undone. Are you sure?'
+    if (window.confirm(msg)) {
+      await this.props.walletsDelete(id);
+    }
   };
 
   onEdit = async form => {
-    await this.props.walletsPut(this.state.editWallet, getWalletValues(form))
+    await this.props.walletsPut(this.props.wallet.id, getWalletValues(form));
     form.reset();
-    this.props.walletsGet();
   };
 
   onEditCancel = e => {
     e.preventDefault();
-    this.setState({ editWallet: null });
+    this.props.walletRelease()
   };
 
   onNew = async form => {
-    await this.props.walletsPost(getWalletValues(form))
+    await this.props.walletsPost(getWalletValues(form));
     form.reset();
-    this.props.walletsGet();
   };
 }
 
