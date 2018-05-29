@@ -1,6 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { Header, WalletsStore, CoinsStore } from '../components';
-import { generateNewWallet } from '../utils/wallets';
+import {
+  generateNewWallet,
+  AVAILABLE_WALLET_GENERATION_COINS,
+} from '../utils/wallets';
 
 const getWalletValues = ({
   inputPrivateKey,
@@ -133,7 +136,6 @@ class Wallets extends Component {
       wallets,
       walletsError,
       walletsLoading,
-      walletPick,
     } = this.props;
     const { newWallet } = this.state;
 
@@ -151,7 +153,25 @@ class Wallets extends Component {
           />
         ) : (
           <Fragment>
-            <button onClick={this.onGenerate}>Generate new BTC Wallet</button>
+            <button onClick={this.onGenerate}>Generate new Wallet</button>
+            <select
+              defaultValue=""
+              onChange={this.onSelectCoinWalletGenerationChange}
+            >
+              <option
+                key="generate-wallet-coins-default"
+                disabled
+                value=""
+                hidden
+              >
+                Choose coin
+              </option>
+              {AVAILABLE_WALLET_GENERATION_COINS.map(({ name, symbol }) => (
+                <option key={`generate-wallet-coins-${symbol}`} value={symbol}>
+                  {name} ({symbol})
+                </option>
+              ))}
+            </select>
             <Form
               coins={coins}
               onSubmit={this.onNew}
@@ -211,12 +231,17 @@ class Wallets extends Component {
   };
 
   onGenerate = async () => {
-    const { privateKey, publicAddress, symbol } = generateNewWallet('BTC');
+    const { newSymbol } = this.state;
+    if (!newSymbol) {
+      return;
+    }
+
+    const { privateKey, publicAddress, symbol } = generateNewWallet(newSymbol);
     const newWallet = {
       privateKey,
       publicAddress,
       symbol,
-      alias: `A new BTC Wallet (${new Date().toLocaleString()})`,
+      alias: `A new ${newSymbol} Wallet (${new Date().toLocaleString()})`,
     };
     this.setState({ newWallet });
   };
@@ -225,6 +250,10 @@ class Wallets extends Component {
     await this.props.walletsPost(getWalletValues(form));
     this.setState({ newWallet: null });
     form.reset();
+  };
+
+  onSelectCoinWalletGenerationChange = e => {
+    this.setState({ newSymbol: e.currentTarget.value });
   };
 
   onWalletPick = walletId => {
