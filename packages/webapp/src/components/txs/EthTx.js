@@ -107,7 +107,6 @@ export default class EthTx extends Component {
               <div>Gas price: {gwei.price} gwei</div>
               <div>Gas limit: {wei.limit} wei</div>
               <div>Approximate fee: {ether.aproxFee} ether</div>
-              <div>Max fee: {ether.maxFee} ether</div>
             </Fragment>
           ),
           valid: true,
