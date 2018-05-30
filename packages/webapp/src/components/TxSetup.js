@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { CoinsView, TxStore, TxView } from './';
+import { CoinsView, CurrencyStore, CurrencyView, TxStore, TxView } from './';
 import { sort as sortContacts } from '../components/Contacts';
 import { sort as sortWallets } from '../components/Wallets';
 
@@ -73,6 +73,9 @@ export default class SetupTx extends Component {
               placeholder="amount"
               onBlur={this.onInputAmountBlur}
             />
+            <CurrencyStore balanceSymbol={wallet.symbol} balance={amount}>
+              <CurrencyView />
+            </CurrencyStore>
           </Fragment>
         )}
         <TxStore

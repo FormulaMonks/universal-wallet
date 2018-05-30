@@ -1,6 +1,7 @@
 export { Store as BalanceStore, View as BalanceView } from './Balance';
 export { Store as CoinsStore, View as CoinsView } from './Coins';
 export { Store as ContactsStore } from './Contacts';
+export { Store as CurrencyStore, View as CurrencyView } from './Currency';
 export {
   Store as TransactionsStore,
   View as TransactionsView,
