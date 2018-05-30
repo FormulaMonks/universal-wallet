@@ -4,6 +4,8 @@ import {
   BalanceView,
   CoinsStore,
   ContactsStore,
+  CurrencyStore,
+  CurrencyView,
   Header,
   TransactionsStore,
   TransactionsView,
@@ -19,6 +21,7 @@ const Home = props => (
     <WalletsView {...props} />
     <WalletView {...props} />
     <BalanceView {...props} />
+    <CurrencyView {...props} />
     <TxSetup {...props} />
     <TransactionsView {...props} />
   </Fragment>
@@ -27,16 +30,18 @@ const Home = props => (
 export default () => (
   <WalletsStore>
     <BalanceStore>
-      <TransactionsStore>
-        <CoinsStore>
-          <ContactsStore>
-            <TxStore>
-              <Header />
-              <Home />
-            </TxStore>
-          </ContactsStore>
-        </CoinsStore>
-      </TransactionsStore>
+      <CurrencyStore>
+        <TransactionsStore>
+          <CoinsStore>
+            <ContactsStore>
+              <TxStore>
+                <Header />
+                <Home />
+              </TxStore>
+            </ContactsStore>
+          </CoinsStore>
+        </TransactionsStore>
+      </CurrencyStore>
     </BalanceStore>
   </WalletsStore>
 );
