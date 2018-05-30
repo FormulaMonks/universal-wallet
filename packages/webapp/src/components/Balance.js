@@ -1,22 +1,18 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { BTC_TO_USD, BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
-import { fetchMarketInfo } from '../utils/ssTx';
 
 const INITIAL_STATE = {
   balance: null,
-  balanceCurrency: null,
   error: null,
-  errorCurrency: null,
-  hasBalance: false,
-  loading: true,
-  loadingCurrency: true,
+  loading: false,
 };
 
 export class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    this.check();
+    if (this.props.wallet) {
+      this.check();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -29,16 +25,9 @@ export class Store extends Component {
   }
 
   render() {
-    const {
-      balance,
-      balanceCurrency,
-      error,
-      errorCurrency,
-      hasBalance,
-      loading,
-      loadingCurrency,
-    } = this.state;
+    const { balance, error, loading } = this.state;
     const { children, ...rest } = this.props;
+    const { wallet } = rest;
 
     return (
       <Fragment>
@@ -46,19 +35,9 @@ export class Store extends Component {
           cloneElement(child, {
             ...rest,
             balance,
-            balanceHas: hasBalance,
+            balanceSymbol: wallet && wallet.symbol,
             balanceLoading: loading,
-            balanceError: error && (
-              <div>There was an error fetching the wallet balance: {error}</div>
-            ),
-            balanceCurrency: balanceCurrency,
-            balanceCurrencyLoading: loadingCurrency,
-            balanceErrorCurrency: errorCurrency && (
-              <div>
-                There was an error exchanging the balance to USD:{' '}
-                {errorCurrency}
-              </div>
-            ),
+            balanceError: error,
           }),
         )}
       </Fragment>
@@ -66,20 +45,17 @@ export class Store extends Component {
   }
 
   check = async () => {
-    this.setState({ ...INITIAL_STATE });
-    const { wallet } = this.props;
-    if (!wallet) {
-      return;
-    }
-    const { balanceURL, balanceProp, balanceUnit } = wallet;
-    if (!balanceURL || !balanceProp || !balanceUnit) {
-      return;
-    }
-    this.setState({ hasBalance: true });
-    this.getBalance();
+    this.setState({ ...INITIAL_STATE }, () => {
+      const { balanceURL, balanceProp, balanceUnit } = this.props.wallet;
+      if (!balanceURL || !balanceProp || !balanceUnit) {
+        return;
+      }
+      this.get();
+    });
   };
 
-  getBalance = async () => {
+  get = async () => {
+    this.setState({ loading: true });
     const {
       publicAddress,
       balanceURL,
@@ -91,61 +67,29 @@ export class Store extends Component {
       const data = await res.json();
       if (!data.hasOwnProperty(balanceProp)) {
         this.setState({
-          error: 'The response did not include the balance property',
+          error: <div>There was an error getting the wallet balance: the response did not include the balance property</div>,
         });
         return;
       }
       const balance = data[balanceProp] * balanceUnit;
-      this.setState({ balance, loading: false });
-      this.getBalanceCurrency(balance);
+      this.setState({ balance });
     } catch (e) {
-      this.setState({ error: e.toString() });
+      this.setState({
+        error: (
+          <div>There was an error getting the wallet balance: {e.toString()}</div>
+        ),
+      });
     }
-  };
-
-  getBalanceCurrency = async balance => {
-    // if not BTC get value in BTC
-    const { symbol } = this.props.wallet;
-    const symbolCased = symbol.toLowerCase();
-    let toBTC = 1;
-    if (symbolCased !== BITCOIN_SYMBOL_LOWER_CASED) {
-      const { rate } = await fetchMarketInfo(
-        symbolCased,
-        BITCOIN_SYMBOL_LOWER_CASED,
-      );
-      toBTC = rate;
-    }
-    const res = await fetch(BTC_TO_USD);
-    const { last: toUSD } = await res.json();
-    const balanceCurrency = balance * toBTC * toUSD;
-    this.setState({ balanceCurrency, loadingCurrency: false });
+    this.setState({ loading: false });
   };
 }
 
-export const View = ({
-  balance,
-  balanceCurrency,
-  balanceCurrencyLoading,
-  balanceError,
-  balanceErrorCurrency,
-  balanceHas,
-  balanceLoading,
-}) => {
+export const View = ({ balance, balanceError, balanceLoading }) => {
   return (
     <Fragment>
       {balanceError}
-      {balanceErrorCurrency}
-      {!balanceError && balanceHas && (
-        <Fragment>
-          <div>Balance</div>
-          {balanceLoading ? <div>loading</div> : <div>{balance}</div>}
-          {balanceCurrencyLoading ? (
-            <div>loading</div>
-          ) : (
-            <div>{balanceCurrency} USD</div>
-          )}
-        </Fragment>
-      )}
+      {balanceLoading && <div>loading</div>}
+      {balance && <div>Balance {balance}</div>}
     </Fragment>
   );
 };
