@@ -1,5 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { Header, WalletsStore, CoinsStore } from '../components';
+import {
+  generateNewWallet,
+  AVAILABLE_WALLET_GENERATION_COINS,
+} from '../utils/wallets';
 
 const getWalletValues = ({
   inputPrivateKey,
@@ -49,7 +53,7 @@ class Form extends Component {
         {onCancel && <button onClick={onCancel}>Cancel</button>}
         <input
           placeholder="Private Key (unencrypted)"
-          type="text"
+          type="password"
           name="inputPrivateKey"
           required
           defaultValue={privateKey}
@@ -121,6 +125,8 @@ class Form extends Component {
 }
 
 class Wallets extends Component {
+  state = { newWallet: null };
+
   render() {
     const {
       coins,
@@ -130,9 +136,8 @@ class Wallets extends Component {
       wallets,
       walletsError,
       walletsLoading,
-      walletPick,
     } = this.props;
-    const sortedList = wallets.sort((a, b) => b.lastModified - a.lastModified);
+    const { newWallet } = this.state;
 
     return (
       <Fragment>
@@ -147,13 +152,39 @@ class Wallets extends Component {
             btnLabel={'Save'}
           />
         ) : (
-          <Form coins={coins} onSubmit={this.onNew} btnLabel={'Add new'} />
+          <Fragment>
+            <button onClick={this.onGenerate}>Generate new Wallet</button>
+            <select
+              defaultValue=""
+              onChange={this.onSelectCoinWalletGenerationChange}
+            >
+              <option
+                key="generate-wallet-coins-default"
+                disabled
+                value=""
+                hidden
+              >
+                Choose coin
+              </option>
+              {AVAILABLE_WALLET_GENERATION_COINS.map(({ name, symbol }) => (
+                <option key={`generate-wallet-coins-${symbol}`} value={symbol}>
+                  {name} ({symbol})
+                </option>
+              ))}
+            </select>
+            <Form
+              coins={coins}
+              onSubmit={this.onNew}
+              btnLabel={'Add new'}
+              defaultValues={{ ...newWallet }}
+            />
+          </Fragment>
         )}
         {coinsLoading || walletsLoading ? (
           <div>loading</div>
         ) : (
           <ul>
-            {sortedList.map(
+            {wallets.map(
               ({ id, createdAt, lastModified, alias, symbol }, index) => {
                 const { name, imageSmall } = coins.find(
                   item => item.symbol === symbol,
@@ -162,9 +193,7 @@ class Wallets extends Component {
                 const modified = new Date(lastModified);
                 return (
                   <li key={`wallets-${id}`}>
-                    <button onClick={() => walletPick(id)}>
-                      Edit
-                    </button>
+                    <button onClick={() => this.onWalletPick(id)}>Edit</button>
                     <img alt={`${name}`} src={imageSmall} />
                     <div>{alias}</div>
                     <div>
@@ -184,7 +213,8 @@ class Wallets extends Component {
   }
 
   onDelete = async id => {
-    const msg = 'You are about to delete a Wallet, this action cannot be undone. Are you sure?'
+    const msg =
+      'You are about to delete a Wallet, this action cannot be undone. Are you sure?';
     if (window.confirm(msg)) {
       await this.props.walletsDelete(id);
     }
@@ -197,12 +227,38 @@ class Wallets extends Component {
 
   onEditCancel = e => {
     e.preventDefault();
-    this.props.walletRelease()
+    this.props.walletRelease();
+  };
+
+  onGenerate = async () => {
+    const { newSymbol } = this.state;
+    if (!newSymbol) {
+      return;
+    }
+
+    const { privateKey, publicAddress, symbol } = generateNewWallet(newSymbol);
+    const newWallet = {
+      privateKey,
+      publicAddress,
+      symbol,
+      alias: `A new ${newSymbol} Wallet (${new Date().toLocaleString()})`,
+    };
+    this.setState({ newWallet });
   };
 
   onNew = async form => {
     await this.props.walletsPost(getWalletValues(form));
+    this.setState({ newWallet: null });
     form.reset();
+  };
+
+  onSelectCoinWalletGenerationChange = e => {
+    this.setState({ newSymbol: e.currentTarget.value });
+  };
+
+  onWalletPick = walletId => {
+    this.setState({ newWallet: null });
+    this.props.walletPick(walletId);
   };
 }
 

@@ -99,6 +99,9 @@ export const View = ({
   if (!transactionsHas) {
     return null;
   }
+  if (transactionsError) {
+    return <div>{transactionsError}</div>
+  }
   return (
     <Fragment>
       {transactionsLoading ? (

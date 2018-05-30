@@ -135,7 +135,7 @@ export const View = ({
     <Fragment>
       {balanceError}
       {balanceErrorCurrency}
-      {balanceHas && (
+      {!balanceError && balanceHas && (
         <Fragment>
           <div>Balance</div>
           {balanceLoading ? <div>loading</div> : <div>{balance}</div>}
