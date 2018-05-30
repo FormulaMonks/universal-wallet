@@ -8,6 +8,11 @@ import {
 import { broadcast as btcBroadcast } from './btcTx';
 import { broadcast as ethBroadcast } from './ethTx';
 
+const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
+  BITCOIN_SYMBOL_LOWER_CASED,
+  ETHER_SYMBOL_LOWER_CASED,
+];
+
 export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
   const res = await fetch(
     `${SHAPESHIFT_MARKET_INFO}${fromSymbol.toLowerCase()}_${toSymbol.toLowerCase()}`,
@@ -20,7 +25,7 @@ export const validAddressSymbol = async (address, symbol) => {
   return await res.json();
 };
 
-export const postTx = async opts => {
+export const placeOrder = async opts => {
   const res = await fetch(SHAPESHIFT_SEND_AMOUNT, {
     method: 'POST',
     headers: {
@@ -32,19 +37,19 @@ export const postTx = async opts => {
   const tx = await res.json();
 
   if (tx.hasOwnProperty('error')) {
-    throw tx.error;
+    throw new Error(tx.error);
   }
   if (!tx.hasOwnProperty('success')) {
-    throw tx;
+    throw new Error(JSON.stringify(tx));
   }
   return tx.success;
 };
 
-// whitelist for txs that can be automated
-export const canBroadcast = () => false;
+export const canBroadcast = symbol =>
+  AVAILABLE_SYMBOLS_FOR_BROADCAST.includes(symbol.toLowerCase());
 
-export const broadcast = async ({ fromSymbol, params }) => {
+export const broadcast = async ({ fromSymbol, ...params }) => {
   return fromSymbol === ETHER_SYMBOL_LOWER_CASED
     ? ethBroadcast(params)
-    : btcBroadcast(params)
+    : btcBroadcast(params);
 };
