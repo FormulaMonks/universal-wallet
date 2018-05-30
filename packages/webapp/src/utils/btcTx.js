@@ -2,7 +2,9 @@ import bitcore from 'bitcore-lib';
 import { Insight } from 'bitcore-explorers';
 
 const { Address, Transaction } = bitcore;
-const insight = new Insight('testnet');
+const insight = process.env.REACT_APP_TESTNET
+  ? new Insight('testnet')
+  : new Insight();
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
 const getUnspentUtxos = address =>
