@@ -2,7 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
   broadcast,
   canBroadcast,
-  postTx,
+  placeOrder,
   validAddressSymbol,
   fetchMarketInfo,
 } from '../../utils/ssTx';
@@ -59,7 +59,7 @@ export default class SsTx extends Component {
         {Children.map(children, child =>
           cloneElement(child, {
             ...rest,
-            txBroadcast: this.broadcast,
+            txBroadcast: this.placeOrder,
             txBroadcasting: broadcasting,
             txValid: valid,
             txError: error,
@@ -72,26 +72,15 @@ export default class SsTx extends Component {
     );
   }
 
-  async getDepositInfo(opts) {
-    try {
-      return await postTx(opts);
-    } catch (e) {
-      this.setState({
-        error: (
-          <div>
-            The operation did not take place, there was an error:{' '}
-            {e.toString ? e.toString() : JSON.stringify(e)}
-          </div>
-        ),
-      });
-    }
-    return null;
-  }
+  // shapeshift flow:
+  // 1- place order: placeOrder
+  // 2- render order details: renderOrderInfo
+  //  2.1- if order cannot be broadcasted render details to manually do so
+  // 3- if order can be broadcasted do so: broadcastOrder
+  placeOrder = async () => {
+    this.setState({ broadcasting: <div>Placing order with ShapeShift</div> });
 
-  broadcast = async () => {
-    this.setState({ broadcasting: <div>Sending order to ShapeShift</div> });
-
-    const { to, toSymbol, from, fromSymbol, amount, privateKey } = this.props;
+    const { to, toSymbol, from, fromSymbol, amount } = this.props;
     const opts = {
       depositAmount: amount,
       withdrawal: to,
@@ -100,54 +89,81 @@ export default class SsTx extends Component {
     };
 
     try {
-      const {
-        orderId,
-        deposit,
-        expiration,
-        withdrawalAmount,
-        quotedRate,
-        pair,
-        minerFee,
-        maxLimit,
-      } = await this.getDepositInfo(opts);
-      const date = new Date(expiration);
-      const info = (
-        <Fragment>
-          <div>Order Id: {orderId}</div>
-          <div>Pair: {pair}</div>
-          <div>Miner Fee: {minerFee}</div>
-          <div>Max Limit: {maxLimit}</div>
-          <div>Amount to receive: {withdrawalAmount}</div>
-          <div>Quoted rate: {quotedRate}</div>
-        </Fragment>
-      );
-      this.setState({ info });
-      if (canBroadcast(fromSymbol)) {
-        this.setState({ broadcasting: <div>Broadcasting transaction</div> });
-        const txId = await broadcast({ to: deposit, from, privateKey, amount });
-        this.setState({ txId, broadcasting: null });
-      } else {
-        this.setState({
-          broadcasting: (
-            <Fragment>
-              <div>Cannot broadcast transaction, must be done manually.</div>
-              <div>
-                Send {amount} {fromSymbol} to {deposit} by {date.toLocaleString()}
-              </div>
-            </Fragment>
-          ),
-        });
-      }
+      const ssOrder = await placeOrder(opts);
+      this.renderOrderInfo(ssOrder);
     } catch (e) {
       this.setState({
         error: (
           <div>
-            There was an error: {e.toString ? e.toString() : JSON.stringify(e)}
+            There was an error placing the order with ShapeShift:{' '}
+            {e.toString ? e.toString() : JSON.stringify(e)}
           </div>
         ),
-        broadcasting: (
-          <div>The transaction to ShapeShift was not broadcasted</div>
-        ),
+        broadcasting: <div>The transaction did not take place</div>,
+      });
+    }
+  };
+
+  renderOrderInfo = async ({
+    orderId,
+    deposit,
+    expiration,
+    withdrawalAmount,
+    quotedRate,
+    pair,
+    minerFee,
+    maxLimit,
+  }) => {
+    const { from, fromSymbol, privateKey, amount } = this.props;
+
+    const date = new Date(expiration);
+    const info = (
+      <Fragment>
+        <div>Pair: {pair}</div>
+        <div>Quoted rate: {quotedRate}</div>
+        <div>Miner Fee: {minerFee}</div>
+        <div>Max Limit: {maxLimit}</div>
+        <div>Amount to receive: {withdrawalAmount}</div>
+        <div>Order Id: {orderId}</div>
+      </Fragment>
+    );
+    this.setState({
+      info,
+      broadcasting: !canBroadcast(fromSymbol) && (
+        <Fragment>
+          <div>Cannot broadcast transaction, must be done manually:</div>
+          <div>
+            Send {amount} {fromSymbol} to {deposit} by {date.toLocaleString()}
+          </div>
+        </Fragment>
+      ),
+    });
+
+    canBroadcast(fromSymbol) &&
+      this.broadcastOrder({
+        to: deposit,
+        from,
+        privateKey,
+        amount,
+        fromSymbol,
+      });
+  };
+
+  broadcastOrder = async ({ to, from, fromSymbol, privateKey, amount }) => {
+    this.setState({ broadcasting: <div>Broadcasting transaction</div> });
+    try {
+      const txId = await broadcast({
+        fromSymbol,
+        to,
+        from,
+        privateKey,
+        amount,
+      });
+      this.setState({ txId, broadcasting: <div>Transaction broadcasted</div> });
+    } catch (e) {
+      this.setState({
+        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
+        broadcasting: <div>The transaction was not broadcasted</div>,
       });
     }
   };
