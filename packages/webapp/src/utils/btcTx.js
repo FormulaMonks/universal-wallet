@@ -8,12 +8,12 @@ const insight = process.env.REACT_APP_TESTNET
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
 const getUnspentUtxos = address =>
-  new Promise(r =>
+  new Promise((resolve, reject) =>
     insight.getUnspentUtxos(address, (err, utxos) => {
       if (err) {
-        throw new Error(`Could not get unspent utxos: ${err}`);
+        reject(`Could not get unspent utxos: ${err}`);
       }
-      r(utxos);
+      resolve(utxos);
     }),
   );
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
@@ -30,12 +30,12 @@ const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   return tx;
 };
 const broadcastTx = tx =>
-  new Promise(r =>
+  new Promise((resolve, reject) =>
     insight.broadcast(tx.toString(), (err, txId) => {
       if (err) {
-        throw new Error(`Could not broadcast transaction: ${err}`);
+        reject(`Could not broadcast transaction: ${err}`);
       }
-      r(txId);
+      resolve(txId);
     }),
   );
 
