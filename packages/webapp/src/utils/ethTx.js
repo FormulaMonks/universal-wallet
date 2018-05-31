@@ -23,7 +23,15 @@ const sendTx = async tx =>
     }),
   );
 
-export const createAccount = () => eth.accounts.create();
+export const generateEthWallet = () => {
+  const { address: publicAddress, privateKey } = eth.accounts.create();
+
+  return {
+    privateKey,
+    publicAddress,
+    symbol: ETHER_SYMBOL_LOWER_CASED,
+  };
+};
 
 export const getTxInfo = async () => {
   const priceInWei = await eth.getGasPrice();
