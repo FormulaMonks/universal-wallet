@@ -21,13 +21,5 @@ export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
 
 export const ETHER_SYMBOL_LOWER_CASED = 'eth';
 
-export const INFURA_URL = process.env.REACT_APP_TESTNET
-  ? 'https://rinkeby.infura.io/'
-  : 'https://mainnet.infura.io/';
+export const BITCOIN_CASH_SYMBOL_LOWER_CASED = 'bch';
 
-export const INFURA_NETWORK = `${INFURA_URL}${
-  process.env.REACT_APP_INFURA_API_KEY
-}`;
-
-// chainId - mainnet: 1, rinkeby: 4
-export const INFURA_CHAIN_ID = process.env.REACT_APP_TESTNET ? 4 : 1;

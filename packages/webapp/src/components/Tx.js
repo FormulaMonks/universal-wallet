@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { TxStore, SsTxStore, BtcTxStore, EthTxStore } from './txs';
+import { TxStore, SsTxStore, BtcTxStore, BchTxStore, EthTxStore } from './txs';
 
 export const View = ({
   txId,
@@ -16,7 +16,8 @@ export const View = ({
     {txInfo}
     {txBroadcasting}
     {txValid &&
-      !txBroadcasting && !txId && (
+      !txBroadcasting &&
+      !txId && (
         <Fragment>
           <div>Tx can take place</div>
           <button onClick={txBroadcast}>Send Tx</button>
@@ -30,7 +31,9 @@ export const Store = ({ children, ...props }) => (
   <TxStore {...props}>
     <SsTxStore>
       <BtcTxStore>
-        <EthTxStore children={children} />
+        <BchTxStore>
+          <EthTxStore children={children} />
+        </BchTxStore>
       </BtcTxStore>
     </SsTxStore>
   </TxStore>

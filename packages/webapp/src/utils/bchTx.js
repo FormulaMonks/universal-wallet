@@ -1,11 +1,12 @@
-import bitcore from 'bitcore-lib';
+import bch from 'bitcoincashjs';
 import { Insight } from 'bitcore-explorers';
-import { BITCOIN_SYMBOL_LOWER_CASED } from './constants'
+import { BITCOIN_CASH_SYMBOL_LOWER_CASED } from './constants';
 
-const { Address, Transaction } = bitcore;
+const TESTNET = process.env.REACT_APP_TESTNET ? 'testnet' : 'livenet';
+const { Address, PrivateKey, Transaction } = bch;
 const insight = process.env.REACT_APP_TESTNET
-  ? new Insight('testnet')
-  : new Insight();
+  ? new Insight('https://test-bch-insight.bitpay.com')
+  : new Insight('https://bch-insight.bitpay.com');
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
 const getUnspentUtxos = address =>
@@ -18,8 +19,16 @@ const getUnspentUtxos = address =>
     }),
   );
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
+  const mappedUtxos = utxos.map(
+    ({ address, txid, vout, scriptPubKey, satoshis }) => ({
+      txid,
+      vout,
+      scriptPubKey,
+      satoshis,
+    }),
+  );
   const tx = Transaction();
-  tx.from(utxos);
+  tx.from(mappedUtxos);
   tx.to(toAddress, toSatoshi(amount));
   tx.change(fromAddress);
   try {
@@ -40,25 +49,22 @@ const broadcastTx = tx =>
     }),
   );
 
-export const generateBtcWallet = () => {
-  const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
-  const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
-  const privateKey = new bitcore.PrivateKey(randNum);
+export const generateBchWallet = () => {
+  const privateKey = new PrivateKey(TESTNET);
   const publicAddress = privateKey.toAddress();
 
   return {
-    privateKey,
-    publicAddress,
-    symbol: BITCOIN_SYMBOL_LOWER_CASED,
+    privateKey: privateKey.toString(),
+    publicAddress: publicAddress.toString(),
+    symbol: BITCOIN_CASH_SYMBOL_LOWER_CASED,
   };
 };
 
-
-export const validateAddress = Address.isValid;
+export const validateAddress = address => Address.isValid(address, TESTNET);
 
 export const fetchFee = async ({ to, from, privateKey, amount }) => {
-  const fromAddress = Address.fromString(from);
-  const toAddress = Address.fromString(to);
+  const fromAddress = Address.fromString(from, TESTNET);
+  const toAddress = Address.fromString(to, TESTNET);
   const utxos = await getUnspentUtxos(fromAddress);
   const tx = generateTx({
     utxos,
@@ -75,8 +81,8 @@ export const fetchFee = async ({ to, from, privateKey, amount }) => {
 };
 
 export const broadcast = async ({ to, from, privateKey, amount }) => {
-  const fromAddress = Address.fromString(from);
-  const toAddress = Address.fromString(to);
+  const fromAddress = Address.fromString(from, TESTNET);
+  const toAddress = Address.fromString(to, TESTNET);
   const utxos = await getUnspentUtxos(fromAddress);
   const tx = generateTx({
     utxos,
@@ -85,5 +91,6 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
     privateKey,
     amount,
   });
-  return await broadcastTx(tx);
+  const { result } = await broadcastTx(tx);
+  return result;
 };
