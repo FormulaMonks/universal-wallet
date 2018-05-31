@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "homepage": "https://universal-wallet.surge.sh",
   "dependencies": {
+    "bitcoincashjs": "^0.1.10",
     "bitcore-explorers": "^1.0.1",
     "bitcore-lib": "^0.15.0",
     "blockstack": "^17.2.0",
