@@ -21,6 +21,8 @@ export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
 
 export const ETHER_SYMBOL_LOWER_CASED = 'eth';
 
+export const BITCOIN_CASH_SYMBOL_LOWER_CASED = 'bch';
+
 export const INFURA_URL = process.env.REACT_APP_TESTNET
   ? 'https://rinkeby.infura.io/'
   : 'https://mainnet.infura.io/';
