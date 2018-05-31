@@ -1,5 +1,6 @@
 import bitcore from 'bitcore-lib';
 import { Insight } from 'bitcore-explorers';
+import { BITCOIN_SYMBOL_LOWER_CASED } from './constants'
 
 const { Address, Transaction } = bitcore;
 const insight = process.env.REACT_APP_TESTNET
@@ -38,6 +39,20 @@ const broadcastTx = tx =>
       resolve(txId);
     }),
   );
+
+export const generateBtcWallet = () => {
+  const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
+  const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
+  const privateKey = new bitcore.PrivateKey(randNum);
+  const publicAddress = privateKey.toAddress();
+
+  return {
+    privateKey,
+    publicAddress,
+    symbol: BITCOIN_SYMBOL_LOWER_CASED,
+  };
+};
+
 
 export const validateAddress = Address.isValid;
 
