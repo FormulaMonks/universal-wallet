@@ -1,5 +1,12 @@
 import React, { Fragment } from 'react';
-import { TxStore, SsTxStore, BtcTxStore, BchTxStore, EthTxStore } from './txs';
+import {
+  TxStore,
+  SsTxStore,
+  BtcTxStore,
+  BchTxStore,
+  BlkTxStore,
+  EthTxStore,
+} from './txs';
 
 export const View = ({
   txId,
@@ -32,7 +39,9 @@ export const Store = ({ children, ...props }) => (
     <SsTxStore>
       <BtcTxStore>
         <BchTxStore>
-          <EthTxStore children={children} />
+          <BlkTxStore>
+            <EthTxStore children={children} />
+          </BlkTxStore>
         </BchTxStore>
       </BtcTxStore>
     </SsTxStore>
