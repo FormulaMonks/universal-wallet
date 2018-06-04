@@ -4,11 +4,16 @@ import {
   SHAPESHIFT_MARKET_INFO,
 } from './constants';
 import { broadcast as btcBroadcast, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
+import {
+  broadcast as bchBroadcast,
+  BITCOIN_CASH_SYMBOL_LOWER_CASED,
+} from './bch';
 import { broadcast as ethBroadcast, ETHER_SYMBOL_LOWER_CASED } from './eth';
 
 console.log('Add symbols with transacionts here');
 const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
   BITCOIN_SYMBOL_LOWER_CASED,
+  BITCOIN_CASH_SYMBOL_LOWER_CASED,
   ETHER_SYMBOL_LOWER_CASED,
 ];
 
@@ -50,5 +55,7 @@ export const canBroadcast = symbol =>
 export const broadcast = async ({ fromSymbol, ...params }) => {
   return fromSymbol === ETHER_SYMBOL_LOWER_CASED
     ? ethBroadcast(params)
-    : btcBroadcast(params);
+    : fromSymbol === BITCOIN_CASH_SYMBOL_LOWER_CASED
+      ? bchBroadcast(params)
+      : btcBroadcast(params);
 };
