@@ -58,7 +58,6 @@ export const generateBtcWallet = () => {
   };
 };
 
-
 export const validateAddress = Address.isValid;
 
 export const fetchFee = async ({ to, from, privateKey, amount }) => {
