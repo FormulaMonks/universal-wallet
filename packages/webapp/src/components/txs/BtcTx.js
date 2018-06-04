@@ -1,6 +1,10 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { broadcast, fetchFee, validateAddress } from '../../utils/btcTx';
-import { BITCOIN_SYMBOL_LOWER_CASED } from '../../utils/constants';
+import {
+  BITCOIN_SYMBOL_LOWER_CASED,
+  broadcast,
+  fetchFee,
+  validateAddress,
+} from '../../utils/btc';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -36,12 +40,7 @@ export default class BtcTx extends Component {
     const { children, ...rest } = this.props;
     const { txError, txValid, txChecking } = rest;
 
-    if (
-      !txValid ||
-      txError ||
-      txChecking ||
-      !txValidProps(this.props)
-    ) {
+    if (!txValid || txError || txChecking || !txValidProps(this.props)) {
       return (
         <Fragment>
           {Children.map(children, child => cloneElement(child, { ...rest }))}
@@ -81,7 +80,9 @@ export default class BtcTx extends Component {
   };
 
   validAmountFeeBalance(amount, fee, balance) {
-    this.setState({ checking: <div>{'Validating Amount + Fee < Balance'}</div> });
+    this.setState({
+      checking: <div>{'Validating Amount + Fee < Balance'}</div>,
+    });
     if (amount + fee > balance) {
       this.setState({
         error: <div>Cannot send amount bigger than balance + fee</div>,
