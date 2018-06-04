@@ -1,14 +1,15 @@
 import bch from 'bitcoincashjs';
 import { Insight } from 'bitcore-explorers';
-import { BITCOIN_CASH_SYMBOL_LOWER_CASED } from './constants';
 
 const TESTNET = process.env.REACT_APP_TESTNET ? 'testnet' : 'livenet';
 const { Address, PrivateKey, Transaction } = bch;
 const insight = process.env.REACT_APP_TESTNET
   ? new Insight('https://test-bch-insight.bitpay.com')
   : new Insight('https://bch-insight.bitpay.com');
+
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
+
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
     insight.getUnspentUtxos(address, (err, utxos) => {
@@ -18,6 +19,7 @@ const getUnspentUtxos = address =>
       resolve(utxos);
     }),
   );
+
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   const mappedUtxos = utxos.map(
     ({ address, txid, vout, scriptPubKey, satoshis }) => ({
@@ -39,6 +41,7 @@ const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   }
   return tx;
 };
+
 const broadcastTx = tx =>
   new Promise((resolve, reject) =>
     insight.broadcast(tx.toString(), (err, txId) => {
@@ -48,6 +51,8 @@ const broadcastTx = tx =>
       resolve(txId);
     }),
   );
+
+export const BITCOIN_CASH_SYMBOL_LOWER_CASED = 'bch'
 
 export const generateBchWallet = () => {
   const privateKey = new PrivateKey(TESTNET);
