@@ -1,10 +1,10 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
+  BITCOIN_GOLD_SYMBOL_LOWER_CASED,
   broadcast,
   fetchFee,
   validateAddress,
-} from '../../utils/bch';
+} from '../../utils/btg';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -17,12 +17,12 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === BITCOIN_CASH_SYMBOL_LOWER_CASED &&
-  fromSymbol.toLowerCase() === BITCOIN_CASH_SYMBOL_LOWER_CASED;
+  toSymbol.toLowerCase() === BITCOIN_GOLD_SYMBOL_LOWER_CASED &&
+  fromSymbol.toLowerCase() === BITCOIN_GOLD_SYMBOL_LOWER_CASED;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
-export default class BchTx extends Component {
+export default class BtgTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -95,12 +95,12 @@ export default class BchTx extends Component {
   validAddresses(to, from) {
     this.setState({ checking: <div>Validating To address</div> });
     if (!validateAddress(to)) {
-      this.setState({ error: <div>To is not a valid bitcoin address</div> });
+      this.setState({ error: <div>To is not a valid bitcoin gold address</div> });
       return false;
     }
     this.setState({ checking: <div>Validating From address</div> });
     if (!validateAddress(from)) {
-      this.setState({ error: <div>From is not a valid bitcoin address</div> });
+      this.setState({ error: <div>From is not a valid bitcoin gold address</div> });
       return false;
     }
     return true;

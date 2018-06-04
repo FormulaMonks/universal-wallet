@@ -1,11 +1,11 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
+  ETHER_SYMBOL_LOWER_CASED,
   broadcast,
   validateAddress,
   generateTx,
   getTxInfo,
-} from '../../utils/ethTx';
-import { ETHER_SYMBOL_LOWER_CASED } from '../../utils/constants';
+} from '../../utils/eth';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {

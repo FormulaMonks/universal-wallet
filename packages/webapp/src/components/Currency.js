@@ -1,5 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { BTC_TO_USD, BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
+import { BTC_TO_USD } from '../utils/constants';
+import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/btc';
 import { fetchMarketInfo } from '../utils/ssTx';
 
 const INITIAL_STATE = {
@@ -82,7 +83,9 @@ export class Store extends Component {
       const res = await fetch(BTC_TO_USD);
       const { last: toUSD } = await res.json();
       const currency = balance * toBTC * toUSD;
-      this.setState({ currency });
+      if (!isNaN(currency)) {
+        this.setState({ currency });
+      }
     } catch (e) {
       this.setState({
         error: (
