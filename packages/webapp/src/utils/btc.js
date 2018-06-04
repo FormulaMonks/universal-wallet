@@ -1,13 +1,14 @@
 import bitcore from 'bitcore-lib';
 import { Insight } from 'bitcore-explorers';
-import { BITCOIN_SYMBOL_LOWER_CASED } from './constants'
 
 const { Address, Transaction } = bitcore;
 const insight = process.env.REACT_APP_TESTNET
   ? new Insight('testnet')
   : new Insight();
+
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
+
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
     insight.getUnspentUtxos(address, (err, utxos) => {
@@ -17,6 +18,7 @@ const getUnspentUtxos = address =>
       resolve(utxos);
     }),
   );
+
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   const tx = Transaction();
   tx.from(utxos);
@@ -30,6 +32,7 @@ const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   }
   return tx;
 };
+
 const broadcastTx = tx =>
   new Promise((resolve, reject) =>
     insight.broadcast(tx.toString(), (err, txId) => {
@@ -39,6 +42,8 @@ const broadcastTx = tx =>
       resolve(txId);
     }),
   );
+
+export const BITCOIN_SYMBOL_LOWER_CASED = 'btc'
 
 export const generateBtcWallet = () => {
   const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
