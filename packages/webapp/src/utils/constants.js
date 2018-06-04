@@ -16,10 +16,3 @@ export const SHAPESHIFT_SHIFT = `${SHAPESHIFT}shift/`;
 export const SHAPESHIFT_SEND_AMOUNT = `${SHAPESHIFT}sendamount/`;
 
 export const SHAPESHIFT_VALIDATE_ADDRESS = `${SHAPESHIFT}validateAddress/`;
-
-export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
-
-export const ETHER_SYMBOL_LOWER_CASED = 'eth';
-
-export const BITCOIN_CASH_SYMBOL_LOWER_CASED = 'bch';
-

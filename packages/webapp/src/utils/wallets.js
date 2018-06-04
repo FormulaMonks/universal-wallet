@@ -1,11 +1,7 @@
-import {
-  BITCOIN_SYMBOL_LOWER_CASED,
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
-  ETHER_SYMBOL_LOWER_CASED,
-} from './constants';
-import { generateBtcWallet } from './btcTx';
-import { generateBchWallet } from './bchTx';
-import { generateEthWallet } from './ethTx';
+import { generateBtcWallet, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
+import { generateBchWallet, BITCOIN_CASH_SYMBOL_LOWER_CASED } from './bch';
+import { generateEthWallet, ETHER_SYMBOL_LOWER_CASED } from './eth';
+import { generateBtgWallet, BITCOIN_GOLD_SYMBOL_LOWER_CASED } from './btg';
 
 export const AVAILABLE_WALLET_GENERATORS = [
   {
@@ -22,6 +18,11 @@ export const AVAILABLE_WALLET_GENERATORS = [
     name: 'Ethereum',
     symbol: ETHER_SYMBOL_LOWER_CASED,
     method: generateEthWallet,
+  },
+  {
+    name: 'Bitcoin Gold',
+    symbol: BITCOIN_GOLD_SYMBOL_LOWER_CASED,
+    method: generateBtgWallet,
   },
 ];
 
