@@ -1,0 +1,41 @@
+{
+  "name": "blockstack-link",
+  "description": "Blockstack link",
+  "homepage": "./",
+  "main": "electron/main.js",
+  "version": "0.0.1",
+  "author": "Gorka",
+  "private": true,
+  "dependencies": {
+    "localtunnel": "^1.9.0",
+    "qr-encode": "^0.3.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.1.1"
+  },
+  "devDependencies": {
+    "electron": "^1.8.2",
+    "electron-builder": "^20.2.0",
+    "foreman": "^2.0.0"
+  },
+  "scripts": {
+    "start": "nf start -p 3000",
+    "electron-start": "node src/electron-wait-react",
+    "react-start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "ebuild": "npm run build && node_modules/.bin/build"
+  },
+  "build": {
+    "extends": null,
+    "productName": "Blockstack link",
+    "appId": "net.aquigorka.blockstack.link",
+    "electronVersion": "1.8.2",
+    "files": [
+      "build/**/*",
+      "electron/*"
+    ]
+  }
+}

@@ -9,6 +9,7 @@ export {
 export { Store as TxStore, View as TxView } from './Tx';
 export { Store as WalletsStore, View as WalletsView } from './Wallets';
 export { default as Auth } from './Auth';
+export { default as BlockstackLink } from './BlockstackLink'
 export { default as Header } from './Header';
 export { default as TxSetup } from './TxSetup';
 export { default as WalletView } from './Wallet';

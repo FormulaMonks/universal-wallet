@@ -5,6 +5,7 @@ import {
   isUserSignedIn,
   redirectToSignIn,
 } from 'blockstack';
+import { BlockstackLink } from './'
 
 const LOADING = 'checking current state';
 const LOGGED_IN = 'logged in';
@@ -28,13 +29,19 @@ export default class Auth extends Component {
       <Fragment>
         {auth === LOADING && <div>Loading</div>}
         {auth === LOGGED_IN && this.props.children}
-        {auth === LOGGED_OUT && <button onClick={this.onSignIn}>Sign in</button>}
+        {auth === LOGGED_OUT && (
+          <Fragment>
+            <button onClick={this.onSignIn}>Sign in</button>
+            <BlockstackLink />
+          </Fragment>
+        )}
       </Fragment>
     );
   }
 
   onSignIn = () => {
     const url = document.location.href;
-    redirectToSignIn(url, document.location.origin + '/manifest.json');
+    const manifest = document.location.origin + '/manifest.json';
+    redirectToSignIn(url, manifest);
   };
 }
