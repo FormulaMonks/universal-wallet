@@ -21,7 +21,8 @@ class Store extends Component {
   componentDidUpdate(prevProps) {
     if (
       prevProps.balance !== this.props.balance ||
-      prevProps.balanceSymbol !== this.props.balanceSymbol
+      prevProps.balanceSymbol !== this.props.balanceSymbol ||
+      prevProps.balanceError !== this.props.balanceError
     ) {
       this.check();
     }
@@ -47,8 +48,19 @@ class Store extends Component {
 
   check = async () => {
     this.setState({ ...INITIAL_STATE }, () => {
-      const { balance, balanceSymbol } = this.props;
-      if ((!balance && balance !== 0) || !balanceSymbol) {
+      const { balance, balanceSymbol, balanceError } = this.props;
+      if (balanceError) {
+        this.setState({
+          error: <div>Currently unavailable</div>,
+          loading: false,
+        });
+        return;
+      }
+      if (balance === 0) {
+        this.setState({ currency: 0, loading: false });
+        return;
+      }
+      if (!balance || !balanceSymbol) {
         return;
       }
       this.get();
@@ -70,12 +82,7 @@ class Store extends Component {
         toBTC = rate;
       } catch (e) {
         this.setState({
-          error: (
-            <div>
-              There was an error getting the exchange rate to BTC:{' '}
-              {e.toString()}
-            </div>
-          ),
+          error: <div>Currently unavailable</div>,
           loading: false,
         });
         return;
