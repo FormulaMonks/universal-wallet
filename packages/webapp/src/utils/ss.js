@@ -1,8 +1,3 @@
-import {
-  SHAPESHIFT_SEND_AMOUNT,
-  SHAPESHIFT_VALIDATE_ADDRESS,
-  SHAPESHIFT_MARKET_INFO,
-} from './constants';
 import { broadcast as btcBroadcast, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
 import {
   broadcast as bchBroadcast,
@@ -16,6 +11,18 @@ const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
   BITCOIN_CASH_SYMBOL_LOWER_CASED,
   ETHER_SYMBOL_LOWER_CASED,
 ];
+
+export const SHAPESHIFT = 'https://shapeshift.io/';
+
+export const SHAPESHIFT_MARKET_INFO = `${SHAPESHIFT}marketinfo/`;
+
+export const SHAPESHIFT_GETCOINS = `${SHAPESHIFT}getcoins/`;
+
+export const SHAPESHIFT_SHIFT = `${SHAPESHIFT}shift/`;
+
+export const SHAPESHIFT_SEND_AMOUNT = `${SHAPESHIFT}sendamount/`;
+
+export const SHAPESHIFT_VALIDATE_ADDRESS = `${SHAPESHIFT}validateAddress/`;
 
 export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
   const res = await fetch(
