@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Header, ContactsStore, CoinsStore } from '../components';
+import { NavHeader, ContactsStore, CoinsStore } from '../components';
 
 const getFormValues = ({ inputAlias, inputPublicAddress, inputSymbol }) => {
   return {
@@ -145,7 +145,7 @@ class Contacts extends Component {
 
 export default () => (
   <Fragment>
-    <Header />
+    <NavHeader />
     <CoinsStore>
       <ContactsStore>
         <Contacts />
