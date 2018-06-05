@@ -20,6 +20,7 @@ export {
   View as CurrencyView,
 } from './Currency';
 export { default as Header } from './Header';
+export { default as NavHeader } from './NavHeader';
 export { default as Spinner } from './Spinner';
 export { default as TxSetup } from './TxSetup';
 export { default as WalletView } from './Wallet';
