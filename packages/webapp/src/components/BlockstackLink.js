@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import QrR from 'react-qr-reader';
+import { Button, Center } from '../theme'
 
 export default class BlockstackLink extends Component {
   state = { mode: null, url: null };
@@ -13,12 +14,12 @@ export default class BlockstackLink extends Component {
           window.location = url;
         }, 3000);
         return (
-          <div>In short you will be redirected to setup your Blockstack info</div>
+          <Center>In short you will be redirected to setup your Blockstack info</Center>
         );
       }
 
       localStorage.setItem('BLOCKSTACK_LINK', url);
-      return <div>The link has been set, you are ready to sign in.</div>;
+      return <Center>The link has been set, you are ready to sign in.</Center>;
     }
 
     if (mode) {
@@ -37,8 +38,8 @@ export default class BlockstackLink extends Component {
 
     return (
       <Fragment>
-        <button onClick={() => this.setState({ mode: 'setup' })}>Setup</button>
-        <button onClick={() => this.setState({ mode: 'link' })}>Link</button>
+        <Button onClick={() => this.setState({ mode: 'link' })}>Link your device</Button>
+        <Button onClick={() => this.setState({ mode: 'setup' })}>Setup Blockstack Link</Button>
       </Fragment>
     );
   }
