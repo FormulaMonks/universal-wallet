@@ -28,7 +28,11 @@ export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
   const res = await fetch(
     `${SHAPESHIFT_MARKET_INFO}${fromSymbol.toLowerCase()}_${toSymbol.toLowerCase()}`,
   );
-  return await res.json();
+  const response = await res.json();
+  if (response.hasOwnProperty('error')) {
+    throw new Error(response.error);
+  }
+  return response;
 };
 
 export const validAddressSymbol = async (address, symbol) => {
