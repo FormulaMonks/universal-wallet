@@ -49,6 +49,10 @@ class Store extends Component {
     this.setState({ ...INITIAL_STATE }, () => {
       const { balanceURL, balanceProp, balanceUnit } = this.props.wallet;
       if (!balanceURL || !balanceProp || !balanceUnit) {
+        this.setState({
+          error: <div>Currently unavailable</div>,
+          loading: false,
+        });
         return;
       }
       this.get();
@@ -81,11 +85,7 @@ class Store extends Component {
       this.setState({ balance });
     } catch (e) {
       this.setState({
-        error: (
-          <div>
-            There was an error getting the wallet balance: {e.toString()}
-          </div>
-        ),
+        error: <div>Currently unavailable</div>,
       });
     }
     this.setState({ loading: false });
@@ -101,7 +101,11 @@ const View = ({ balance, balanceSymbol, balanceError, balanceLoading }) => {
     <Fragment>
       {balanceError}
       {balanceLoading && '.'}
-      {balance && <Fragment>{balanceSymbol} {balance}</Fragment>}
+      {balance && (
+        <Fragment>
+          {balanceSymbol} {balance}
+        </Fragment>
+      )}
     </Fragment>
   );
 };
