@@ -5,7 +5,7 @@ import {
   placeOrder,
   validAddressSymbol,
   fetchMarketInfo,
-} from '../../utils/ssTx';
+} from '../../utils/ss';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
