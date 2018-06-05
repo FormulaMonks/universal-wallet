@@ -1,27 +1,111 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
-import { WALLETS_JSON } from '../utils/constants';
-import composeStore from '../utils/composeStore';
+import styled from 'styled-components';
+import Compose from '../components/Compose';
+import { Spinner, Balance, BalanceStore, Currency } from '../components';
+import { Ul } from '../theme';
+import { SHAPESHIFT } from '../utils/ss';
+
+const WALLETS_JSON = 'wallets.json';
+
+const Li = styled.li`
+  margin: 1em 0;
+  padding: 0.5em;
+
+  &:nth-child(odd){
+    background: rgba(200, 200, 200, 0.1)
+  }
+`;
+
+const Button = styled.div`
+  display: block;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-gap: 0.5em;
+`;
+
+const Leaders = styled.div`
+  display: flex;
+  margin: 1em 0;
+  margin-right: 2em;
+  font-size: 12px;
+`;
+
+const Dots = styled.div`
+  flex-grow: 1;
+  margin: 0 0.5em;
+  border-bottom: 1px dashed #DDD;
+  position: relative;
+  top: -4px;
+`;
+
+const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
+  if (coinsLoading) {
+    return null;
+  }
+
+  const { imageSmall } = coins.find(c => c.symbol === symbol);
+  if (!imageSmall) {
+    return null;
+  }
+
+  const url = `${SHAPESHIFT}${imageSmall}`;
+  return <img src={url} alt={symbol} />;
+};
+
+const CardContent = styled.div``;
 
 export const sort = (a, b) => a.alias.localeCompare(b.alias);
 
-export const View = ({ wallets, walletsError, walletsLoading, walletPick }) => (
+const CurrencyWrap = props => {
+  return <Currency {...props} />;
+};
+
+export const View = ({
+  wallets,
+  walletsError,
+  walletsLoading,
+  walletPick,
+  ...rest
+}) => (
   <Fragment>
     {walletsError}
     {walletsLoading ? (
-      <div>loading</div>
+      <Spinner />
     ) : (
-      <select defaultValue="" onChange={e => walletPick(e.currentTarget.value)}>
-        <option disabled value="" hidden>
-          Wallet
-        </option>
-        {wallets.map(({ id, alias }) => (
-          <option key={`wallets-${id}`} value={id}>
-            {alias}
-          </option>
-        ))}
-      </select>
+      <Ul>
+        {wallets.map(wallet => {
+          const { id, alias, symbol } = wallet;
+
+          return (
+            <Li key={`wallets-${id}`}>
+              <Button>
+                <ImgSymbol symbol={symbol} {...rest} />
+                <CardContent>
+                  <div>{alias}</div>
+                  <Leaders>
+                    <div>Balance</div>
+                    <Dots />
+                    <div>
+                      <Balance wallet={wallet} />
+                    </div>
+                  </Leaders>
+                  <Leaders>
+                    <div>USD</div>
+                    <Dots />
+                    <BalanceStore wallet={wallet}>
+                      <Currency />
+                    </BalanceStore>
+                  </Leaders>
+                </CardContent>
+              </Button>
+            </Li>
+          );
+        })}
+      </Ul>
     )}
   </Fragment>
 );
