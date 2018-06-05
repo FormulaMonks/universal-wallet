@@ -1,4 +1,5 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
+import Compose from './Compose';
 
 const INITIAL_STATE = {
   balance: null,
@@ -6,7 +7,7 @@ const INITIAL_STATE = {
   loading: false,
 };
 
-export class Store extends Component {
+class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -67,7 +68,12 @@ export class Store extends Component {
       const data = await res.json();
       if (!data.hasOwnProperty(balanceProp)) {
         this.setState({
-          error: <div>There was an error getting the wallet balance: the response did not include the balance property</div>,
+          error: (
+            <div>
+              There was an error getting the wallet balance: the response did
+              not include the balance property
+            </div>
+          ),
         });
         return;
       }
@@ -76,7 +82,9 @@ export class Store extends Component {
     } catch (e) {
       this.setState({
         error: (
-          <div>There was an error getting the wallet balance: {e.toString()}</div>
+          <div>
+            There was an error getting the wallet balance: {e.toString()}
+          </div>
         ),
       });
     }
@@ -84,12 +92,19 @@ export class Store extends Component {
   };
 }
 
-export const View = ({ balance, balanceError, balanceLoading }) => {
+const View = ({ balance, balanceSymbol, balanceError, balanceLoading }) => {
+  if (!balance && balance !== 0 && !balanceError && !balanceLoading) {
+    return null;
+  }
+
   return (
     <Fragment>
       {balanceError}
-      {balanceLoading && <div>loading</div>}
-      {balance && <div>Balance {balance}</div>}
+      {balanceLoading && '.'}
+      {balance && <Fragment>{balanceSymbol} {balance}</Fragment>}
     </Fragment>
   );
 };
+
+export { View, Store };
+export default Compose(Store, View);

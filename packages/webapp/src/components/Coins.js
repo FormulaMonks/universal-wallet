@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { SHAPESHIFT_GETCOINS } from '../utils/constants';
-import composeStore from '../utils/composeStore';
+import { SHAPESHIFT_GETCOINS } from '../utils/ss';
+import Compose from '../components/Compose';
 
 export const View = ({
   coin,
@@ -95,6 +95,6 @@ class Saga extends Component {
   }
 }
 
-const store = composeStore(Store, Saga);
+const store = Compose(Store, Saga);
 
 export { store as Store };

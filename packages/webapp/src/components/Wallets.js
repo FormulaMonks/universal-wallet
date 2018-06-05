@@ -173,6 +173,6 @@ class Saga extends Component {
   };
 }
 
-const store = composeStore(Store, Saga);
+const store = Compose(Store, Saga);
 
 export { store as Store };
