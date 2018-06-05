@@ -5,7 +5,6 @@ export {
   View as TransactionsView,
 } from './Transactions';
 export { Store as TxStore, View as TxView } from './Tx';
-export { Store as WalletsStore, View as WalletsView } from './Wallets';
 
 export { default as Auth } from './Auth';
 export {
@@ -24,3 +23,8 @@ export { default as NavHeader } from './NavHeader';
 export { default as Spinner } from './Spinner';
 export { default as TxSetup } from './TxSetup';
 export { default as WalletView } from './Wallet';
+export {
+  default as Wallets,
+  Store as WalletsStore,
+  View as WalletsView,
+} from './Wallets';
