@@ -1,30 +1,35 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
+import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
-import Compose from '../components/Compose';
 import { Spinner, Balance, BalanceStore, Currency } from '../components';
 import { Ul } from '../theme';
 import { SHAPESHIFT } from '../utils/ss';
+import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
+
+const sort = (a, b) => a.alias.localeCompare(b.alias);
 
 const Li = styled.li`
   margin: 1em 0;
   padding: 0.5em;
 
-  &:nth-child(odd){
-    background: rgba(200, 200, 200, 0.1)
+  &:nth-child(odd) {
+    background: rgba(200, 200, 200, 0.1);
   }
-`;
 
-const Button = styled.div`
-  display: block;
-  border: none;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-gap: 0.5em;
+  & a {
+    color: initial;
+    text-decoration: none;
+    display: block;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 0.5em;
+  }
 `;
 
 const Leaders = styled.div`
@@ -37,7 +42,7 @@ const Leaders = styled.div`
 const Dots = styled.div`
   flex-grow: 1;
   margin: 0 0.5em;
-  border-bottom: 1px dashed #DDD;
+  border-bottom: 1px dashed #ddd;
   position: relative;
   top: -4px;
 `;
@@ -56,11 +61,7 @@ const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
   return <img src={url} alt={symbol} />;
 };
 
-const CardContent = styled.div``;
-
-export const sort = (a, b) => a.alias.localeCompare(b.alias);
-
-export const View = ({
+const View = ({
   wallets,
   walletsError,
   walletsLoading,
@@ -78,9 +79,9 @@ export const View = ({
 
           return (
             <Li key={`wallets-${id}`}>
-              <Button>
+              <Link to={`/${id}`}>
                 <ImgSymbol symbol={symbol} {...rest} />
-                <CardContent>
+                <div>
                   <div>{alias}</div>
                   <Leaders>
                     <div>Balance</div>
@@ -96,8 +97,8 @@ export const View = ({
                       <Currency />
                     </BalanceStore>
                   </Leaders>
-                </CardContent>
-              </Button>
+                </div>
+              </Link>
             </Li>
           );
         })}
@@ -253,6 +254,9 @@ class Saga extends Component {
   };
 }
 
-const store = Compose(Store, Saga);
+const StoreSaga = Compose(Store, Saga);
 
-export { store as Store };
+export { sort };
+export { StoreSaga as Store };
+export { View };
+export default Compose(StoreSaga, View);
