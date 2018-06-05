@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import {
   CoinsStore,
   ContactsStore,
-  Header,
+  NavHeader,
   TransactionsStore,
   TransactionsView,
   TxStore,
@@ -26,7 +26,7 @@ const Home = props => (
 
 export default () => (
   <Fragment>
-    <Header />
+    <NavHeader />
     <WalletsStore>
       <TransactionsStore>
         <CoinsStore>
