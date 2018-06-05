@@ -60,10 +60,6 @@ const CardContent = styled.div``;
 
 export const sort = (a, b) => a.alias.localeCompare(b.alias);
 
-const CurrencyWrap = props => {
-  return <Currency {...props} />;
-};
-
 export const View = ({
   wallets,
   walletsError,
