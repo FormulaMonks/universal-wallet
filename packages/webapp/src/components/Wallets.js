@@ -4,13 +4,17 @@ import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
 import { Spinner, Balance, BalanceStore, Currency } from '../components';
-import { Ul } from '../theme';
+import { Ul, Leaders, Dots } from '../theme';
 import { SHAPESHIFT } from '../utils/ss';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
 
 const sort = (a, b) => a.alias.localeCompare(b.alias);
+
+const DivLeaders = Leaders.extend`
+  margin-right: 1em;
+`;
 
 const Li = styled.li`
   margin: 1em 0;
@@ -30,21 +34,6 @@ const Li = styled.li`
     grid-template-columns: auto 1fr;
     grid-gap: 0.5em;
   }
-`;
-
-const Leaders = styled.div`
-  display: flex;
-  margin: 1em 0;
-  margin-right: 2em;
-  font-size: 12px;
-`;
-
-const Dots = styled.div`
-  flex-grow: 1;
-  margin: 0 0.5em;
-  border-bottom: 1px dashed #ddd;
-  position: relative;
-  top: -4px;
 `;
 
 const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
@@ -83,20 +72,20 @@ const View = ({
                 <ImgSymbol symbol={symbol} {...rest} />
                 <div>
                   <div>{alias}</div>
-                  <Leaders>
+                  <DivLeaders>
                     <div>Balance</div>
                     <Dots />
                     <div>
                       <Balance wallet={wallet} />
                     </div>
-                  </Leaders>
-                  <Leaders>
+                  </DivLeaders>
+                  <DivLeaders>
                     <div>USD</div>
                     <Dots />
                     <BalanceStore wallet={wallet}>
                       <Currency />
                     </BalanceStore>
-                  </Leaders>
+                  </DivLeaders>
                 </div>
               </Link>
             </Li>
