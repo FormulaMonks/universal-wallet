@@ -1,27 +1,108 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
+import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
-import { WALLETS_JSON } from '../utils/constants';
-import composeStore from '../utils/composeStore';
+import styled from 'styled-components';
+import { Spinner, Balance, BalanceStore, Currency } from '../components';
+import { Ul } from '../theme';
+import { SHAPESHIFT } from '../utils/ss';
+import Compose from './Compose';
 
-export const sort = (a, b) => a.alias.localeCompare(b.alias);
+const WALLETS_JSON = 'wallets.json';
 
-export const View = ({ wallets, walletsError, walletsLoading, walletPick }) => (
+const sort = (a, b) => a.alias.localeCompare(b.alias);
+
+const Li = styled.li`
+  margin: 1em 0;
+  padding: 0.5em;
+
+  &:nth-child(odd) {
+    background: rgba(200, 200, 200, 0.1);
+  }
+
+  & a {
+    color: initial;
+    text-decoration: none;
+    display: block;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 0.5em;
+  }
+`;
+
+const Leaders = styled.div`
+  display: flex;
+  margin: 1em 0;
+  margin-right: 2em;
+  font-size: 12px;
+`;
+
+const Dots = styled.div`
+  flex-grow: 1;
+  margin: 0 0.5em;
+  border-bottom: 1px dashed #ddd;
+  position: relative;
+  top: -4px;
+`;
+
+const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
+  if (coinsLoading) {
+    return null;
+  }
+
+  const { imageSmall } = coins.find(c => c.symbol === symbol);
+  if (!imageSmall) {
+    return null;
+  }
+
+  const url = `${SHAPESHIFT}${imageSmall}`;
+  return <img src={url} alt={symbol} />;
+};
+
+const View = ({
+  wallets,
+  walletsError,
+  walletsLoading,
+  walletPick,
+  ...rest
+}) => (
   <Fragment>
     {walletsError}
     {walletsLoading ? (
-      <div>loading</div>
+      <Spinner />
     ) : (
-      <select defaultValue="" onChange={e => walletPick(e.currentTarget.value)}>
-        <option disabled value="" hidden>
-          Wallet
-        </option>
-        {wallets.map(({ id, alias }) => (
-          <option key={`wallets-${id}`} value={id}>
-            {alias}
-          </option>
-        ))}
-      </select>
+      <Ul>
+        {wallets.map(wallet => {
+          const { id, alias, symbol } = wallet;
+
+          return (
+            <Li key={`wallets-${id}`}>
+              <Link to={`/${id}`}>
+                <ImgSymbol symbol={symbol} {...rest} />
+                <div>
+                  <div>{alias}</div>
+                  <Leaders>
+                    <div>Balance</div>
+                    <Dots />
+                    <div>
+                      <Balance wallet={wallet} />
+                    </div>
+                  </Leaders>
+                  <Leaders>
+                    <div>USD</div>
+                    <Dots />
+                    <BalanceStore wallet={wallet}>
+                      <Currency />
+                    </BalanceStore>
+                  </Leaders>
+                </div>
+              </Link>
+            </Li>
+          );
+        })}
+      </Ul>
     )}
   </Fragment>
 );
@@ -173,6 +254,9 @@ class Saga extends Component {
   };
 }
 
-const store = composeStore(Store, Saga);
+const StoreSaga = Compose(Store, Saga);
 
-export { store as Store };
+export { sort };
+export { StoreSaga as Store };
+export { View };
+export default Compose(StoreSaga, View);

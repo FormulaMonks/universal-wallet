@@ -1,8 +1,9 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
-import { CONTACTS_JSON } from '../utils/constants';
-import composeStore from '../utils/composeStore';
+import Compose from '../components/Compose';
+
+const CONTACTS_JSON = 'contacts.json';
 
 export const sort = (a, b) => a.alias.localeCompare(b.alias);
 
@@ -158,6 +159,6 @@ class Saga extends Component {
   };
 }
 
-const store = composeStore(Store, Saga);
+const store = Compose(Store, Saga);
 
 export { store as Store };

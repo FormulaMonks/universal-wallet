@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Header, WalletsStore, CoinsStore } from '../components';
+import { NavHeader, WalletsStore, CoinsStore } from '../components';
 import { generateWallet, AVAILABLE_WALLET_GENERATORS } from '../utils/wallets';
 
 const getWalletValues = ({
@@ -264,7 +264,7 @@ class Wallets extends Component {
 
 export default () => (
   <Fragment>
-    <Header />
+    <NavHeader />
     <CoinsStore>
       <WalletsStore>
         <Wallets />

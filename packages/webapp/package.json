@@ -15,6 +15,7 @@
     "react-qr-reader": "^2.1.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
+    "styled-components": "^3.3.2",
     "uuid": "^3.2.1",
     "web3": "^1.0.0-beta.34",
     "wif": "^2.0.6"
