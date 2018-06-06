@@ -1,40 +1,40 @@
 import React, { Fragment } from 'react';
 import {
+  BalanceStore,
   CoinsStore,
   ContactsStore,
   NavHeader,
-  TransactionsStore,
-  TransactionsView,
-  TxStore,
+  Spinner,
+  Transactions,
   TxSetup,
   WalletView,
   WalletsStore,
 } from '../components';
 import { Section } from '../theme';
 
-const Home = props => (
-  <Fragment>
-    <div>Back to Home</div>
-    <WalletView {...props} />
-    <TxSetup {...props} />
-    <TransactionsView {...props} />
-  </Fragment>
-);
+const Wallet = props => {
+  return (
+    <Fragment>
+      {!props.wallet && <Spinner />}
+      <WalletView {...props} />
+      <TxSetup {...props} />
+      <Transactions {...props} />
+    </Fragment>
+  );
+};
 
-export default () => (
+export default props => (
   <Fragment>
     <NavHeader />
     <Section>
-      <WalletsStore>
-        <TransactionsStore>
+      <WalletsStore {...props}>
+        <BalanceStore>
           <CoinsStore>
             <ContactsStore>
-              <TxStore>
-                <Home />
-              </TxStore>
+              <Wallet />
             </ContactsStore>
           </CoinsStore>
-        </TransactionsStore>
+        </BalanceStore>
       </WalletsStore>
     </Section>
   </Fragment>
