@@ -34,3 +34,18 @@ export const Ul = styled.ul`
 export const Center = styled.div`
   text-align: center;
 `
+
+export const Leaders = styled.div`
+  display: flex;
+  align-items: flex-end;
+  margin: 1em 0;
+  font-size: 12px;
+`;
+
+export const Dots = styled.div`
+  flex-grow: 1;
+  margin: 0 0.5em;
+  border-bottom: 1px dashed #ddd;
+  position: relative;
+  top: -4px;
+`;
