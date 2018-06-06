@@ -1,10 +1,5 @@
 export { Store as CoinsStore, View as CoinsView } from './Coins';
 export { Store as ContactsStore } from './Contacts';
-export {
-  Store as TransactionsStore,
-  View as TransactionsView,
-} from './Transactions';
-export { Store as TxStore, View as TxView } from './Tx';
 
 export { default as Auth } from './Auth';
 export {
@@ -21,6 +16,12 @@ export {
 export { default as Header } from './Header';
 export { default as NavHeader } from './NavHeader';
 export { default as Spinner } from './Spinner';
+export {
+  default as Transactions,
+  Store as TransactionsStore,
+  View as TransactionsView,
+} from './Transactions';
+export { default as Tx, Store as TxStore, View as TxView } from './Tx';
 export { default as TxSetup } from './TxSetup';
 export { default as WalletView } from './Wallet';
 export {
