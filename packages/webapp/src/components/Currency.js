@@ -60,7 +60,7 @@ class Store extends Component {
         this.setState({ currency: 0, loading: false });
         return;
       }
-      if (!balance || !balanceSymbol) {
+      if (!balance || !balanceSymbol || isNaN(balance)) {
         return;
       }
       this.get();
@@ -96,13 +96,7 @@ class Store extends Component {
         this.setState({ currency });
       }
     } catch (e) {
-      this.setState({
-        error: (
-          <div>
-            There was an error getting the exchange rate to USD: {e.toString()}
-          </div>
-        ),
-      });
+      this.setState({ error: <div>Currently unavailable</div> });
     }
     this.setState({ loading: false });
   };
