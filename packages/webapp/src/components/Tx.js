@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
   TxStore,
   SsTxStore,
@@ -10,6 +10,11 @@ import {
 import Compose from './Compose';
 import styled from 'styled-components';
 import { Leaders, Dots, Button } from '../theme';
+
+const Send = Button.extend`
+  display: block;
+  margin: 2em auto 0;
+`;
 
 const WrapTx = styled.div`
   background: rgba(200, 200, 200, 0.1);
@@ -25,16 +30,17 @@ const Title = styled.h5`
   margin: 0.5em 0 2em 0;
 `;
 
-const H5 = styled.h5`
-  padding: 0;
-  margin: 0;
-  display: block;
+const DivTx = styled.div`
+  word-break: break-all;
 `;
 
-const DivTx = styled.div`
-  overflow: auto;
-  max-width: 250px;
-`;
+const DivInfoLabel = styled.div`
+  min-width: fit-content;
+`
+
+const DivInfoVal = styled.div`
+  word-break: break-all;
+`
 
 const View = ({
   txId,
@@ -85,9 +91,9 @@ const View = ({
         !!txInfo.length &&
         txInfo.map(({ label, value }, index) => (
           <Leaders key={`tx-info-${index}`}>
-            {label}
+            <DivInfoLabel>{label}</DivInfoLabel>
             <Dots />
-            {value}
+            <DivInfoVal>{value}</DivInfoVal>
           </Leaders>
         ))}
 
@@ -99,21 +105,17 @@ const View = ({
         </Leaders>
       )}
 
-      {!!txValid &&
-        !txBroadcasting &&
-        !txId && (
-          <Fragment>
-            <Button onClick={txBroadcast}>Send</Button>
-          </Fragment>
-        )}
-
       {!!txId && (
         <Leaders>
-          <H5>TxId</H5>
+          <div>TxId</div>
           <Dots />
           <DivTx>{txId}</DivTx>
         </Leaders>
       )}
+
+      <Send onClick={txBroadcast} disabled={!txValid || txBroadcasting || txId}>
+        Send
+      </Send>
     </WrapTx>
   );
 };
