@@ -12,13 +12,13 @@ export const Button = styled.button`
   font-size: 14px;
   cursor: pointer;
 
-  &:hover {
+  &:enabled:hover {
     border-color: rgba(0, 0, 0, 0);
     color: #fff;
     background: rgba(37, 58, 84, 0.7);
   }
 
-  &:active {
+  &:enabled:active {
     border-color: rgba(0, 0, 0, 0);
     color: #fff;
     background: rgba(37, 58, 84, 0.9);
@@ -33,7 +33,7 @@ export const Ul = styled.ul`
 
 export const Center = styled.div`
   text-align: center;
-`
+`;
 
 export const Leaders = styled.div`
   display: flex;
@@ -48,4 +48,5 @@ export const Dots = styled.div`
   border-bottom: 1px dashed #ddd;
   position: relative;
   top: -4px;
+  min-width: 10px;
 `;
