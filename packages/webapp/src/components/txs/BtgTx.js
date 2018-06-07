@@ -11,7 +11,7 @@ const INITIAL_STATE = {
   broadcasting: false,
   checking: false,
   error: null,
-  info: null,
+  info: [],
   txId: null,
   valid: false,
 };
@@ -67,40 +67,41 @@ export default class BtgTx extends Component {
   }
 
   broadcast = async () => {
-    this.setState({ broadcasting: <div>Broadcasting transaction</div> });
+    this.setState({ broadcasting: 'In progress' });
     try {
       const txId = await broadcast(this.props);
-      this.setState({ txId, broadcasting: <div>Transaction broadcasted</div> });
+      this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
+      console.error('-- Could not broadcast transaction error:  ', e);
       this.setState({
-        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
-        broadcasting: <div>The transaction was not broadcasted</div>,
+        error: 'The transaction was not broadcasted',
+        broadcasting: 'Unsuccessful',
       });
     }
   };
 
   validAmountFeeBalance(amount, fee, balance) {
-    this.setState({
-      checking: <div>{'Validating Amount + Fee < Balance'}</div>,
-    });
+    this.setState({ checking: 'Validating Amount + Fee < Balance' });
     if (amount + fee > balance) {
-      this.setState({
-        error: <div>Cannot send amount bigger than balance + fee</div>,
-      });
+      this.setState({ error: 'Amount + fee exceeds balance' });
       return false;
     }
     return true;
   }
 
   validAddresses(to, from) {
-    this.setState({ checking: <div>Validating To address</div> });
+    this.setState({ checking: 'Validating deposit address' });
     if (!validateAddress(to)) {
-      this.setState({ error: <div>To is not a valid bitcoin gold address</div> });
+      this.setState({
+        error: 'Deposit info isn’t valid bitcoin gold address',
+      });
       return false;
     }
-    this.setState({ checking: <div>Validating From address</div> });
+    this.setState({ checking: 'Validating withdrawal address' });
     if (!validateAddress(from)) {
-      this.setState({ error: <div>From is not a valid bitcoin gold address</div> });
+      this.setState({
+        error: 'Wallet info doesn’t have valid bitcoin gold address',
+      });
       return false;
     }
     return true;
@@ -112,14 +113,19 @@ export default class BtgTx extends Component {
     if (this.validAddresses(to, from)) {
       try {
         const fee = await fetchFee({ to, from, privateKey, amount });
-        const valid = this.validAmountFeeBalance(amount, fee, balance);
-        this.setState({ info: <div>Fee: {fee}</div>, valid });
+        if (this.validAmountFeeBalance(amount, fee, balance)) {
+          this.setState({
+            info: [{ label: 'Fee', value: fee }],
+            valid: true,
+            checking: 'Tx can take place',
+          });
+          return;
+        }
       } catch (e) {
-        this.setState({
-          error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
-        });
+        console.error('Could not fetch transaction fee error: ', e);
+        this.setState({ error: 'Could not fetch transaction fee' });
       }
     }
-    this.setState({ checking: null });
+    this.setState({ checking: 'Please review errors' });
   };
 }

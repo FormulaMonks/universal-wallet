@@ -35,7 +35,7 @@ export default class BtcTx extends Component {
   }
 
   render() {
-    const { valid, error, checking  } = this.state;
+    const { valid, error, checking } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -54,9 +54,7 @@ export default class BtcTx extends Component {
 
   validDiffAddresses(address1, address2) {
     if (address1 === address2) {
-      this.setState({
-        error: <div>Cannot perform Tx from wallet to same wallet</div>,
-      });
+      this.setState({ error: 'Please choose a different deposit address' });
       return false;
     }
     return true;
@@ -64,9 +62,7 @@ export default class BtcTx extends Component {
 
   validAmount(amount) {
     if (!(amount > 0)) {
-      this.setState({
-        error: <div>Amount should be a number greater than 0</div>,
-      });
+      this.setState({ error: 'Amount should be a greater than zero' });
       return false;
     }
     return true;
@@ -74,21 +70,23 @@ export default class BtcTx extends Component {
 
   validAmounBalance(amount, balance) {
     if (amount >= balance) {
-      this.setState({
-        error: <div>Cannot send amount equal or greater than balance</div>,
-      });
+      this.setState({ error: 'Amount exceeds balance' });
       return false;
     }
     return true;
   }
 
   validate = async () => {
-    this.setState({ ...INITIAL_STATE, checking: true });
+    this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
     const { to, from, amount, balance } = this.props;
-    const valid =
+    if (
       this.validDiffAddresses(to, from) &&
       this.validAmount(amount) &&
-      this.validAmounBalance(amount, balance);
-    this.setState({ valid, checking: false });
+      this.validAmounBalance(amount, balance)
+    ) {
+      this.setState({ valid: true, checking: null });
+      return;
+    }
+    this.setState({ checking: 'Please review errors' });
   };
 }

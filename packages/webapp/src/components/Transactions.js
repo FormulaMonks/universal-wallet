@@ -1,11 +1,44 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
+import styled from 'styled-components';
+import Compose from './Compose';
+import { Spinner } from './';
+import { Leaders, Dots, Ul } from '../theme';
 
-export class Store extends Component {
+const Summary = styled.summary`
+  position: sticky;
+  top: 70px;
+  display: block;
+  background: #fff;
+  z-index: 1;
+`;
+
+const H4 = styled.h4`
+  display: inline-block;
+`;
+
+const Li = styled.li`
+  font-size: 12px;
+  padding: 1em;
+
+  &:nth-child(odd) {
+    background: rgba(200, 200, 200, 0.1);
+  }
+`;
+
+const DivProp = styled.div`
+  text-transform: capitalize;
+`;
+
+const DivVal = styled.div`
+  word-break: break-all;
+`;
+
+class Store extends Component {
   state = {
     transactions: [],
     error: null,
     loading: false,
-    hasTransactions: false,
+    has: false,
   };
 
   componentDidMount() {
@@ -22,7 +55,7 @@ export class Store extends Component {
   }
 
   render() {
-    const { transactions, loading, error, hasTransactions } = this.state;
+    const { transactions, loading, error, has } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -31,13 +64,9 @@ export class Store extends Component {
           cloneElement(child, {
             ...rest,
             transactions,
-            transactionsHas: hasTransactions,
+            transactionsHas: has,
             transactionsLoading: loading,
-            transactionsError: error && (
-              <div>
-                There was an error fetching the wallet transactions: {error}
-              </div>
-            ),
+            transactionsError: error,
           }),
         )}
       </Fragment>
@@ -49,47 +78,53 @@ export class Store extends Component {
       loading: false,
       transactions: [],
       error: null,
-      hasTransactions: false,
+      has: false,
     });
+
     const { wallet } = this.props;
     if (!wallet) {
       return;
     }
+
     const { transactionsURL, transactionsProp } = wallet;
     if (!transactionsURL || !transactionsProp) {
       return;
     }
+
     this.get();
   };
 
   get = async () => {
-    this.setState({
-      loading: true,
-      hasTransactions: true,
-    });
+    this.setState({ loading: true, has: true });
+
     const {
       publicAddress,
       transactionsURL,
       transactionsProp,
     } = this.props.wallet;
+
     try {
       const res = await fetch(`${transactionsURL}${publicAddress}`);
       const data = await res.json();
       if (!data.hasOwnProperty(transactionsProp)) {
-        this.setState({
-          error: 'The response did not include the transactions property',
-        });
-        return;
+        throw new Error(
+          'The transaction did not include the transactions property',
+        );
       }
+
       const transactions = data[transactionsProp];
-      this.setState({ transactions, loading: false });
+      this.setState({ transactions });
     } catch (e) {
-      this.setState({ error: e.toString() });
+      console.error('--Could not fetch transactions error: ', e);
+      this.setState({
+        error: 'There was an error fetching the wallet transactions',
+      });
     }
+    this.setState({ loading: false });
   };
 }
 
-export const View = ({
+const View = ({
   transactions,
   transactionsHas,
   transactionsLoading,
@@ -99,26 +134,49 @@ export const View = ({
   if (!transactionsHas) {
     return null;
   }
-  if (transactionsError) {
-    return <div>{transactionsError}</div>
-  }
   return (
-    <Fragment>
+    <details>
+      <Summary>
+        <H4>Transaction History</H4>
+      </Summary>
       {transactionsLoading ? (
-        <div>loading</div>
+        <Spinner />
+      ) : transactionsError ? (
+        <div>{transactionsError}</div>
       ) : (
-        <Fragment>
-          <ul>
-            {transactions.map((transaction, index) => {
-              return (
-                <li key={`transactions-${wallet.id}-${index}`}>
-                  {JSON.stringify(transaction)}
-                </li>
-              );
-            })}
-          </ul>
-        </Fragment>
+        <Ul>
+          {transactions.map((transaction, index) => {
+            return (
+              <Li key={`transactions-${wallet.id}-${index}`}>
+                {typeof transaction === 'string' ? (
+                  <Leaders>
+                    <DivProp>Id</DivProp>
+                    <Dots />
+                    <DivVal>{transaction}</DivVal>
+                  </Leaders>
+                ) : (
+                  <Fragment>
+                    <Ul>
+                      {Object.keys(transaction).map(prop => (
+                        <li key={`transactions-${wallet.id}-${index}-${prop}`}>
+                          <Leaders>
+                            <DivProp>{prop}</DivProp>
+                            <Dots />
+                            <DivVal>{transaction[prop]}</DivVal>
+                          </Leaders>
+                        </li>
+                      ))}
+                    </Ul>
+                  </Fragment>
+                )}
+              </Li>
+            );
+          })}
+        </Ul>
       )}
-    </Fragment>
+    </details>
   );
 };
+
+export { Store, View };
+export default Compose(Store, View);
