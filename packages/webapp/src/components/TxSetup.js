@@ -33,6 +33,7 @@ const H4 = styled.h4`
 
 const DivToCurrency = styled.div`
   color: #999;
+  margin-top: 1em;
   margin-left: 1em;
 `;
 
