@@ -12,7 +12,7 @@ const INITIAL_STATE = {
   broadcasting: false,
   checking: false,
   error: null,
-  info: null,
+  info: [],
   txId: null,
   valid: false,
 };
@@ -68,27 +68,32 @@ export default class EthTx extends Component {
   }
 
   broadcast = async () => {
-    this.setState({ broadcasting: <div>Broadcasting transaction</div> });
+    this.setState({ broadcasting: 'In progress' });
     try {
       const txId = await broadcast(this.props);
-      this.setState({ txId, broadcasting: <div>Transaction broadcasted</div> });
+      this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
+      console.error('-- Could not broadcast transaction error:  ', e);
       this.setState({
-        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
-        broadcasting: <div>The transaction was not broadcasted</div>,
+        error: 'The transaction was not broadcasted',
+        broadcasting: 'Unsuccessful',
       });
     }
   };
 
   validAddresses(to, from) {
-    this.setState({ checking: <div>Validating To address</div> });
+    this.setState({ checking: 'Validating deposit address' });
     if (!validateAddress(to)) {
-      this.setState({ error: <div>To is not a valid ethereum address</div> });
+      this.setState({
+        error: 'Deposit info isn’t valid ethereum address',
+      });
       return false;
     }
-    this.setState({ checking: <div>Validating From address</div> });
+    this.setState({ checking: 'Validating withdrawal address' });
     if (!validateAddress(from)) {
-      this.setState({ error: <div>From is not a valid ethereum address</div> });
+      this.setState({
+        error: 'Wallet info doesn’t have valid ethereum address',
+      });
       return false;
     }
     return true;
@@ -102,21 +107,20 @@ export default class EthTx extends Component {
         const { ether, wei, gwei } = await getTxInfo();
         await generateTx({ to, from, privateKey, amount });
         this.setState({
-          info: (
-            <Fragment>
-              <div>Gas price: {gwei.price} gwei</div>
-              <div>Gas limit: {wei.limit} wei</div>
-              <div>Approximate fee: {ether.aproxFee} ether</div>
-            </Fragment>
-          ),
+          info: [
+            { label: 'Gas price', value: `${gwei.price} gwei` },
+            { label: 'Gas limit', value: `${wei.limit} wei` },
+            { label: 'Estimated fee', value: `${ether.aproxFee} ether` },
+          ],
           valid: true,
+          checking: 'Tx can take place',
         });
+        return;
       } catch (e) {
-        this.setState({
-          error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
-        });
+        console.error('Could not fetch transaction info error: ', e);
+        this.setState({ error: 'Could not fetch transaction info' });
       }
     }
-    this.setState({ checking: null });
+    this.setState({ checking: 'Please review errors' });
   };
 }
