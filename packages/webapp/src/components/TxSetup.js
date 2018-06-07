@@ -96,6 +96,13 @@ const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
 export default class SetupTx extends Component {
   state = { to: '', toId: '', toSymbol: '', amount: 0 };
 
+  componentDidUpdate(prevProps) {
+    const { qrData, qrClear } = this.props;
+    if (qrData && !prevProps.qrData) {
+      this.setState({ to: qrData, toSymbol: '' }, qrClear);
+    }
+  }
+
   render() {
     const { wallet, coinsLoading, contactsLoading } = this.props;
     if (!wallet || coinsLoading || contactsLoading) {
@@ -104,7 +111,16 @@ export default class SetupTx extends Component {
 
     const { symbol } = wallet;
     if (!canBroadcast(symbol)) {
-      return <details><summary><H4>Sending transactions for this type of coin has not yet been implemented</H4></summary></details>;
+      return (
+        <details>
+          <summary>
+            <H4>
+              Sending transactions for this type of coin has not yet been
+              implemented
+            </H4>
+          </summary>
+        </details>
+      );
     }
 
     const { balance, coins, contacts, wallets } = this.props;
@@ -170,7 +186,7 @@ export default class SetupTx extends Component {
           <LeadersOptions>
             <div>Scan from QR Code</div>
             <Dots />
-            <button title="Scan from QR Code">
+            <button title="Scan from QR Code" onClick={this.props.qrScan}>
               <i className="fas fa-qrcode" />
             </button>
           </LeadersOptions>
