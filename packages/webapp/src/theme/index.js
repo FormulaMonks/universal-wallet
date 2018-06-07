@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Section = styled.section`
-  padding: 1em;
+  padding: 0 1em;
 `;
 
 export const Button = styled.button`
@@ -50,3 +50,8 @@ export const Dots = styled.div`
   top: -4px;
   min-width: 10px;
 `;
+
+export const SectionTitle = styled.h2`
+  padding: 1.33em 0;
+  margin: 0;
+`
