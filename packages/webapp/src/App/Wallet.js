@@ -9,6 +9,7 @@ import {
   TxSetup,
   WalletView,
   WalletsStore,
+  QrReader,
 } from '../components';
 import { Section } from '../theme';
 
@@ -31,7 +32,9 @@ export default props => (
         <BalanceStore>
           <CoinsStore>
             <ContactsStore>
-              <Wallet />
+              <QrReader>
+                <Wallet />
+              </QrReader>
             </ContactsStore>
           </CoinsStore>
         </BalanceStore>
