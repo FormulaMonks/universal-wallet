@@ -5,7 +5,6 @@ import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
 import { Spinner, Balance, BalanceStore, Currency } from '../components';
 import { Ul, Leaders, Dots } from '../theme';
-import { SHAPESHIFT } from '../utils/ss';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
@@ -46,8 +45,7 @@ const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
     return null;
   }
 
-  const url = `${SHAPESHIFT}${imageSmall}`;
-  return <img src={url} alt={symbol} />;
+  return <img src={imageSmall} alt={symbol} />;
 };
 
 const View = ({
