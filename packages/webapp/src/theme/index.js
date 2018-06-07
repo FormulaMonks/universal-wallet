@@ -6,7 +6,7 @@ export const Section = styled.section`
 
 export const Button = styled.button`
   font-family: 'Open Sans', sans-serif;
-  padding: 1em 3em;
+  padding: 0.5em 2em;
   border: 1px solid #ccc;
   background: #fff;
   font-size: 14px;
