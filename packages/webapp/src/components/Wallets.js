@@ -98,7 +98,7 @@ class Store extends Component {
   state = {
     error: null,
     loading: false,
-    wallets: [],
+    wallets: null,
     wallet: null,
   };
 
@@ -190,23 +190,36 @@ class Store extends Component {
 }
 
 class Saga extends Component {
+
+  state = { loading: true }
+
   componentDidMount() {
     this.props.walletsGet();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.walletsLoading !== this.props.walletsLoading) {
+      this.setState({ loading: this.props.walletsLoading })
+    }
   }
 
   render() {
     const {
       children,
+      wallets,
       walletsDelete,
       walletsPost,
       walletsPut,
       ...rest
     } = this.props;
+
     return (
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
             ...rest,
+            wallets: wallets || [],
+            walletsLoading: this.state.loading,
             walletsDelete: this.delete,
             walletsPut: this.put,
             walletsPost: this.post,

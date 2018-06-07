@@ -67,15 +67,27 @@ const View = ({ wallet, walletLoading, coins, coinsLoading }) => {
 };
 
 class Saga extends Component {
+  state = { loading: true };
+
   componentDidMount() {
     this.check();
   }
 
-  componentDidUpdate() {
-    this.check();
+  componentDidUpdate(prevProps) {
+    const { match: { params: { id } }, wallets, walletsLoading } = this.props;
+    if (
+      id !== prevProps.match.params.id ||
+      walletsLoading !== prevProps.walletsLoading ||
+      wallets.length !== prevProps.wallets.length
+    ) {
+      this.check();
+    }
   }
 
   render() {
+    if (this.state.loading) {
+      return null;
+    }
     const { children, ...rest } = this.props;
 
     return (
@@ -88,13 +100,23 @@ class Saga extends Component {
   check = () => {
     const {
       wallets,
+      walletsLoading,
       wallet,
       walletPick,
       match: { params: { id } },
     } = this.props;
-    if (!wallet && id && wallets.find(w => w.id === id)) {
+
+    if (walletsLoading) {
+      return;
+    }
+    if (!id || !wallets.find(w => w.id === id)) {
+      this.props.history.push('/404');
+      return;
+    }
+    if (!wallet) {
       walletPick(id);
     }
+    this.setState({ loading: false });
   };
 }
 
