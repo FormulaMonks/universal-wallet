@@ -1,9 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Header, WalletsStore, CoinsStore } from '../components';
-import {
-  generateNewWallet,
-  AVAILABLE_WALLET_GENERATION_COINS,
-} from '../utils/wallets';
+import { NavHeader, WalletsStore, CoinsStore } from '../components';
+import { generateWallet, AVAILABLE_WALLET_GENERATORS } from '../utils/wallets';
 
 const getWalletValues = ({
   inputPrivateKey,
@@ -166,9 +163,9 @@ class Wallets extends Component {
               >
                 Choose coin
               </option>
-              {AVAILABLE_WALLET_GENERATION_COINS.map(({ name, symbol }) => (
+              {AVAILABLE_WALLET_GENERATORS.map(({ name, symbol }) => (
                 <option key={`generate-wallet-coins-${symbol}`} value={symbol}>
-                  {name} ({symbol})
+                  {name} ({symbol.toUpperCase()})
                 </option>
               ))}
             </select>
@@ -236,12 +233,15 @@ class Wallets extends Component {
       return;
     }
 
-    const { privateKey, publicAddress, symbol } = generateNewWallet(newSymbol);
+    const { privateKey, publicAddress, symbol: lowerCasedSymbol } = generateWallet(
+      newSymbol.toLowerCase(),
+    );
+    const symbol = lowerCasedSymbol.toUpperCase()
     const newWallet = {
       privateKey,
       publicAddress,
       symbol,
-      alias: `A new ${newSymbol} Wallet (${new Date().toLocaleString()})`,
+      alias: `A new ${process.env.REACT_APP_TESTNET ? '(testnet) ' : ' '}${symbol} Wallet (${new Date().toLocaleString()})`,
     };
     this.setState({ newWallet });
   };
@@ -264,7 +264,7 @@ class Wallets extends Component {
 
 export default () => (
   <Fragment>
-    <Header />
+    <NavHeader />
     <CoinsStore>
       <WalletsStore>
         <Wallets />

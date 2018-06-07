@@ -1,48 +1,36 @@
-import bitcore from 'bitcore-lib';
-import {
-  BITCOIN_SYMBOL_LOWER_CASED,
-  ETHER_SYMBOL_LOWER_CASED,
-} from './constants';
-import { createAccount } from './ethTx';
+import { generateBtcWallet, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
+import { generateBchWallet, BITCOIN_CASH_SYMBOL_LOWER_CASED } from './bch';
+import { generateEthWallet, ETHER_SYMBOL_LOWER_CASED } from './eth';
+import { generateBtgWallet, BITCOIN_GOLD_SYMBOL_LOWER_CASED } from './btg';
 
-export const AVAILABLE_WALLET_GENERATION_COINS = [
-  { name: 'Bitcoin ', symbol: BITCOIN_SYMBOL_LOWER_CASED.toUpperCase() },
-  { name: 'Ethereum', symbol: ETHER_SYMBOL_LOWER_CASED.toUpperCase() },
+export const AVAILABLE_WALLET_GENERATORS = [
+  {
+    name: 'Bitcoin',
+    symbol: BITCOIN_SYMBOL_LOWER_CASED,
+    method: generateBtcWallet,
+  },
+  {
+    name: 'Bitcoin Cash',
+    symbol: BITCOIN_CASH_SYMBOL_LOWER_CASED,
+    method: generateBchWallet,
+  },
+  {
+    name: 'Ethereum',
+    symbol: ETHER_SYMBOL_LOWER_CASED,
+    method: generateEthWallet,
+  },
+  {
+    name: 'Bitcoin Gold',
+    symbol: BITCOIN_GOLD_SYMBOL_LOWER_CASED,
+    method: generateBtgWallet,
+  },
 ];
 
-const generateNewEthWallet = () => {
-  const { address: publicAddress, privateKey } = createAccount();
-
-  return {
-    privateKey,
-    publicAddress,
-    symbol: ETHER_SYMBOL_LOWER_CASED.toUpperCase(),
-  };
-};
-
-const generateNewBtcWallet = () => {
-  const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
-  const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
-  const privateKey = new bitcore.PrivateKey(randNum);
-  const publicAddress = privateKey.toAddress();
-
-  return {
-    privateKey,
-    publicAddress,
-    symbol: BITCOIN_SYMBOL_LOWER_CASED.toUpperCase(),
-  };
-};
-
-export const generateNewWallet = symbol => {
-  if (
-    !AVAILABLE_WALLET_GENERATION_COINS.find(
-      coin => coin.symbol.toLowerCase() === symbol.toLowerCase(),
-    )
-  ) {
+export const generateWallet = symbol => {
+  const option = AVAILABLE_WALLET_GENERATORS.find(i => i.symbol === symbol);
+  if (!option) {
     throw new Error(`Cannot generate wallet for ${symbol}`);
   }
 
-  return symbol.toLowerCase() === ETHER_SYMBOL_LOWER_CASED
-    ? generateNewEthWallet()
-    : generateNewBtcWallet();
+  return option.method();
 };

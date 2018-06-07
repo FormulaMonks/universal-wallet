@@ -1,6 +1,9 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { BTC_TO_USD, BITCOIN_SYMBOL_LOWER_CASED } from '../utils/constants';
-import { fetchMarketInfo } from '../utils/ssTx';
+import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/btc';
+import { fetchMarketInfo } from '../utils/ss';
+import Compose from './Compose';
+
+const BTC_TO_USD = 'https://www.bitstamp.net/api/v2/ticker/btcusd/?cors=1';
 
 const INITIAL_STATE = {
   currency: null,
@@ -8,7 +11,7 @@ const INITIAL_STATE = {
   loading: false,
 };
 
-export class Store extends Component {
+class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -18,7 +21,8 @@ export class Store extends Component {
   componentDidUpdate(prevProps) {
     if (
       prevProps.balance !== this.props.balance ||
-      prevProps.balanceSymbol !== this.props.balanceSymbol
+      prevProps.balanceSymbol !== this.props.balanceSymbol ||
+      prevProps.balanceError !== this.props.balanceError
     ) {
       this.check();
     }
@@ -44,8 +48,19 @@ export class Store extends Component {
 
   check = async () => {
     this.setState({ ...INITIAL_STATE }, () => {
-      const { balance, balanceSymbol } = this.props;
-      if (!balance || !balanceSymbol) {
+      const { balance, balanceSymbol, balanceError } = this.props;
+      if (balanceError) {
+        this.setState({
+          error: <div>Currently unavailable</div>,
+          loading: false,
+        });
+        return;
+      }
+      if (balance === 0) {
+        this.setState({ currency: 0, loading: false });
+        return;
+      }
+      if (!balance || !balanceSymbol || isNaN(balance)) {
         return;
       }
       this.get();
@@ -67,12 +82,7 @@ export class Store extends Component {
         toBTC = rate;
       } catch (e) {
         this.setState({
-          error: (
-            <div>
-              There was an error getting the exchange rate to BTC:{' '}
-              {e.toString()}
-            </div>
-          ),
+          error: <div>Currently unavailable</div>,
           loading: false,
         });
         return;
@@ -82,24 +92,29 @@ export class Store extends Component {
       const res = await fetch(BTC_TO_USD);
       const { last: toUSD } = await res.json();
       const currency = balance * toBTC * toUSD;
-      this.setState({ currency });
+      if (!isNaN(currency)) {
+        this.setState({ currency });
+      }
     } catch (e) {
-      this.setState({
-        error: (
-          <div>
-            There was an error getting the exchange rate to USD: {e.toString()}
-          </div>
-        ),
-      });
+      this.setState({ error: <div>Currently unavailable</div> });
     }
     this.setState({ loading: false });
   };
 }
 
-export const View = ({ currency, currencyError, currencyLoading }) => (
-  <Fragment>
-    {currencyError}
-    {currencyLoading && <div>loading</div>}
-    {currency && <div>{currency} USD</div>}
-  </Fragment>
-);
+const View = ({ currency, currencyError, currencyLoading }) => {
+  if (!currency && currency !== 0 && !currencyError && !currencyLoading) {
+    return null;
+  }
+
+  return (
+    <Fragment>
+      {currencyError}
+      {currencyLoading && '.'}
+      {currency && <Fragment>${currency}</Fragment>}
+    </Fragment>
+  );
+};
+
+export { View, Store };
+export default Compose(Store, View);

@@ -1,12 +1,20 @@
 import Web3 from 'web3';
 import EthereumTx from 'ethereumjs-tx';
-import { INFURA_NETWORK, INFURA_CHAIN_ID } from './constants';
 
-const GAS_LIMIT_IN_WEI = 21000
+const INFURA_URL = process.env.REACT_APP_TESTNET
+  ? 'https://rinkeby.infura.io/'
+  : 'https://mainnet.infura.io/';
+const INFURA_NETWORK = `${INFURA_URL}${process.env.REACT_APP_INFURA_API_KEY}`;
+// chainId - mainnet: 1, rinkeby: 4
+const INFURA_CHAIN_ID = process.env.REACT_APP_TESTNET ? 4 : 1;
+const GAS_LIMIT_IN_WEI = 21000;
+
 const { eth, utils } = new Web3(
   new Web3.providers.HttpProvider(INFURA_NETWORK),
 );
+
 const chainId = INFURA_CHAIN_ID;
+
 const sendTx = async tx =>
   new Promise((resolve, reject) =>
     eth.sendSignedTransaction(`0x${tx.toString('hex')}`, (err, res) => {
@@ -17,7 +25,17 @@ const sendTx = async tx =>
     }),
   );
 
-export const createAccount = () => eth.accounts.create();
+export const ETHER_SYMBOL_LOWER_CASED = 'eth'
+
+export const generateEthWallet = () => {
+  const { address: publicAddress, privateKey } = eth.accounts.create();
+
+  return {
+    privateKey,
+    publicAddress,
+    symbol: ETHER_SYMBOL_LOWER_CASED,
+  };
+};
 
 export const getTxInfo = async () => {
   const priceInWei = await eth.getGasPrice();
