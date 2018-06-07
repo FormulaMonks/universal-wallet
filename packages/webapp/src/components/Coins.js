@@ -23,9 +23,7 @@ const Select = styled.select`
   cursor: pointer;
 `;
 
-const Image = ({ imageSmall, symbol }) => (
-  <img src={imageSmall} alt={symbol} />
-);
+const Image = ({ imageSmall, symbol }) => <img src={imageSmall} alt={symbol} />;
 
 export const View = ({
   coin,
@@ -123,9 +121,18 @@ class Saga extends Component {
 
   render() {
     const { children, ...rest } = this.props;
+    const { filterOutUnavailable, coins } = rest;
+    const filteredCoins = coins.filter(
+      ({ status }) => filterOutUnavailable || status !== 'unavailable',
+    );
     return (
       <Fragment>
-        {Children.map(children, child => cloneElement(child, { ...rest }))}
+        {Children.map(children, child =>
+          cloneElement(child, {
+            ...rest,
+            coins: filteredCoins,
+          }),
+        )}
       </Fragment>
     );
   }
