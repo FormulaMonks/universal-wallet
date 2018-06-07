@@ -4,7 +4,6 @@ import { Balance, BalanceStore, Currency } from './';
 import Compose from './Compose';
 import { Center, Leaders, Dots } from '../theme';
 import styled from 'styled-components';
-import { SHAPESHIFT } from '../utils/ss';
 
 const Centered = Center.extend`
   background: rgba(200, 200, 200, 0.1);
@@ -29,8 +28,8 @@ const DivPublicAddress = styled.div`
   word-break: break-all;
 `;
 
-const View = ({ wallet, walletLoading, coins }) => {
-  if (!wallet || !wallet.publicAddress) {
+const View = ({ wallet, walletLoading, coins, coinsLoading }) => {
+  if (!wallet || !wallet.publicAddress || coinsLoading) {
     return null;
   }
   const { publicAddress, alias, symbol } = wallet;
@@ -39,7 +38,7 @@ const View = ({ wallet, walletLoading, coins }) => {
   return (
     <Fragment>
       <H3>
-        {imageSmall && <img src={`${SHAPESHIFT}${imageSmall}`} alt={symbol} />}
+        {imageSmall && <img src={imageSmall} alt={symbol} />}
         {alias}
       </H3>
 
