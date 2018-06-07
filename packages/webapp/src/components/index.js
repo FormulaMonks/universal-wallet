@@ -1,6 +1,3 @@
-export { Store as CoinsStore, View as CoinsView } from './Coins';
-export { Store as ContactsStore } from './Contacts';
-
 export { default as Auth } from './Auth';
 export {
   default as Balance,
@@ -8,6 +5,8 @@ export {
   View as BalanceView,
 } from './Balance';
 export { default as BlockstackLink } from './BlockstackLink';
+export { Store as CoinsStore, View as CoinsView } from './Coins';
+export { Store as ContactsStore } from './Contacts';
 export {
   default as Currency,
   Store as CurrencyStore,
@@ -16,6 +15,7 @@ export {
 export { default as Header } from './Header';
 export { default as NavHeader } from './NavHeader';
 export { default as Spinner } from './Spinner';
+export { default as QrReader } from './QrReader';
 export {
   default as Transactions,
   Store as TransactionsStore,
