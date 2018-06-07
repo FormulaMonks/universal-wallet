@@ -1,5 +1,5 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { SHAPESHIFT, SHAPESHIFT_GETCOINS } from '../utils/ss';
+import { SHAPESHIFT_GETCOINS } from '../utils/ss';
 import Compose from '../components/Compose';
 import styled from 'styled-components';
 
@@ -24,7 +24,7 @@ const Select = styled.select`
 `;
 
 const Image = ({ imageSmall, symbol }) => (
-  <img src={`${SHAPESHIFT}${imageSmall}`} alt={symbol} />
+  <img src={imageSmall} alt={symbol} />
 );
 
 export const View = ({
