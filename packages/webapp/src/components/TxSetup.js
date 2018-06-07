@@ -4,6 +4,7 @@ import { CoinsView, CurrencyStore, CurrencyView, Tx } from './';
 import { sort as sortContacts } from '../components/Contacts';
 import { sort as sortWallets } from '../components/Wallets';
 import { Leaders, Dots } from '../theme';
+import { canBroadcast } from '../utils/ss';
 
 const Summary = styled.summary`
   position: sticky;
@@ -101,9 +102,13 @@ export default class SetupTx extends Component {
       return null;
     }
 
+    const { symbol } = wallet;
+    if (!canBroadcast(symbol)) {
+      return <details><summary><H4>Sending transactions for this type of coin has not yet been implemented</H4></summary></details>;
+    }
+
     const { balance, coins, contacts, wallets } = this.props;
     const { to, toId, toSymbol, amount } = this.state;
-    const { symbol } = wallet;
     const filterOut = filterOutUnavailableCoins(coins, symbol);
     const filteredWallets = wallets
       .filter(({ id }) => id !== wallet.id)
