@@ -25,17 +25,8 @@ const Li = styled.li`
   }
 `;
 
-const TxLeaders = Leaders.extend`
-  align-items: flex-start;
-`;
-
 const DivProp = styled.div`
   text-transform: capitalize;
-`;
-
-const DivDots = Dots.extend`
-  min-width: 50px;
-  min-height: 17px;
 `;
 
 const DivVal = styled.div`
@@ -158,21 +149,21 @@ const View = ({
             return (
               <Li key={`transactions-${wallet.id}-${index}`}>
                 {typeof transaction === 'string' ? (
-                  <TxLeaders>
+                  <Leaders>
                     <DivProp>Id</DivProp>
-                    <DivDots />
+                    <Dots />
                     <DivVal>{transaction}</DivVal>
-                  </TxLeaders>
+                  </Leaders>
                 ) : (
                   <Fragment>
                     <Ul>
                       {Object.keys(transaction).map(prop => (
                         <li key={`transactions-${wallet.id}-${index}-${prop}`}>
-                          <TxLeaders>
+                          <Leaders>
                             <DivProp>{prop}</DivProp>
-                            <DivDots />
+                            <Dots />
                             <DivVal>{transaction[prop]}</DivVal>
-                          </TxLeaders>
+                          </Leaders>
                         </li>
                       ))}
                     </Ul>
