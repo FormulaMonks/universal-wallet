@@ -4,19 +4,27 @@ import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
 import { Spinner, Balance, BalanceStore, Currency } from '../components';
-import { Ul, Leaders, Dots } from '../theme';
+import { SectionTitle, Ul, Leaders, Dots } from '../theme';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
 
 const sort = (a, b) => a.alias.localeCompare(b.alias);
 
+const UlWallets = Ul.extend`
+  display: grid;
+  grid-gap: 1em;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
+  }
+`;
+
 const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
 
 const Li = styled.li`
-  margin: 1em 0;
   padding: 0.5em;
 
   &:nth-child(odd) {
@@ -32,6 +40,10 @@ const Li = styled.li`
     display: grid;
     grid-template-columns: auto 1fr;
     grid-gap: 0.5em;
+  }
+
+  @media (min-width: 600px) {
+    background: rgba(200, 200, 200, 0.1);
   }
 `;
 
@@ -57,39 +69,48 @@ const View = ({
 }) => (
   <Fragment>
     {walletsError}
+    <SectionTitle>My wallets</SectionTitle>
     {walletsLoading ? (
       <Spinner />
     ) : (
-      <Ul>
-        {wallets.map(wallet => {
-          const { id, alias, symbol } = wallet;
+      <Fragment>
+        {!wallets.length ? (
+          <div>You have not added any wallets yet.</div>
+        ) : (
+          <UlWallets>
+            {wallets.map(wallet => {
+              const { id, alias, symbol } = wallet;
 
-          return (
-            <Li key={`wallets-${id}`}>
-              <Link to={`/${id}`}>
-                <ImgSymbol symbol={symbol} {...rest} />
-                <div>
-                  <div>{alias}</div>
-                  <DivLeaders>
-                    <div>Balance</div>
-                    <Dots />
+              return (
+                <Li key={`wallets-${id}`}>
+                  <Link to={`/${id}`}>
+                    <ImgSymbol symbol={symbol} {...rest} />
+
                     <div>
-                      <Balance wallet={wallet} />
+                      <div>{alias}</div>
+                      <DivLeaders>
+                        <div>Balance</div>
+                        <Dots />
+                        <div>
+                          <Balance wallet={wallet} />
+                        </div>
+                      </DivLeaders>
+
+                      <DivLeaders>
+                        <div>USD</div>
+                        <Dots />
+                        <BalanceStore wallet={wallet}>
+                          <Currency />
+                        </BalanceStore>
+                      </DivLeaders>
                     </div>
-                  </DivLeaders>
-                  <DivLeaders>
-                    <div>USD</div>
-                    <Dots />
-                    <BalanceStore wallet={wallet}>
-                      <Currency />
-                    </BalanceStore>
-                  </DivLeaders>
-                </div>
-              </Link>
-            </Li>
-          );
-        })}
-      </Ul>
+                  </Link>
+                </Li>
+              );
+            })}
+          </UlWallets>
+        )}
+      </Fragment>
     )}
   </Fragment>
 );
@@ -190,8 +211,7 @@ class Store extends Component {
 }
 
 class Saga extends Component {
-
-  state = { loading: true }
+  state = { loading: true };
 
   componentDidMount() {
     this.props.walletsGet();
@@ -199,7 +219,7 @@ class Saga extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.walletsLoading !== this.props.walletsLoading) {
-      this.setState({ loading: this.props.walletsLoading })
+      this.setState({ loading: this.props.walletsLoading });
     }
   }
 
