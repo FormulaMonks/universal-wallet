@@ -4,12 +4,21 @@ import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
 import { Spinner, Balance, BalanceStore, Currency } from '../components';
-import { SectionTitle, Ul, Leaders, Dots } from '../theme';
+import { SectionTitle, Ul, Leaders, Dots, Button } from '../theme';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
 
 const sort = (a, b) => a.alias.localeCompare(b.alias);
+
+const DivAdd = styled.div`
+  text-align: center;
+  margin-top: 2em;
+`;
+
+const Msg = styled.div`
+  text-align: center;
+`;
 
 const UlWallets = Ul.extend`
   display: grid;
@@ -65,6 +74,8 @@ const View = ({
   walletsError,
   walletsLoading,
   walletPick,
+  coins,
+  coinsLoading,
   ...rest
 }) => (
   <Fragment>
@@ -75,7 +86,14 @@ const View = ({
     ) : (
       <Fragment>
         {!wallets.length ? (
-          <div>You have not added any wallets yet.</div>
+          <Fragment>
+            <Msg>You have not added any wallets yet.</Msg>
+            <DivAdd>
+              <Button onClick={() => rest.history.push('/wallets')}>
+                Add wallet
+              </Button>
+            </DivAdd>
+          </Fragment>
         ) : (
           <UlWallets>
             {wallets.map(wallet => {
@@ -84,7 +102,11 @@ const View = ({
               return (
                 <Li key={`wallets-${id}`}>
                   <Link to={`/${id}`}>
-                    <ImgSymbol symbol={symbol} {...rest} />
+                    <ImgSymbol
+                      symbol={symbol}
+                      coins={coins}
+                      coinsLoading={coinsLoading}
+                    />
 
                     <div>
                       <div>{alias}</div>
