@@ -22,14 +22,14 @@ const WrapBroadcast = styled.div`
     top: -4px;
   }
 
-  & input[name="amount"] {
+  & input[name='amount'] {
     width: 60px;
   }
 `;
 
 const H4 = styled.h4`
   display: inline-block;
-`
+`;
 
 const DivToCurrency = styled.div`
   color: #999;
@@ -44,7 +44,7 @@ const DivCurrency = styled.div`
 
 const LeadersDeposit = Leaders.extend`
   margin: 2em 0 1em 0;
-`
+`;
 
 const LeadersCoin = Leaders.extend`
   margin-left: 1em;
@@ -82,25 +82,38 @@ const LeadersOptions = Leaders.extend`
   }
 `;
 
+// filters out unavailable coins for this wallet to pick from wallets/contacts
+// if same coin is unavailable it is not filtered out since txs to same
+// coin are available
+const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
+  coins.find(
+    c =>
+      c.symbol === symbol &&
+      (c.status !== 'unavailable' || c.symbol === fromSymbol),
+  );
+
 export default class SetupTx extends Component {
   state = { to: '', toId: '', toSymbol: '', amount: 0 };
 
   render() {
-    const { wallet } = this.props;
-    if (!wallet) {
+    const { wallet, coinsLoading, contactsLoading } = this.props;
+    if (!wallet || coinsLoading || contactsLoading) {
       return null;
     }
 
-    console.log('Filter out wallets and contacts with unavailable shifts');
-    const { balance, contacts, wallets } = this.props;
+    const { balance, coins, contacts, wallets } = this.props;
     const { to, toId, toSymbol, amount } = this.state;
     const { symbol } = wallet;
-    const filteredWallets = wallets.filter(({ id }) => id !== wallet.id);
+    const filterOut = filterOutUnavailableCoins(coins, symbol);
+    const filteredWallets = wallets
+      .filter(({ id }) => id !== wallet.id)
+      .filter(filterOut);
+    const filteredContacts = contacts.filter(filterOut);
 
     return (
       <details>
         <Summary>
-         <H4>Send {symbol}</H4>
+          <H4>Send {symbol}</H4>
         </Summary>
 
         <WrapBroadcast>
@@ -145,6 +158,7 @@ export default class SetupTx extends Component {
               {...this.props}
               onChange={this.onSelectToSymbolChange}
               value={toSymbol}
+              filterOutUnavailable={true}
             />
           </LeadersCoin>
 
@@ -161,13 +175,13 @@ export default class SetupTx extends Component {
             <Dots />
             <i className="far fa-address-book" />
             <Fragment>
-              {contacts.length &&
+              {filteredContacts.length &&
                 filteredWallets.length && (
                   <select value={toId} onChange={this.onSelectToChange}>
                     <option key="send-to-label" disabled value="" hidden>
                       Contacts & My Wallets
                     </option>
-                    {contacts.length && (
+                    {filteredContacts.length && (
                       <optgroup key="send-to-contacts" label="Contacts">
                         {contacts.sort(sortContacts).map(({ id, alias }) => (
                           <option
