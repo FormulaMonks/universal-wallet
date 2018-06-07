@@ -5,6 +5,22 @@ import {
   isUserSignedIn,
   redirectToSignIn,
 } from 'blockstack';
+import styled from 'styled-components';
+import { Header, BlockstackLink, Spinner } from './';
+import { Button } from '../theme'
+
+const Wrap = styled.div`
+  & button {
+    display: block;
+    margin: 3em auto;
+    width: 100%;
+  }
+`;
+
+const Content = styled.div`
+  width: 70%;
+  margin: auto;
+`;
 
 const LOADING = 'checking current state';
 const LOGGED_IN = 'logged in';
@@ -26,15 +42,29 @@ export default class Auth extends Component {
 
     return (
       <Fragment>
-        {auth === LOADING && <div>Loading</div>}
         {auth === LOGGED_IN && this.props.children}
-        {auth === LOGGED_OUT && <button onClick={this.onSignIn}>Sign in</button>}
+        {auth === LOADING && (
+          <Fragment>
+            <Header />
+            <Spinner />
+          </Fragment>
+        )}
+        {auth === LOGGED_OUT && (
+          <Wrap>
+            <Header />
+            <Content>
+              <Button onClick={this.onSignIn}>Sign in with Blockstack</Button>
+              <BlockstackLink />
+            </Content>
+          </Wrap>
+        )}
       </Fragment>
     );
   }
 
   onSignIn = () => {
     const url = document.location.href;
-    redirectToSignIn(url, document.location.origin + '/manifest.json');
+    const manifest = document.location.origin + '/manifest.json';
+    redirectToSignIn(url, manifest);
   };
 }

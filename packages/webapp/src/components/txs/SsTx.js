@@ -5,7 +5,7 @@ import {
   placeOrder,
   validAddressSymbol,
   fetchMarketInfo,
-} from '../../utils/ssTx';
+} from '../../utils/ss';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -78,7 +78,7 @@ export default class SsTx extends Component {
   //  2.1- if order cannot be broadcasted render details to manually do so
   // 3- if order can be broadcasted do so: broadcastOrder
   placeOrder = async () => {
-    this.setState({ broadcasting: <div>Placing order with ShapeShift</div> });
+    this.setState({ broadcasting: 'Placing order with ShapeShift' });
 
     const { to, toSymbol, from, fromSymbol, amount } = this.props;
     const opts = {
@@ -92,14 +92,10 @@ export default class SsTx extends Component {
       const ssOrder = await placeOrder(opts);
       this.renderOrderInfo(ssOrder);
     } catch (e) {
+      console.error('-- Could not place shapeshift order error: ', e);
       this.setState({
-        error: (
-          <div>
-            There was an error placing the order with ShapeShift:{' '}
-            {e.toString ? e.toString() : JSON.stringify(e)}
-          </div>
-        ),
-        broadcasting: <div>The transaction did not take place</div>,
+        error: 'Could not place order with shapeshift',
+        broadcasting: 'Incomplete',
       });
     }
   };
@@ -112,45 +108,50 @@ export default class SsTx extends Component {
     quotedRate,
     pair,
     minerFee,
-    maxLimit,
   }) => {
     const { from, fromSymbol, privateKey, amount } = this.props;
 
     const date = new Date(expiration);
-    const info = (
-      <Fragment>
-        <div>Pair: {pair}</div>
-        <div>Quoted rate: {quotedRate}</div>
-        <div>Miner Fee: {minerFee}</div>
-        <div>Max Limit: {maxLimit}</div>
-        <div>Amount to receive: {withdrawalAmount}</div>
-        <div>Order Id: {orderId}</div>
-      </Fragment>
-    );
-    this.setState({
-      info,
-      broadcasting: !canBroadcast(fromSymbol) && (
-        <Fragment>
-          <div>Cannot broadcast transaction, must be done manually:</div>
-          <div>
-            Send {amount} {fromSymbol} to {deposit} by {date.toLocaleString()}
-          </div>
-        </Fragment>
-      ),
-    });
+    const info = [
+      { label: 'Pair', value: pair },
+      { label: 'Quoted rate', value: quotedRate },
+      { label: 'Miner Fee', value: `${fromSymbol} ${minerFee}` },
+      {
+        label: 'Amount to receive',
+        value: `${fromSymbol} ${withdrawalAmount}`,
+      },
+      { label: 'Order Id', value: orderId },
+      { label: 'ShapeShift address', value: deposit },
+    ];
+    this.setState({ info });
+    const manually = `To complete transaction you need to send ${fromSymbol} ${amount} to ShapeShift address manually (expires today ${date.toLocaleTimeString()})`;
 
-    canBroadcast(fromSymbol) &&
+    if (canBroadcast(fromSymbol)) {
       this.broadcastOrder({
         to: deposit,
         from,
         privateKey,
         amount,
         fromSymbol,
+        manually,
       });
+    } else {
+      this.setState({
+        error: manually,
+        broadcasting: 'Incomplete',
+      });
+    }
   };
 
-  broadcastOrder = async ({ to, from, fromSymbol, privateKey, amount }) => {
-    this.setState({ broadcasting: <div>Broadcasting transaction</div> });
+  broadcastOrder = async ({
+    to,
+    from,
+    fromSymbol,
+    privateKey,
+    amount,
+    manually,
+  }) => {
+    this.setState({ broadcasting: 'Broadcasting transaction' });
     try {
       const txId = await broadcast({
         fromSymbol,
@@ -159,34 +160,32 @@ export default class SsTx extends Component {
         privateKey,
         amount,
       });
-      this.setState({ txId, broadcasting: <div>Transaction broadcasted</div> });
+      this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
+      console.error('-- Could not broadcast transaction error:  ', e);
       this.setState({
-        error: <div>{e.toString ? e.toString() : JSON.stringify(e)}</div>,
-        broadcasting: <div>The transaction was not broadcasted</div>,
+        error: manually,
+        broadcasting: 'Unsuccessful',
       });
     }
   };
 
   validAmountFeeBalance(amount, fee, balance) {
-    this.setState({
-      checking: <div>{'Validating Amount + Fee < Balance'}</div>,
-    });
+    this.setState({ checking: 'Validating Amount + Fee < Balance' });
     if (amount + fee > balance) {
-      this.setState({
-        error: <div>Cannot send amount bigger than balance + fee</div>,
-      });
+      this.setState({ error: 'Amount + fee exceeds balance' });
       return false;
     }
     return true;
   }
 
   async validAddressFromSymbol(address, symbol) {
-    this.setState({ checking: <div>Validating From address</div> });
+    this.setState({ checking: 'Validating withdrawal address' });
     const { isvalid, error } = await validAddressSymbol(address, symbol);
     if (!isvalid) {
+      console.error('-- Withdrawal address error: ', error);
       this.setState({
-        error: <div>From is not a valid address: {JSON.stringify(error)}</div>,
+        error: 'Wallet info doesn’t have valid address',
       });
       return false;
     }
@@ -194,12 +193,11 @@ export default class SsTx extends Component {
   }
 
   async validAddressToSymbol(address, symbol) {
-    this.setState({ checking: <div>Validating To address</div> });
+    this.setState({ checking: 'Validating deposit address' });
     const { isvalid, error } = await validAddressSymbol(address, symbol);
     if (!isvalid) {
-      this.setState({
-        error: <div>To is not a valid address: {JSON.stringify(error)}</div>,
-      });
+      console.error('-- Deposit address error: ', error);
+      this.setState({ error: 'Deposit info isn’t valid address' });
       return false;
     }
     return true;
@@ -207,35 +205,31 @@ export default class SsTx extends Component {
 
   validate = async () => {
     this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
-    const { to, toSymbol, from, fromSymbol } = this.props;
+    const { to, toSymbol, from, fromSymbol, amount } = this.props;
     if (
       (await this.validAddressToSymbol(to, toSymbol)) &&
       (await this.validAddressFromSymbol(from, fromSymbol))
     ) {
       try {
-        const {
-          pair,
-          rate,
-          minerFee,
-          limit,
-          minimum,
-          maxLimit,
-        } = await fetchMarketInfo(fromSymbol, toSymbol);
-        const info = (
-          <Fragment>
-            <div>Pair: {pair}</div>
-            <div>Rate: {rate}</div>
-            <div>Miner Fee: {minerFee}</div>
-            <div>Limit: {limit}</div>
-            <div>Minimum: {minimum}</div>
-            <div>Max Limit: {maxLimit}</div>
-          </Fragment>
+        const { pair, rate, minerFee, limit, minimum } = await fetchMarketInfo(
+          fromSymbol,
+          toSymbol,
         );
-        this.setState({ info, valid: true });
+        const info = [
+          { label: 'Pair', value: pair },
+          { label: 'Rate', value: rate },
+          { label: 'Miner Fee', value: `${fromSymbol} ${minerFee}` },
+          { label: 'Limit', value: `${fromSymbol} ${limit}` },
+          { label: 'Minimum', value: `${fromSymbol} ${minimum}` },
+          { label: 'Amount to receive', value: `${toSymbol} ${amount * rate}` },
+        ];
+        this.setState({ info, valid: true, checking: 'Tx can take place' });
+        return;
       } catch (e) {
-        this.setState({ error: <div>JSON.stringify(e)</div> });
+        console.error('Could not fetch transaction info error: ', e);
+        this.setState({ error: 'Could not fetch transaction info' });
       }
     }
-    this.setState({ checking: null });
+    this.setState({ checking: 'Please review errors' });
   };
 }

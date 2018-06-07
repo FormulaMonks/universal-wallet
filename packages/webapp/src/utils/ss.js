@@ -1,23 +1,38 @@
+import { broadcast as btcBroadcast, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
 import {
-  SHAPESHIFT_SEND_AMOUNT,
-  SHAPESHIFT_VALIDATE_ADDRESS,
-  SHAPESHIFT_MARKET_INFO,
-  ETHER_SYMBOL_LOWER_CASED,
-  BITCOIN_SYMBOL_LOWER_CASED,
-} from './constants';
-import { broadcast as btcBroadcast } from './btcTx';
-import { broadcast as ethBroadcast } from './ethTx';
+  broadcast as bchBroadcast,
+  BITCOIN_CASH_SYMBOL_LOWER_CASED,
+} from './bch';
+import { broadcast as ethBroadcast, ETHER_SYMBOL_LOWER_CASED } from './eth';
 
+console.log('Add symbols with transacionts here');
 const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
   BITCOIN_SYMBOL_LOWER_CASED,
+  BITCOIN_CASH_SYMBOL_LOWER_CASED,
   ETHER_SYMBOL_LOWER_CASED,
 ];
+
+export const SHAPESHIFT = 'https://shapeshift.io/';
+
+export const SHAPESHIFT_MARKET_INFO = `${SHAPESHIFT}marketinfo/`;
+
+export const SHAPESHIFT_GETCOINS = `${SHAPESHIFT}getcoins/`;
+
+export const SHAPESHIFT_SHIFT = `${SHAPESHIFT}shift/`;
+
+export const SHAPESHIFT_SEND_AMOUNT = `${SHAPESHIFT}sendamount/`;
+
+export const SHAPESHIFT_VALIDATE_ADDRESS = `${SHAPESHIFT}validateAddress/`;
 
 export const fetchMarketInfo = async (fromSymbol, toSymbol) => {
   const res = await fetch(
     `${SHAPESHIFT_MARKET_INFO}${fromSymbol.toLowerCase()}_${toSymbol.toLowerCase()}`,
   );
-  return await res.json();
+  const response = await res.json();
+  if (response.hasOwnProperty('error')) {
+    throw new Error(response.error);
+  }
+  return response;
 };
 
 export const validAddressSymbol = async (address, symbol) => {
@@ -51,5 +66,7 @@ export const canBroadcast = symbol =>
 export const broadcast = async ({ fromSymbol, ...params }) => {
   return fromSymbol === ETHER_SYMBOL_LOWER_CASED
     ? ethBroadcast(params)
-    : btcBroadcast(params);
+    : fromSymbol === BITCOIN_CASH_SYMBOL_LOWER_CASED
+      ? bchBroadcast(params)
+      : btcBroadcast(params);
 };

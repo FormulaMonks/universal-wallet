@@ -1,8 +1,10 @@
 {
   "name": "universal-wallet-webapp",
-  "version": "0.0.1",
+  "version": "0.0.10",
   "homepage": "https://universal-wallet.surge.sh",
   "dependencies": {
+    "bgoldjs-lib": "^3.3.2",
+    "bitcoincashjs": "^0.1.10",
     "bitcore-explorers": "^1.0.1",
     "bitcore-lib": "^0.15.0",
     "blockstack": "^17.2.0",
@@ -10,10 +12,13 @@
     "qr-encode": "^0.3.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "react-qr-reader": "^2.1.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
+    "styled-components": "^3.3.2",
     "uuid": "^3.2.1",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.0.0-beta.34",
+    "wif": "^2.0.6"
   },
   "scripts": {
     "start:cors": "react-app-rewired start",
