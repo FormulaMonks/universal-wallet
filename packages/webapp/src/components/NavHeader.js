@@ -35,7 +35,7 @@ export default class Nav extends Component {
             </Link>
           </Li>
           <Li>
-            <Link to="contacts" title="Contacts">
+            <Link to="address-book" title="Address Book">
               <i className="far fa-address-book" />
             </Link>
           </Li>
