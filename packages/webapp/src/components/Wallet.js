@@ -18,7 +18,7 @@ const H3 = styled.h3`
   justify-content: center;
   text-align: center;
 
-  & img{
+  & img {
     margin-right: 0.5em;
   }
 `;
@@ -34,7 +34,7 @@ const View = ({ wallet, walletLoading, coins }) => {
     return null;
   }
   const { publicAddress, alias, symbol } = wallet;
-  const { imageSmall } = ({} = coins.find(c => c.symbol === symbol));
+  const { imageSmall } = coins.find(c => c.symbol === symbol);
 
   return (
     <Fragment>
