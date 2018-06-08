@@ -2,31 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import qr from 'qr-encode';
 import { Balance, BalanceStore, Currency } from './';
 import Compose from './Compose';
-import { Center, Leaders, Dots } from '../theme';
-import styled from 'styled-components';
-
-const Centered = Center.extend`
-  background: rgba(200, 200, 200, 0.1);
-  padding: 1em;
-  padding-top: 1.5em;
-`;
-
-const H3 = styled.h3`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-
-  & img {
-    margin-right: 0.5em;
-  }
-`;
-
-const DivPublicAddress = styled.div`
-  margin-top: 1em;
-  font-size: 12px;
-  word-break: break-all;
-`;
+import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
 
 const View = ({ wallet, walletLoading, coins, coinsLoading }) => {
   if (!wallet || !wallet.publicAddress || coinsLoading) {
@@ -37,15 +13,15 @@ const View = ({ wallet, walletLoading, coins, coinsLoading }) => {
 
   return (
     <Fragment>
-      <H3>
+      <H3Wallet>
         {imageSmall && <img src={imageSmall} alt={symbol} />}
         {alias}
-      </H3>
+      </H3Wallet>
 
-      <Centered>
+      <DivQrPublicAddress>
         <img src={qr(publicAddress)} alt={publicAddress} />
-        <DivPublicAddress>{publicAddress}</DivPublicAddress>
-      </Centered>
+        <div>{publicAddress}</div>
+      </DivQrPublicAddress>
 
       <Leaders>
         <div>Balance</div>
