@@ -1,16 +1,11 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { SHAPESHIFT_GETCOINS } from '../utils/ss';
-import Compose from '../components/Compose';
+import Compose from './Compose';
 import styled from 'styled-components';
+import { ImgFromSymbol } from './';
 
 const DivSelect = styled.div`
   position: relative;
-`;
-
-const DivI = styled.div`
-  font-size: 20px;
-  color: #444;
-  display: ${({ symbol }) => (symbol === '' ? 'block' : 'none')};
 `;
 
 const Select = styled.select`
@@ -23,19 +18,18 @@ const Select = styled.select`
   cursor: pointer;
 `;
 
-const Image = ({ imageSmall, symbol }) => <img src={imageSmall} alt={symbol} />;
-
-export const View = ({
+const View = ({
   coin,
   coins,
   coinsError,
   coinsLoading,
   coinPick,
   onChange,
-  value,
+  required,
 }) => {
-  const onChangeHandler = onChange || (e => coinPick(e.currentTarget.value));
-  const controlledValue = value || (coin && coin.symbol) || '';
+  const onChangeHandler = ({ currentTarget: { value } }) =>
+    onChange ? onChange(value) : coinPick ? coinPick(value) : null;
+  const { symbol = '' } = coin || {};
 
   return (
     <Fragment>
@@ -44,15 +38,18 @@ export const View = ({
       {coins &&
         coins.length && (
           <DivSelect>
-            {controlledValue !== '' && (
-              <Image
-                {...coins.find(({ symbol }) => symbol === controlledValue)}
-              />
-            )}
-            <DivI symbol={controlledValue}>
-              <i className="fas fa-coins" />
-            </DivI>
-            <Select value={controlledValue} onChange={onChangeHandler}>
+            <ImgFromSymbol
+              coinsLoading={coinsLoading}
+              coins={coins}
+              symbol={symbol}
+            />
+
+            <Select
+              value={symbol}
+              onChange={onChangeHandler}
+              name="selectSymbol"
+              required={required}
+            >
               <option disabled value="" hidden>
                 Crypto coins
               </option>
@@ -138,6 +135,7 @@ class Saga extends Component {
   }
 }
 
-const store = Compose(Store, Saga);
+const SagaStore = Compose(Store, Saga);
 
-export { store as Store };
+export { SagaStore as Store, View };
+export default Compose(SagaStore, View);

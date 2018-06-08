@@ -1,14 +1,15 @@
 import React, { Fragment } from 'react';
 import {
+  AddressBookStore,
   BalanceStore,
   CoinsStore,
-  ContactsStore,
   NavHeader,
   Spinner,
   Transactions,
   TxSetup,
   WalletView,
   WalletsStore,
+  QrReader,
 } from '../components';
 import { Section } from '../theme';
 
@@ -30,9 +31,11 @@ export default props => (
       <WalletsStore {...props}>
         <BalanceStore>
           <CoinsStore>
-            <ContactsStore>
-              <Wallet />
-            </ContactsStore>
+            <AddressBookStore>
+              <QrReader>
+                <Wallet />
+              </QrReader>
+            </AddressBookStore>
           </CoinsStore>
         </BalanceStore>
       </WalletsStore>

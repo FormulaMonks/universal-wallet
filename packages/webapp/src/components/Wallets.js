@@ -3,93 +3,97 @@ import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
-import { Spinner, Balance, BalanceStore, Currency } from '../components';
-import { Ul, Leaders, Dots } from '../theme';
+import {
+  Spinner,
+  Balance,
+  BalanceStore,
+  Currency,
+  ImgFromSymbol,
+} from '../components';
+import { SectionTitle, UlGrid, LiGrid, Leaders, Dots, Button } from '../theme';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
 
 const sort = (a, b) => a.alias.localeCompare(b.alias);
 
+const DivAdd = styled.div`
+  text-align: center;
+  margin-top: 2em;
+`;
+
+const Msg = styled.div`
+  text-align: center;
+`;
+
 const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
-
-const Li = styled.li`
-  margin: 1em 0;
-  padding: 0.5em;
-
-  &:nth-child(odd) {
-    background: rgba(200, 200, 200, 0.1);
-  }
-
-  & a {
-    color: initial;
-    text-decoration: none;
-    display: block;
-    border: none;
-    cursor: pointer;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 0.5em;
-  }
-`;
-
-const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
-  if (coinsLoading) {
-    return null;
-  }
-
-  const { imageSmall } = coins.find(c => c.symbol === symbol);
-  if (!imageSmall) {
-    return null;
-  }
-
-  return <img src={imageSmall} alt={symbol} />;
-};
 
 const View = ({
   wallets,
   walletsError,
   walletsLoading,
   walletPick,
+  coins,
+  coinsLoading,
   ...rest
 }) => (
   <Fragment>
     {walletsError}
+    <SectionTitle>My wallets</SectionTitle>
     {walletsLoading ? (
       <Spinner />
     ) : (
-      <Ul>
-        {wallets.map(wallet => {
-          const { id, alias, symbol } = wallet;
+      <Fragment>
+        {!wallets.length ? (
+          <Fragment>
+            <Msg>You have not added any wallets yet.</Msg>
+            <DivAdd>
+              <Button onClick={() => rest.history.push('/wallets')}>
+                Add wallet
+              </Button>
+            </DivAdd>
+          </Fragment>
+        ) : (
+          <UlGrid>
+            {wallets.map(wallet => {
+              const { id, alias, symbol } = wallet;
 
-          return (
-            <Li key={`wallets-${id}`}>
-              <Link to={`/${id}`}>
-                <ImgSymbol symbol={symbol} {...rest} />
-                <div>
-                  <div>{alias}</div>
-                  <DivLeaders>
-                    <div>Balance</div>
-                    <Dots />
+              return (
+                <LiGrid key={`wallets-${id}`}>
+                  <Link to={`/${id}`}>
+                    <ImgFromSymbol
+                      symbol={symbol}
+                      coins={coins}
+                      coinsLoading={coinsLoading}
+                    />
+
                     <div>
-                      <Balance wallet={wallet} />
+                      <div>{alias}</div>
+                      <DivLeaders>
+                        <div>Balance</div>
+                        <Dots />
+                        <div>
+                          <Balance wallet={wallet} />
+                        </div>
+                      </DivLeaders>
+
+                      <DivLeaders>
+                        <div>USD</div>
+                        <Dots />
+                        <BalanceStore wallet={wallet}>
+                          <Currency />
+                        </BalanceStore>
+                      </DivLeaders>
                     </div>
-                  </DivLeaders>
-                  <DivLeaders>
-                    <div>USD</div>
-                    <Dots />
-                    <BalanceStore wallet={wallet}>
-                      <Currency />
-                    </BalanceStore>
-                  </DivLeaders>
-                </div>
-              </Link>
-            </Li>
-          );
-        })}
-      </Ul>
+                  </Link>
+                </LiGrid>
+              );
+            })}
+          </UlGrid>
+        )}
+      </Fragment>
     )}
   </Fragment>
 );
@@ -98,7 +102,7 @@ class Store extends Component {
   state = {
     error: null,
     loading: false,
-    wallets: [],
+    wallets: null,
     wallet: null,
   };
 
@@ -190,23 +194,35 @@ class Store extends Component {
 }
 
 class Saga extends Component {
+  state = { loading: true };
+
   componentDidMount() {
     this.props.walletsGet();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.walletsLoading !== this.props.walletsLoading) {
+      this.setState({ loading: this.props.walletsLoading });
+    }
   }
 
   render() {
     const {
       children,
+      wallets,
       walletsDelete,
       walletsPost,
       walletsPut,
       ...rest
     } = this.props;
+
     return (
       <Fragment>
         {Children.map(children, child =>
           cloneElement(child, {
             ...rest,
+            wallets: wallets || [],
+            walletsLoading: this.state.loading,
             walletsDelete: this.delete,
             walletsPut: this.put,
             walletsPost: this.post,

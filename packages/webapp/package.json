@@ -1,6 +1,6 @@
 {
   "name": "universal-wallet-webapp",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "homepage": "https://universal-wallet.surge.sh",
   "dependencies": {
     "bgoldjs-lib": "^3.3.2",
