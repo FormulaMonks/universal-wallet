@@ -48,7 +48,6 @@ class QrReader extends Component {
               showViewFinder={false}
               className="qr__container"
               onScan={data => {
-                console.log('qr data: ', data);
                 data && this.setState({ data, scanning: false });
               }}
               onError={error => this.setState({ error, scanning: false })}
