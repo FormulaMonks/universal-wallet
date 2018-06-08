@@ -1,13 +1,13 @@
 {
-  "short_name": "Universal Wallet",
-  "name": "Universal Wallet",
-  "description": "A universal crypto wallet",
-  "start_url": "universal-wallet.surge.sh",
+  "short_name": "Dirua",
+  "name": "Dirua",
+  "description": "Dirua: a universal crypto wallet",
+  "start_url": "dirua.exchange",
   "icons": [
     {
-      "src": "https://universal-wallet.surge.sh/citrusbyte.jpg",
+      "src": "https://dirua.exchange/dirua.png",
       "sizes": "200x200",
-      "type": "image/jpg"
+      "type": "image/png"
     }
   ],
   "display": "standalone",
