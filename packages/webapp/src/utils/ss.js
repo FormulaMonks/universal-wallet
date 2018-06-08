@@ -5,7 +5,7 @@ import {
 } from './bch';
 import { broadcast as ethBroadcast, ETHER_SYMBOL_LOWER_CASED } from './eth';
 
-console.log('Add symbols with transacionts here');
+console.log('Add symbols with automated broadcast here');
 const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
   BITCOIN_SYMBOL_LOWER_CASED,
   BITCOIN_CASH_SYMBOL_LOWER_CASED,

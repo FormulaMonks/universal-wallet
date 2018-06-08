@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { CoinsView, CurrencyStore, CurrencyView, Tx } from './';
-import { sort as sortContacts } from '../components/Contacts';
+import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
 import { sort as sortWallets } from '../components/Wallets';
-import { Leaders, Dots } from '../theme';
+import { Leaders, LeadersCoins, LeadersQrScan, Dots } from '../theme';
 import { canBroadcast } from '../utils/ss';
 
 const Summary = styled.summary`
@@ -12,20 +12,6 @@ const Summary = styled.summary`
   display: block;
   background: #fff;
   z-index: 1;
-`;
-
-const WrapBroadcast = styled.div`
-  & input {
-    text-align: right;
-    border: none;
-    border-bottom: 1px solid #eee;
-    position: relative;
-    top: -4px;
-  }
-
-  & input[name='amount'] {
-    width: 60px;
-  }
 `;
 
 const H4 = styled.h4`
@@ -47,32 +33,7 @@ const LeadersDeposit = Leaders.extend`
   margin: 2em 0 1em 0;
 `;
 
-const LeadersCoin = Leaders.extend`
-  margin-left: 1em;
-
-  & select {
-    max-width: 150px;
-    text-align: right;
-    text-align-last: right;
-  }
-`;
-
-const LeadersOptions = Leaders.extend`
-  margin-left: 1em;
-  position: relative;
-
-  & button {
-    border: none;
-    cursor: pointer;
-    background: none;
-    padding: 0;
-  }
-
-  & svg {
-    font-size: 28px;
-    color: #444;
-  }
-
+const LeadersOptions = LeadersQrScan.extend`
   & select {
     width: 30px;
     height: 30px;
@@ -83,7 +44,7 @@ const LeadersOptions = Leaders.extend`
   }
 `;
 
-// filters out unavailable coins for this wallet to pick from wallets/contacts
+// filters out unavailable coins for this wallet to pick from wallets/address book
 // if same coin is unavailable it is not filtered out since txs to same
 // coin are available
 const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
@@ -104,8 +65,8 @@ export default class SetupTx extends Component {
   }
 
   render() {
-    const { wallet, coinsLoading, contactsLoading } = this.props;
-    if (!wallet || coinsLoading || contactsLoading) {
+    const { wallet, coinsLoading, addressBookLoading } = this.props;
+    if (!wallet || coinsLoading || addressBookLoading) {
       return null;
     }
 
@@ -123,13 +84,13 @@ export default class SetupTx extends Component {
       );
     }
 
-    const { balance, coins, contacts, wallets } = this.props;
+    const { balance, coins, addressBook, wallets } = this.props;
     const { to, toId, toSymbol, amount } = this.state;
     const filterOut = filterOutUnavailableCoins(coins, symbol);
     const filteredWallets = wallets
       .filter(({ id }) => id !== wallet.id)
       .filter(filterOut);
-    const filteredContacts = contacts.filter(filterOut);
+    const filteredAddressBook = addressBook.filter(filterOut);
 
     return (
       <details>
@@ -137,7 +98,7 @@ export default class SetupTx extends Component {
           <H4>Send {symbol}</H4>
         </Summary>
 
-        <WrapBroadcast>
+        <div>
           <Leaders>
             <div>Amount</div>
             <Dots />
@@ -172,46 +133,48 @@ export default class SetupTx extends Component {
             />
           </LeadersDeposit>
 
-          <LeadersCoin>
+          <LeadersCoins>
             <div>Crypto currency</div>
             <Dots />
             <CoinsView
-              {...this.props}
               onChange={this.onSelectToSymbolChange}
-              value={toSymbol}
+              coin={coins.find(({ symbol }) => toSymbol === symbol)}
+              coins={coins}
               filterOutUnavailable={true}
             />
-          </LeadersCoin>
+          </LeadersCoins>
 
-          <LeadersOptions>
+          <LeadersQrScan>
             <div>Scan from QR Code</div>
             <Dots />
             <button title="Scan from QR Code" onClick={this.props.qrScan}>
               <i className="fas fa-qrcode" />
             </button>
-          </LeadersOptions>
+          </LeadersQrScan>
 
           <LeadersOptions>
-            <div>Choose from Wallets/Contacts</div>
+            <div>Choose from Wallets/Address book</div>
             <Dots />
             <i className="far fa-address-book" />
             <Fragment>
-              {filteredContacts.length &&
+              {filteredAddressBook.length &&
                 filteredWallets.length && (
                   <select value={toId} onChange={this.onSelectToChange}>
                     <option key="send-to-label" disabled value="" hidden>
-                      Contacts & My Wallets
+                      Address Book & My Wallets
                     </option>
-                    {filteredContacts.length && (
-                      <optgroup key="send-to-contacts" label="Contacts">
-                        {contacts.sort(sortContacts).map(({ id, alias }) => (
-                          <option
-                            key={`send-to-contact-${id}`}
-                            value={`contact-${id}`}
-                          >
-                            {alias}
-                          </option>
-                        ))}
+                    {filteredAddressBook.length && (
+                      <optgroup key="send-to-address-book" label="AddressBook">
+                        {filteredAddressBook
+                          .sort(sortAddressBook)
+                          .map(({ id, alias }) => (
+                            <option
+                              key={`send-to-address-book-${id}`}
+                              value={`address-book-${id}`}
+                            >
+                              {alias}
+                            </option>
+                          ))}
                       </optgroup>
                     )}
                     {filteredWallets.length && (
@@ -232,7 +195,7 @@ export default class SetupTx extends Component {
                 )}
             </Fragment>
           </LeadersOptions>
-        </WrapBroadcast>
+        </div>
 
         <Tx
           to={to}
@@ -259,9 +222,9 @@ export default class SetupTx extends Component {
     const value = e.currentTarget.value;
     let list = this.props.wallets;
     let prefix = 'wallet-';
-    if (value.includes('contact-')) {
-      prefix = 'contact-';
-      list = this.props.contacts;
+    if (value.includes('address-book-')) {
+      prefix = 'address-book-';
+      list = this.props.addressBook;
     }
     const { publicAddress: to, id, symbol: toSymbol } = list.find(
       ({ id }) => `${prefix}${id}` === value,
@@ -269,7 +232,7 @@ export default class SetupTx extends Component {
     this.setState({ to, toId: `${prefix}${id}`, toSymbol });
   };
 
-  onSelectToSymbolChange = e => {
-    this.setState({ toSymbol: e.currentTarget.value });
+  onSelectToSymbolChange = toSymbol => {
+    this.setState({ toSymbol });
   };
 }

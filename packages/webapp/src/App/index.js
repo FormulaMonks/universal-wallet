@@ -8,10 +8,9 @@ import {
 import Home from './Home'
 import Wallets from './Wallets';
 import Wallet from './Wallet'
-import Contacts from './Contacts';
+import AddressBook from './AddressBook';
+import NotFound from './NotFound'
 import { Auth } from '../components';
-
-const NotFound = () => <div>404</div>;
 
 class App extends Component {
   render() {
@@ -22,7 +21,7 @@ class App extends Component {
             <Route path="/404" component={NotFound} />
             <Route exact path="/" component={Home} />
             <Route path="/wallets" component={Wallets} />
-            <Route path="/contacts" component={Contacts} />
+            <Route path="/address-book" component={AddressBook} />
             <Route exact path="/:id" component={Wallet} />
             <Redirect from="*" to="/404" />
           </Switch>
