@@ -3,8 +3,14 @@ import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
-import { Spinner, Balance, BalanceStore, Currency } from '../components';
-import { SectionTitle, Ul, Leaders, Dots, Button } from '../theme';
+import {
+  Spinner,
+  Balance,
+  BalanceStore,
+  Currency,
+  ImgFromSymbol,
+} from '../components';
+import { SectionTitle, UlGrid, LiGrid, Leaders, Dots, Button } from '../theme';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
@@ -20,54 +26,9 @@ const Msg = styled.div`
   text-align: center;
 `;
 
-const UlWallets = Ul.extend`
-  display: grid;
-  grid-gap: 1em;
-
-  @media (min-width: 600px) {
-    grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
-  }
-`;
-
 const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
-
-const Li = styled.li`
-  padding: 0.5em;
-
-  &:nth-child(odd) {
-    background: rgba(200, 200, 200, 0.1);
-  }
-
-  & a {
-    color: initial;
-    text-decoration: none;
-    display: block;
-    border: none;
-    cursor: pointer;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 0.5em;
-  }
-
-  @media (min-width: 600px) {
-    background: rgba(200, 200, 200, 0.1);
-  }
-`;
-
-const ImgSymbol = ({ symbol, coins, coinsLoading }) => {
-  if (coinsLoading) {
-    return null;
-  }
-
-  const { imageSmall } = coins.find(c => c.symbol === symbol);
-  if (!imageSmall) {
-    return null;
-  }
-
-  return <img src={imageSmall} alt={symbol} />;
-};
 
 const View = ({
   wallets,
@@ -95,14 +56,14 @@ const View = ({
             </DivAdd>
           </Fragment>
         ) : (
-          <UlWallets>
+          <UlGrid>
             {wallets.map(wallet => {
               const { id, alias, symbol } = wallet;
 
               return (
-                <Li key={`wallets-${id}`}>
+                <LiGrid key={`wallets-${id}`}>
                   <Link to={`/${id}`}>
-                    <ImgSymbol
+                    <ImgFromSymbol
                       symbol={symbol}
                       coins={coins}
                       coinsLoading={coinsLoading}
@@ -127,10 +88,10 @@ const View = ({
                       </DivLeaders>
                     </div>
                   </Link>
-                </Li>
+                </LiGrid>
               );
             })}
-          </UlWallets>
+          </UlGrid>
         )}
       </Fragment>
     )}
