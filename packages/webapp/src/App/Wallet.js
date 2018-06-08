@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import {
+  AddressBookStore,
   BalanceStore,
   CoinsStore,
-  ContactsStore,
   NavHeader,
   Spinner,
   Transactions,
@@ -31,11 +31,11 @@ export default props => (
       <WalletsStore {...props}>
         <BalanceStore>
           <CoinsStore>
-            <ContactsStore>
+            <AddressBookStore>
               <QrReader>
                 <Wallet />
               </QrReader>
-            </ContactsStore>
+            </AddressBookStore>
           </CoinsStore>
         </BalanceStore>
       </WalletsStore>
