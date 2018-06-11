@@ -16,6 +16,14 @@ export const SectionTitle = styled.h2`
   margin: 0;
 `;
 
+export const StickySummary = styled.summary`
+  position: sticky;
+  top: 70px;
+  display: block;
+  background: #fff;
+  z-index: 1;
+`;
+
 /* buttons */
 export const Button = styled.button`
   font-family: 'Open Sans', sans-serif;
