@@ -9,6 +9,7 @@ import Home from './Home'
 import Wallets from './Wallets';
 import Wallet from './Wallet'
 import AddressBook from './AddressBook';
+import NewWallet from './NewWallet'
 import NotFound from './NotFound'
 import { Auth } from '../components';
 
@@ -22,6 +23,7 @@ class App extends Component {
             <Route exact path="/" component={Home} />
             <Route path="/wallets" component={Wallets} />
             <Route path="/address-book" component={AddressBook} />
+            <Route path="/new-wallet" component={NewWallet} />
             <Route exact path="/:id" component={Wallet} />
             <Redirect from="*" to="/404" />
           </Switch>
