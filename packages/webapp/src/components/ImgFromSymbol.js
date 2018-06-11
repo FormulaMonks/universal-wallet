@@ -23,7 +23,7 @@ const ImgFromSymbol = ({ symbol, coins, coinsLoading }) => {
     );
   }
 
-  const { imageSmall, name } = coins.find(c => c.symbol === symbol);
+  const { imageSmall, name } = coins.find(c => c.symbol.toLowerCase() === symbol.toLowerCase());
   if (!imageSmall) {
     return (
       <DivI>

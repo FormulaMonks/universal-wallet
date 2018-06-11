@@ -24,6 +24,8 @@ export { default as Form } from './Form';
 export { default as Header } from './Header';
 export { default as ImgFromSymbol } from './ImgFromSymbol';
 export { default as NavHeader } from './NavHeader';
+export { default as NewWallet } from './NewWallet';
+export { default as Settings } from './Settings';
 export { default as Spinner } from './Spinner';
 export { default as QrReader } from './QrReader';
 export {
@@ -39,3 +41,8 @@ export {
   Store as WalletsStore,
   View as WalletsView,
 } from './Wallets';
+export {
+  default as WifExport,
+  View as WifExportView,
+  Store as WifExportStore,
+} from './WifExport';

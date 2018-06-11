@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ImgFromSymbol } from './';
 
 const DivSelect = styled.div`
+  display: inline-block;
   position: relative;
 `;
 
@@ -102,7 +103,7 @@ class Store extends Component {
   };
 
   pick = coinSymbol => {
-    const coin = this.state.coins.find(({ symbol }) => symbol === coinSymbol);
+    const coin = this.state.coins.find(({ symbol }) => symbol.toLowerCase() === coinSymbol.toLowerCase());
     this.setState({ coin });
   };
 

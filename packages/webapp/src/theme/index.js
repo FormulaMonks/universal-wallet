@@ -5,9 +5,23 @@ export const Section = styled.section`
   padding: 0 1em 1em;
 `;
 
+export const SectionHeader = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+`;
+
 export const SectionTitle = styled.h2`
   padding: 1.33em 0;
   margin: 0;
+`;
+
+export const StickySummary = styled.summary`
+  position: sticky;
+  top: 70px;
+  display: block;
+  background: #fff;
+  z-index: 1;
 `;
 
 /* buttons */

@@ -1,7 +1,7 @@
 {
   "name": "universal-wallet-webapp",
-  "version": "0.0.11",
-  "homepage": "https://universal-wallet.surge.sh",
+  "version": "0.0.12",
+  "homepage": "https://dirua.exchange",
   "dependencies": {
     "bgoldjs-lib": "^3.3.2",
     "bitcoincashjs": "^0.1.10",
@@ -25,7 +25,11 @@
     "start": "react-scripts start",
     "build": "react-app-rewired build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy:prod": "URL=https://dirua.exchange npm run deploy",
+    "deploy:staging": "URL=https://universal-wallet.surge.sh npm run deploy",
+    "deploy:dev": "URL=dev-universal-wallet.surge.sh npm run deploy",
+    "deploy": "npm run build && npx surge ./build $URL"
   },
   "devDependencies": {
     "react-app-rewired": "^1.5.2"

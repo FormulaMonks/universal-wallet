@@ -1,10 +1,21 @@
 import bitcore from 'bitcore-lib';
 import { Insight } from 'bitcore-explorers';
 
-const { Address, Transaction } = bitcore;
-const insight = process.env.REACT_APP_TESTNET
-  ? new Insight('testnet')
-  : new Insight();
+const { Address, Transaction, PrivateKey } = bitcore;
+
+const { REACT_APP_TESTNET } = process.env;
+
+const insight = REACT_APP_TESTNET ? new Insight('testnet') : new Insight();
+
+const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
+
+const balanceURL = REACT_APP_TESTNET
+  ? 'https://testnet.blockexplorer.com/api/addr/'
+  : 'https://explorer.blockexplorer.com/api/addr/';
+
+const transactionsURL = REACT_APP_TESTNET
+  ? 'https://testnet.blockexplorer.com/api/addr/'
+  : 'https://explorer.blockexplorer.com/api/addr/';
 
 const toSatoshi = btc => btc * 100000000;
 const toBTC = satoshi => satoshi / 100000000;
@@ -43,18 +54,44 @@ const broadcastTx = tx =>
     }),
   );
 
-export const BITCOIN_SYMBOL_LOWER_CASED = 'btc'
+export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
+
+export const exportBtcWif = privateKey => {
+  const pk = new PrivateKey(privateKey);
+  return pk.toWIF();
+};
+
+export const importBtcWif = wif => {
+  const privateKey = PrivateKey.fromWIF(wif);
+  const publicAddress = privateKey.toAddress(NETWORK);
+
+  return {
+    privateKey: privateKey.toString('hex'),
+    publicAddress: publicAddress.toString('hex'),
+    symbol: BITCOIN_SYMBOL_LOWER_CASED,
+    balanceURL,
+    balanceProp: 'balance',
+    balanceUnit: 1,
+    transactionsURL,
+    transactionsProp: 'transactions',
+  };
+};
 
 export const generateBtcWallet = () => {
   const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
   const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
   const privateKey = new bitcore.PrivateKey(randNum);
-  const publicAddress = privateKey.toAddress();
+  const publicAddress = privateKey.toAddress(NETWORK);
 
   return {
-    privateKey,
-    publicAddress,
+    privateKey: privateKey.toString('hex'),
+    publicAddress: publicAddress.toString('hex'),
     symbol: BITCOIN_SYMBOL_LOWER_CASED,
+    balanceURL,
+    balanceProp: 'balance',
+    balanceUnit: 1,
+    transactionsURL,
+    transactionsProp: 'transactions',
   };
 };
 
