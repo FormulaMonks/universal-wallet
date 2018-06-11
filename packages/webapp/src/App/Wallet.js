@@ -11,6 +11,7 @@ import {
   WalletView,
   WalletsStore,
   QrReader,
+  WifExport,
 } from '../components';
 import { Section } from '../theme';
 
@@ -22,6 +23,7 @@ const Wallet = props => {
       <TxSetup {...props} />
       <Transactions {...props} />
       <Settings {...props} />
+      <WifExport {...props} />
     </Fragment>
   );
 };
