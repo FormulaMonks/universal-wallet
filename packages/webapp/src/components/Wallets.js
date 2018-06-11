@@ -246,7 +246,6 @@ class Saga extends Component {
     const {
       children,
       wallets,
-      walletsDelete,
       walletsPut,
       ...rest
     } = this.props;
@@ -258,7 +257,6 @@ class Saga extends Component {
             ...rest,
             wallets: wallets || [],
             walletsLoading: this.state.loading,
-            walletsDelete: this.delete,
             walletsPut: this.put,
           }),
         )}
@@ -266,18 +264,8 @@ class Saga extends Component {
     );
   }
 
-  delete = async walletId => {
-    const { wallet, walletsGet, walletRelease, walletsDelete } = this.props;
-    if (wallet && wallet.id === walletId) {
-      walletRelease();
-    }
-    await walletsDelete(walletId);
-    await walletsGet();
-  };
-
   put = async (walletId, data) => {
-    const { walletRelease, walletsPut, walletPick, walletsGet } = this.props;
-    walletRelease();
+    const { walletsPut, walletPick, walletsGet } = this.props;
     await walletsPut(walletId, data);
     await walletsGet();
     walletPick(walletId);
