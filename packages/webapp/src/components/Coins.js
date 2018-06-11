@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ImgFromSymbol } from './';
 
 const DivSelect = styled.div`
+  display: inline-block;
   position: relative;
 `;
 
