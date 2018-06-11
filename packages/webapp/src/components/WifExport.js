@@ -1,7 +1,7 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
 import { Center, StickySummary } from '../theme';
-import { exportWif, AVAILABLE_WALLET_EXPORT_WIF } from '../utils/wallets';
+import { toWif, toWifAvailable } from '../utils/wallets';
 import qr from 'qr-encode';
 import Compose from './Compose';
 
@@ -20,8 +20,8 @@ const Div = styled.div`
   min-height: 17px;
 `;
 
-const View = ({ wif }) => {
-  if (!wif) {
+const View = ({ wif, walletsLoading }) => {
+  if (!wif || walletsLoading) {
     return null;
   }
 
@@ -78,12 +78,16 @@ class Store extends Component {
 
     const { privateKey, symbol } = wallet;
 
-    if (!AVAILABLE_WALLET_EXPORT_WIF[symbol.toLowerCase()]) {
+    if (
+      !toWifAvailable().find(
+        i => i.symbol.toLowerCase() === symbol.toLowerCase(),
+      )
+    ) {
       return null;
     }
 
     try {
-      const wif = exportWif({ privateKey, symbol });
+      const wif = toWif(symbol)(privateKey)
       this.setState({ wif });
     } catch (e) {
       console.error('--Could not export wallet to WIF error: ', e);
