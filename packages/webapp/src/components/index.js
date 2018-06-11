@@ -41,3 +41,8 @@ export {
   Store as WalletsStore,
   View as WalletsView,
 } from './Wallets';
+export {
+  default as WifExport,
+  View as WifExportView,
+  Store as WifExportStore,
+} from './WifExport';
