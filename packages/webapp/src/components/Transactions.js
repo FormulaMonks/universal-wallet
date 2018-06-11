@@ -122,8 +122,9 @@ const View = ({
   transactionsLoading,
   transactionsError,
   wallet,
+  walletsLoading,
 }) => {
-  if (!transactionsHas) {
+  if (!transactionsHas || walletsLoading) {
     return null;
   }
   return (
