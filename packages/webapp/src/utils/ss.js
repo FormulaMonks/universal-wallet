@@ -1,7 +1,10 @@
-import { broadcast as btcBroadcast, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
+import {
+  broadcast as btcBroadcast,
+  SYMBOL as BITCOIN_SYMBOL_LOWER_CASED,
+} from './btc';
 import {
   broadcast as bchBroadcast,
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
+  SYMBOL as BITCOIN_CASH_SYMBOL_LOWER_CASED,
 } from './bch';
 import { broadcast as ethBroadcast, ETHER_SYMBOL_LOWER_CASED } from './eth';
 
