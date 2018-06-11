@@ -4,6 +4,7 @@ import {
   BalanceStore,
   CoinsStore,
   NavHeader,
+  Settings,
   Spinner,
   Transactions,
   TxSetup,
@@ -20,6 +21,7 @@ const Wallet = props => {
       <WalletView {...props} />
       <TxSetup {...props} />
       <Transactions {...props} />
+      <Settings {...props} />
     </Fragment>
   );
 };
