@@ -10,7 +10,15 @@ import {
   Currency,
   ImgFromSymbol,
 } from '../components';
-import { SectionTitle, UlGrid, LiGrid, Leaders, Dots, Button } from '../theme';
+import {
+  SectionHeader,
+  SectionTitle,
+  UlGrid,
+  LiGrid,
+  Leaders,
+  Dots,
+  Center,
+} from '../theme';
 import Compose from './Compose';
 
 const WALLETS_JSON = 'wallets.json';
@@ -19,11 +27,34 @@ const sort = (a, b) => a.alias.localeCompare(b.alias);
 
 const DivAdd = styled.div`
   text-align: center;
-  margin-top: 2em;
+
+  & a {
+    display: inline-block;
+    text-decoration: none;
+    color: initial;
+    font-family: 'Open Sans', sans-serif;
+    padding: 0.5em 2em;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:enabled:hover {
+      border-color: rgba(0, 0, 0, 0);
+      color: #fff;
+      background: rgba(37, 58, 84, 0.7);
+    }
+
+    &:enabled:active {
+      border-color: rgba(0, 0, 0, 0);
+      color: #fff;
+      background: rgba(37, 58, 84, 0.9);
+    }
+  }
 `;
 
-const Msg = styled.div`
-  text-align: center;
+const DivAddEmpty = DivAdd.extend`
+  margin-top: 2em;
 `;
 
 const DivLeaders = Leaders.extend`
@@ -41,20 +72,25 @@ const View = ({
 }) => (
   <Fragment>
     {walletsError}
-    <SectionTitle>My wallets</SectionTitle>
+    <SectionHeader>
+      <SectionTitle>My wallets</SectionTitle>
+      {!!wallets.length && (
+        <DivAdd>
+          <Link to="new-wallet">Add wallet</Link>
+        </DivAdd>
+      )}
+    </SectionHeader>
     {walletsLoading ? (
       <Spinner />
     ) : (
       <Fragment>
         {!wallets.length ? (
-          <Fragment>
-            <Msg>You have not added any wallets yet.</Msg>
-            <DivAdd>
-              <Button onClick={() => rest.history.push('/wallets')}>
-                Add wallet
-              </Button>
-            </DivAdd>
-          </Fragment>
+          <Center>
+            <div>You have not added any wallets yet.</div>
+            <DivAddEmpty>
+              <Link to="new-wallet">Add wallet</Link>
+            </DivAddEmpty>
+          </Center>
         ) : (
           <UlGrid>
             {wallets.map(wallet => {
@@ -211,7 +247,6 @@ class Saga extends Component {
       children,
       wallets,
       walletsDelete,
-      walletsPost,
       walletsPut,
       ...rest
     } = this.props;
@@ -225,7 +260,6 @@ class Saga extends Component {
             walletsLoading: this.state.loading,
             walletsDelete: this.delete,
             walletsPut: this.put,
-            walletsPost: this.post,
           }),
         )}
       </Fragment>
@@ -247,13 +281,6 @@ class Saga extends Component {
     await walletsPut(walletId, data);
     await walletsGet();
     walletPick(walletId);
-  };
-
-  post = async data => {
-    const { walletsPost, walletsGet, walletPick } = this.props;
-    const newWallet = await walletsPost(data);
-    await walletsGet();
-    walletPick(newWallet.id);
   };
 }
 
