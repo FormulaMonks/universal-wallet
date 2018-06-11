@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import {
+  SectionHeader,
   SectionTitle,
   Center,
   Button,
@@ -28,12 +29,6 @@ const DivInner = styled.div`
 
 const ButtonAdd = Button.extend`
   margin-top: 2em;
-`;
-
-const SectionHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
 `;
 
 class AddressBookView extends Component {
