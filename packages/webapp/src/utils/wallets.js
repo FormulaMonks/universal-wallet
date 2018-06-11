@@ -27,7 +27,7 @@ export const AVAILABLE_WALLET_GENERATORS = [
 ];
 
 export const generateWallet = symbol => {
-  const option = AVAILABLE_WALLET_GENERATORS.find(i => i.symbol === symbol);
+  const option = AVAILABLE_WALLET_GENERATORS.find(i => i.symbol.toLowerCase() === symbol.toLowerCase());
   if (!option) {
     throw new Error(`Cannot generate wallet for ${symbol}`);
   }
