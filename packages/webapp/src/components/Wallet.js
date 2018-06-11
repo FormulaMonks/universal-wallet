@@ -5,11 +5,11 @@ import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
 
 const View = ({ wallet, walletLoading, coins, coinsLoading }) => {
-  if (!wallet || !wallet.publicAddress || coinsLoading) {
+  if (!wallet || coinsLoading) {
     return null;
   }
   const { publicAddress, alias, symbol } = wallet;
-  const { imageSmall } = coins.find(c => c.symbol === symbol);
+  const { imageSmall } = coins.find(c => c.symbol.toLowerCase() === symbol.toLowerCase());
 
   return (
     <Fragment>

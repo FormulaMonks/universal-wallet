@@ -50,8 +50,8 @@ const LeadersOptions = LeadersQrScan.extend`
 const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
-      c.symbol === symbol &&
-      (c.status !== 'unavailable' || c.symbol === fromSymbol),
+      c.symbol.toLowerCase() === symbol.toLowerCase() &&
+      (c.status !== 'unavailable' || c.symbol.toLowerCase() === fromSymbol.toLowerCase()),
   );
 
 export default class SetupTx extends Component {
@@ -138,7 +138,7 @@ export default class SetupTx extends Component {
             <Dots />
             <CoinsView
               onChange={this.onSelectToSymbolChange}
-              coin={coins.find(({ symbol }) => toSymbol === symbol)}
+              coin={coins.find(({ symbol }) => toSymbol.toLowerCase() === symbol.toLowerCase())}
               coins={coins}
               filterOutUnavailable={true}
             />

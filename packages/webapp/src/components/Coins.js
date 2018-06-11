@@ -102,7 +102,7 @@ class Store extends Component {
   };
 
   pick = coinSymbol => {
-    const coin = this.state.coins.find(({ symbol }) => symbol === coinSymbol);
+    const coin = this.state.coins.find(({ symbol }) => symbol.toLowerCase() === coinSymbol.toLowerCase());
     this.setState({ coin });
   };
 
