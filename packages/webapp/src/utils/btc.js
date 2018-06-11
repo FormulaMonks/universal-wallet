@@ -18,6 +18,7 @@ const transactionsURL = REACT_APP_TESTNET
   : 'https://explorer.blockexplorer.com/api/addr/';
 
 const toSatoshi = btc => btc * 100000000;
+
 const toBTC = satoshi => satoshi / 100000000;
 
 const getUnspentUtxos = address =>
@@ -54,30 +55,36 @@ const broadcastTx = tx =>
     }),
   );
 
-export const BITCOIN_SYMBOL_LOWER_CASED = 'btc';
+export const NAME = 'Bitcoin';
 
-export const exportBtcWif = privateKey => {
+export const SYMBOL = 'btc';
+
+export const DEFAULTS = {
+  balanceURL,
+  balanceProp: 'balance',
+  balanceUnit: 1,
+  transactionsURL,
+  transactionsProp: 'transactions',
+  symbol: SYMBOL
+};
+
+export const toWif = privateKey => {
   const pk = new PrivateKey(privateKey);
   return pk.toWIF();
 };
 
-export const importBtcWif = wif => {
+export const fromWif = wif => {
   const privateKey = PrivateKey.fromWIF(wif);
   const publicAddress = privateKey.toAddress(NETWORK);
 
   return {
     privateKey: privateKey.toString('hex'),
     publicAddress: publicAddress.toString('hex'),
-    symbol: BITCOIN_SYMBOL_LOWER_CASED,
-    balanceURL,
-    balanceProp: 'balance',
-    balanceUnit: 1,
-    transactionsURL,
-    transactionsProp: 'transactions',
+    ...DEFAULTS
   };
 };
 
-export const generateBtcWallet = () => {
+export const generateWallet = () => {
   const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
   const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
   const privateKey = new bitcore.PrivateKey(randNum);
@@ -86,12 +93,7 @@ export const generateBtcWallet = () => {
   return {
     privateKey: privateKey.toString('hex'),
     publicAddress: publicAddress.toString('hex'),
-    symbol: BITCOIN_SYMBOL_LOWER_CASED,
-    balanceURL,
-    balanceProp: 'balance',
-    balanceUnit: 1,
-    transactionsURL,
-    transactionsProp: 'transactions',
+    ...DEFAULTS,
   };
 };
 
