@@ -3,16 +3,14 @@ import styled from 'styled-components';
 import { CoinsView, CurrencyStore, CurrencyView, Tx } from './';
 import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
 import { sort as sortWallets } from '../components/Wallets';
-import { Leaders, LeadersCoins, LeadersQrScan, Dots } from '../theme';
+import {
+  StickySummary,
+  Leaders,
+  LeadersCoins,
+  LeadersQrScan,
+  Dots,
+} from '../theme';
 import { canBroadcast } from '../utils/ss';
-
-const Summary = styled.summary`
-  position: sticky;
-  top: 70px;
-  display: block;
-  background: #fff;
-  z-index: 1;
-`;
 
 const H4 = styled.h4`
   display: inline-block;
@@ -51,7 +49,8 @@ const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
       c.symbol.toLowerCase() === symbol.toLowerCase() &&
-      (c.status !== 'unavailable' || c.symbol.toLowerCase() === fromSymbol.toLowerCase()),
+      (c.status !== 'unavailable' ||
+        c.symbol.toLowerCase() === fromSymbol.toLowerCase()),
   );
 
 export default class SetupTx extends Component {
@@ -65,8 +64,13 @@ export default class SetupTx extends Component {
   }
 
   render() {
-    const { wallet, coinsLoading, addressBookLoading } = this.props;
-    if (!wallet || coinsLoading || addressBookLoading) {
+    const {
+      wallet,
+      walletsLoading,
+      coinsLoading,
+      addressBookLoading,
+    } = this.props;
+    if (!wallet || walletsLoading || coinsLoading || addressBookLoading) {
       return null;
     }
 
@@ -94,9 +98,9 @@ export default class SetupTx extends Component {
 
     return (
       <details>
-        <Summary>
+        <StickySummary>
           <H4>Send {symbol}</H4>
-        </Summary>
+        </StickySummary>
 
         <div>
           <Leaders>
@@ -138,7 +142,9 @@ export default class SetupTx extends Component {
             <Dots />
             <CoinsView
               onChange={this.onSelectToSymbolChange}
-              coin={coins.find(({ symbol }) => toSymbol.toLowerCase() === symbol.toLowerCase())}
+              coin={coins.find(
+                ({ symbol }) => toSymbol.toLowerCase() === symbol.toLowerCase(),
+              )}
               coins={coins}
               filterOutUnavailable={true}
             />
