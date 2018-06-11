@@ -74,7 +74,7 @@ class Settings extends Component {
     const modified = new Date(lastModified);
 
     return (
-      <details>
+      <details key={Date.now()}>
         <StickySummary>
           <H4>Settings</H4>
         </StickySummary>
