@@ -1,7 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { Spinner, CoinsView, Form } from '../components';
 import { SectionHeader, SectionTitle, Button, Leaders, Dots } from '../theme';
-import { generateWallet, AVAILABLE_WALLET_GENERATORS } from '../utils/wallets';
+import {
+  generateWallet,
+  importWif,
+  AVAILABLE_WALLET_GENERATORS,
+  AVAILABLE_WALLET_IMPORT_WIF,
+} from '../utils/wallets';
 import styled from 'styled-components';
 
 const LeadersFirst = Leaders.extend`
@@ -32,7 +37,14 @@ const DivNote = DivOptions.extend`
 `;
 
 class NewWallet extends Component {
-  state = { alias: null };
+  state = { alias: null, symbol: null };
+
+  componentDidUpdate(prevProps) {
+    const { qrData } = this.props
+    if (!prevProps.qrData && qrData) {
+      this.onImportWIF(qrData)
+    }
+  }
 
   render() {
     const { coin, coins, coinsLoading } = this.props;
@@ -70,8 +82,14 @@ class NewWallet extends Component {
               <LeadersOptions>
                 a. Import with WIF QR code
                 <Dots />
-                <Button disabled={!alias}>Scan</Button>
+                <Button disabled={!alias} onClick={this.onScan}>
+                  Scan
+                </Button>
               </LeadersOptions>
+              <DivNote>
+                * Only available for:{' '}
+                {Object.values(AVAILABLE_WALLET_IMPORT_WIF).map(o => o.name).join(', ')}
+              </DivNote>
 
               <LeadersOptions>
                 <DivOptionTitle>b. Generate wallet</DivOptionTitle>
@@ -150,14 +168,24 @@ class NewWallet extends Component {
         w => w.symbol.toLowerCase() === symbol.toLowerCase(),
       )
     ) {
-      const { privateKey, publicAddress } = generateWallet(
-        symbol.toLowerCase(),
-      );
-      this.post({ symbol, publicAddress, privateKey, alias });
+      const data = generateWallet(symbol.toLowerCase());
+      this.post({ ...data, symbol, alias });
     }
   };
 
-  onImportWIF = () => {};
+  onImportWIF = wif => {
+    const { alias } = this.state;
+    const { coin: { symbol } } = this.props;
+    const data = importWif({ symbol, wif })
+    this.post({ ...data, symbol, alias})
+  };
+
+  onScan = () => {
+    const { coin: { symbol }, qrScan } = this.props;
+    if (AVAILABLE_WALLET_IMPORT_WIF[symbol]) {
+      qrScan()
+    }
+  }
 
   pick = symbol => {
     this.props.coinPick(symbol);

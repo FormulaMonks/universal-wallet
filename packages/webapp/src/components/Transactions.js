@@ -2,15 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
 import Compose from './Compose';
 import { Spinner } from './';
-import { Leaders, Dots, Ul } from '../theme';
-
-const Summary = styled.summary`
-  position: sticky;
-  top: 70px;
-  display: block;
-  background: #fff;
-  z-index: 1;
-`;
+import { StickySummary, Leaders, Dots, Ul } from '../theme';
 
 const H4 = styled.h4`
   display: inline-block;
@@ -130,15 +122,16 @@ const View = ({
   transactionsLoading,
   transactionsError,
   wallet,
+  walletsLoading,
 }) => {
-  if (!transactionsHas) {
+  if (!transactionsHas || walletsLoading) {
     return null;
   }
   return (
     <details>
-      <Summary>
+      <StickySummary>
         <H4>Transaction History</H4>
-      </Summary>
+      </StickySummary>
       {transactionsLoading ? (
         <Spinner />
       ) : transactionsError ? (

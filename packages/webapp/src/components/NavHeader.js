@@ -30,7 +30,7 @@ export default class Nav extends Component {
       <Header>
         <NavUl>
           <Li>
-            <Link to="wallets" title="Wallets">
+            <Link to="/" title="My wallets">
               <i className="fas fa-credit-card" />
             </Link>
           </Li>

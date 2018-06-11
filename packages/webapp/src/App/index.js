@@ -6,7 +6,6 @@ import {
   Switch,
 } from 'react-router-dom';
 import Home from './Home'
-import Wallets from './Wallets';
 import Wallet from './Wallet'
 import AddressBook from './AddressBook';
 import NewWallet from './NewWallet'
@@ -21,7 +20,6 @@ class App extends Component {
           <Switch>
             <Route path="/404" component={NotFound} />
             <Route exact path="/" component={Home} />
-            <Route path="/wallets" component={Wallets} />
             <Route path="/address-book" component={AddressBook} />
             <Route path="/new-wallet" component={NewWallet} />
             <Route exact path="/:id" component={Wallet} />

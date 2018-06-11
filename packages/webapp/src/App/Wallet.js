@@ -4,12 +4,14 @@ import {
   BalanceStore,
   CoinsStore,
   NavHeader,
+  Settings,
   Spinner,
   Transactions,
   TxSetup,
   WalletView,
   WalletsStore,
   QrReader,
+  WifExport,
 } from '../components';
 import { Section } from '../theme';
 
@@ -20,6 +22,8 @@ const Wallet = props => {
       <WalletView {...props} />
       <TxSetup {...props} />
       <Transactions {...props} />
+      <Settings {...props} />
+      <WifExport {...props} />
     </Fragment>
   );
 };
