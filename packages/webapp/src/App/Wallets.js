@@ -1,5 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { NavHeader, WalletsStore, CoinsStore } from '../components';
+import {
+  NavHeader,
+  WalletsStore,
+  CoinsStore,
+  ImgFromSymbol,
+} from '../components';
 import { generateWallet, AVAILABLE_WALLET_GENERATORS } from '../utils/wallets';
 
 const getWalletValues = ({
@@ -183,15 +188,15 @@ class Wallets extends Component {
           <ul>
             {wallets.map(
               ({ id, createdAt, lastModified, alias, symbol }, index) => {
-                const { name, imageSmall } = coins.find(
-                  item => item.symbol === symbol,
+                const { name } = coins.find(
+                  item => item.symbol.toLowerCase() === symbol.toLowerCase(),
                 );
                 const created = new Date(createdAt);
                 const modified = new Date(lastModified);
                 return (
                   <li key={`wallets-${id}`}>
                     <button onClick={() => this.onWalletPick(id)}>Edit</button>
-                    <img alt={`${name}`} src={imageSmall} />
+                    <ImgFromSymbol coins={coins} symbol={symbol} />
                     <div>{alias}</div>
                     <div>
                       {name} ({symbol})
@@ -233,15 +238,19 @@ class Wallets extends Component {
       return;
     }
 
-    const { privateKey, publicAddress, symbol: lowerCasedSymbol } = generateWallet(
-      newSymbol.toLowerCase(),
-    );
-    const symbol = lowerCasedSymbol.toUpperCase()
+    const {
+      privateKey,
+      publicAddress,
+      symbol: lowerCasedSymbol,
+    } = generateWallet(newSymbol.toLowerCase());
+    const symbol = lowerCasedSymbol.toUpperCase();
     const newWallet = {
       privateKey,
       publicAddress,
       symbol,
-      alias: `A new ${process.env.REACT_APP_TESTNET ? '(testnet) ' : ' '}${symbol} Wallet (${new Date().toLocaleString()})`,
+      alias: `A new ${
+        process.env.REACT_APP_TESTNET ? '(testnet) ' : ' '
+      }${symbol} Wallet (${new Date().toLocaleString()})`,
     };
     this.setState({ newWallet });
   };
