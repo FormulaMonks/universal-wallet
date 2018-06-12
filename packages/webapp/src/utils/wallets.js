@@ -84,3 +84,26 @@ export const defaults = symbol =>
     }
     return p;
   }, {});
+
+/* broadcast */
+export const broadcastAvailable = () => {
+  return wallets.reduce((p, { NAME, SYMBOL, broadcast }) => {
+    if (broadcast && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
+};
+
+export const broadcast = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, broadcast }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && broadcast) {
+        p = broadcast;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(`broadcast method has not been implemented for ${symbol}`);
+    },
+  );
