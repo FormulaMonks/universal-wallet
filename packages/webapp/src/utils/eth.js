@@ -1,12 +1,29 @@
 import Web3 from 'web3';
 import EthereumTx from 'ethereumjs-tx';
 
-const INFURA_URL = process.env.REACT_APP_TESTNET
+const {
+  REACT_APP_TESTNET,
+  REACT_APP_INFURA_API_KEY,
+  REACT_APP_ETHERSCAN_API_KEY,
+} = process.env;
+
+const INFURA_URL = REACT_APP_TESTNET
   ? 'https://rinkeby.infura.io/'
   : 'https://mainnet.infura.io/';
-const INFURA_NETWORK = `${INFURA_URL}${process.env.REACT_APP_INFURA_API_KEY}`;
+
+const INFURA_NETWORK = `${INFURA_URL}${REACT_APP_INFURA_API_KEY}`;
+
+const balanceURL = REACT_APP_TESTNET
+  ? `https://rinkeby.etherscan.io/api?module=account&action=balance&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
+  : `https://api.etherscan.io/api?module=account&action=balance&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
+
+const transactionsURL = REACT_APP_TESTNET
+  ? `http://rinkeby.etherscan.io/api?module=account&action=txlist&startblock=0&endblock=99999999&sort=desc&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
+  : `http://api.etherscan.io/api?module=account&action=txlist&startblock=0&endblock=99999999&sort=desc&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
+
 // chainId - mainnet: 1, rinkeby: 4
-const INFURA_CHAIN_ID = process.env.REACT_APP_TESTNET ? 4 : 1;
+const INFURA_CHAIN_ID = REACT_APP_TESTNET ? 4 : 1;
+
 const GAS_LIMIT_IN_WEI = 21000;
 
 const { eth, utils } = new Web3(
@@ -25,15 +42,40 @@ const sendTx = async tx =>
     }),
   );
 
-export const ETHER_SYMBOL_LOWER_CASED = 'eth'
+export const NAME = 'Ethereum';
 
-export const generateEthWallet = () => {
+export const SYMBOL = 'eth';
+
+export const DEFAULTS = {
+  balanceURL,
+  balanceProp: 'result',
+  balanceUnit: 1e-18,
+  transactionsURL,
+  transactionsProp: 'result',
+  symbol: SYMBOL,
+};
+
+export const fromWif = wif => {
+  const { address: publicAddress } = eth.accounts.privateKeyToAccount(wif);
+
+  return {
+    privateKey: wif,
+    publicAddress,
+    ...DEFAULTS,
+  };
+};
+
+export const toWif = privateKey => {
+  return privateKey;
+};
+
+export const generateWallet = () => {
   const { address: publicAddress, privateKey } = eth.accounts.create();
 
   return {
     privateKey,
     publicAddress,
-    symbol: ETHER_SYMBOL_LOWER_CASED,
+    ...DEFAULTS,
   };
 };
 
