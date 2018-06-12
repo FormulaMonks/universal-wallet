@@ -1,5 +1,5 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { BITCOIN_SYMBOL_LOWER_CASED } from '../utils/btc';
+import { SYMBOL } from '../utils/btc';
 import { fetchMarketInfo } from '../utils/ss';
 import Compose from './Compose';
 
@@ -73,11 +73,11 @@ class Store extends Component {
     // if not BTC get value in BTC
     const symbolCased = balanceSymbol.toLowerCase();
     let toBTC = 1;
-    if (symbolCased !== BITCOIN_SYMBOL_LOWER_CASED) {
+    if (symbolCased !== SYMBOL) {
       try {
         const { rate } = await fetchMarketInfo(
           symbolCased,
-          BITCOIN_SYMBOL_LOWER_CASED,
+          SYMBOL,
         );
         toBTC = rate;
       } catch (e) {

@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  ETHER_SYMBOL_LOWER_CASED,
+  SYMBOL as ETHER_SYMBOL_LOWER_CASED,
   broadcast,
   validateAddress,
   generateTx,
