@@ -1,16 +1,4 @@
-import { broadcast as btcBroadcast, BITCOIN_SYMBOL_LOWER_CASED } from './btc';
-import {
-  broadcast as bchBroadcast,
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
-} from './bch';
-import { broadcast as ethBroadcast, ETHER_SYMBOL_LOWER_CASED } from './eth';
-
-console.log('Add symbols with automated broadcast here');
-const AVAILABLE_SYMBOLS_FOR_BROADCAST = [
-  BITCOIN_SYMBOL_LOWER_CASED,
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
-  ETHER_SYMBOL_LOWER_CASED,
-];
+import { broadcast as broadcastInterface, broadcastAvailable } from './wallets';
 
 export const SHAPESHIFT = 'https://shapeshift.io/';
 
@@ -61,12 +49,8 @@ export const placeOrder = async opts => {
 };
 
 export const canBroadcast = symbol =>
-  AVAILABLE_SYMBOLS_FOR_BROADCAST.includes(symbol.toLowerCase());
+  broadcastAvailable().find(o => o.symbol === symbol.toLowerCase());
 
 export const broadcast = async ({ fromSymbol, ...params }) => {
-  return fromSymbol === ETHER_SYMBOL_LOWER_CASED
-    ? ethBroadcast(params)
-    : fromSymbol === BITCOIN_CASH_SYMBOL_LOWER_CASED
-      ? bchBroadcast(params)
-      : btcBroadcast(params);
+  return broadcastInterface(fromSymbol)({ fromSymbol, ...params });
 };

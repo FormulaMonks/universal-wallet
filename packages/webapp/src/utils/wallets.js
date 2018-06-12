@@ -1,67 +1,109 @@
-import {
-  generateBtcWallet,
-  BITCOIN_SYMBOL_LOWER_CASED,
-  exportBtcWif,
-  importBtcWif,
-} from './btc';
-import { generateBchWallet, BITCOIN_CASH_SYMBOL_LOWER_CASED } from './bch';
-import { generateEthWallet, ETHER_SYMBOL_LOWER_CASED } from './eth';
-import { generateBtgWallet, BITCOIN_GOLD_SYMBOL_LOWER_CASED } from './btg';
+import * as btc from './btc';
+import * as bch from './bch';
+import * as eth from './eth';
+import * as btg from './btg';
 
-export const AVAILABLE_WALLET_GENERATORS = [
-  {
-    name: 'Bitcoin',
-    symbol: BITCOIN_SYMBOL_LOWER_CASED,
-    method: generateBtcWallet,
-  },
-  {
-    name: 'Bitcoin Cash',
-    symbol: BITCOIN_CASH_SYMBOL_LOWER_CASED,
-    method: generateBchWallet,
-  },
-  {
-    name: 'Ethereum',
-    symbol: ETHER_SYMBOL_LOWER_CASED,
-    method: generateEthWallet,
-  },
-  {
-    name: 'Bitcoin Gold',
-    symbol: BITCOIN_GOLD_SYMBOL_LOWER_CASED,
-    method: generateBtgWallet,
-  },
-];
+const wallets = [btc, bch, eth, btg];
 
-export const generateWallet = symbol => {
-  const option = AVAILABLE_WALLET_GENERATORS.find(
-    i => i.symbol.toLowerCase() === symbol.toLowerCase(),
+/* generate */
+export const generate = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, generateWallet }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && generateWallet) {
+        p = generateWallet;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(
+        `generatewallet method has not been implemented for ${symbol}`,
+      );
+    },
   );
-  if (!option) {
-    throw new Error(`Cannot generate wallet for ${symbol}`);
-  }
 
-  return option.method();
+export const generateAvailable = () => {
+  return wallets.reduce((p, { NAME, SYMBOL, generateWallet }) => {
+    if (generateWallet && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
 };
 
-export const AVAILABLE_WALLET_EXPORT_WIF = {
-  [BITCOIN_SYMBOL_LOWER_CASED]: exportBtcWif,
+/* to wif */
+export const toWif = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, toWif }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && toWif) {
+        p = toWif;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(`toWIF method has not been implemented for ${symbol}`);
+    },
+  );
+
+export const toWifAvailable = () => {
+  return wallets.reduce((p, { NAME, SYMBOL, toWif }) => {
+    if (toWif && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
 };
 
-export const exportWif = ({ privateKey, symbol }) => {
-  if (!AVAILABLE_WALLET_EXPORT_WIF[symbol.toLowerCase()]) {
-    throw new Error(`Cannot export wallet to WIF for ${symbol}`);
-  }
+/* from wif */
+export const fromWif = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, fromWif }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && fromWif) {
+        p = fromWif;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(`fromWIF method has not been implemented for ${symbol}`);
+    },
+  );
 
-  return AVAILABLE_WALLET_EXPORT_WIF[symbol.toLowerCase()](privateKey);
+export const fromWifAvailable = () => {
+  return wallets.reduce((p, { NAME, SYMBOL, fromWif }) => {
+    if (fromWif && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
 };
 
-export const AVAILABLE_WALLET_IMPORT_WIF = {
-  [BITCOIN_SYMBOL_LOWER_CASED]: { name: 'Bitcoin', method: importBtcWif },
+/* defaults */
+export const defaults = symbol =>
+  wallets.reduce((p, { DEFAULTS, SYMBOL }) => {
+    if (SYMBOL && SYMBOL === symbol.toLowerCase() && DEFAULTS) {
+      p = DEFAULTS;
+    }
+    return p;
+  }, {});
+
+/* broadcast */
+export const broadcastAvailable = () => {
+  return wallets.reduce((p, { NAME, SYMBOL, broadcast }) => {
+    if (broadcast && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
 };
 
-export const importWif = ({ symbol, wif }) => {
-  if (!AVAILABLE_WALLET_IMPORT_WIF[symbol.toLowerCase()]) {
-    throw new Error(`Cannot import wallet from WIF for ${symbol}`);
-  }
-
-  return AVAILABLE_WALLET_IMPORT_WIF[symbol.toLowerCase()].method(wif);
-};
+export const broadcast = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, broadcast }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && broadcast) {
+        p = broadcast;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(`broadcast method has not been implemented for ${symbol}`);
+    },
+  );

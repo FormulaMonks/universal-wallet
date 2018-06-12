@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  BITCOIN_CASH_SYMBOL_LOWER_CASED,
+  SYMBOL,
   broadcast,
   fetchFee,
   validateAddress,
@@ -17,8 +17,8 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === BITCOIN_CASH_SYMBOL_LOWER_CASED &&
-  fromSymbol.toLowerCase() === BITCOIN_CASH_SYMBOL_LOWER_CASED;
+  toSymbol.toLowerCase() === SYMBOL &&
+  fromSymbol.toLowerCase() === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 

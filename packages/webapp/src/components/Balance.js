@@ -103,7 +103,7 @@ const View = ({ balance, balanceSymbol, balanceError, balanceLoading }) => {
       {balanceLoading && '.'}
       {balance && (
         <Fragment>
-          {balanceSymbol} {balance}
+          {balanceSymbol.toUpperCase()} {balance}
         </Fragment>
       )}
     </Fragment>

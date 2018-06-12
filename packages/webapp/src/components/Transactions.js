@@ -105,6 +105,10 @@ class Store extends Component {
       }
 
       const transactions = data[transactionsProp];
+      if (!Array.isArray(transactions)) {
+        throw new Error(JSON.stringify(transactions));
+      }
+
       this.setState({ transactions });
     } catch (e) {
       console.error('--Could not fetch transactions error: ', e);
