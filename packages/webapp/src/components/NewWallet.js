@@ -134,13 +134,13 @@ class NewWallet extends Component {
                 </Leaders>
                 <DivOptions>
                   <LeadersNewWallet>
-                    <div>Private Key</div>
+                    <div>Private Key (unencrypted)</div>
                     <Dots />
                     <input
                       required
                       name="inputPrivateKey"
-                      type="text"
-                      placeholder="Private Key (unencrypted)"
+                      type="password"
+                      placeholder="Private Key"
                     />
                   </LeadersNewWallet>
                   <LeadersNewWallet>
