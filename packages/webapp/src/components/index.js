@@ -20,6 +20,11 @@ export {
   Store as CurrencyStore,
   View as CurrencyView,
 } from './Currency';
+export {
+  default as CustomTokens,
+  Store as CustomTokensStore,
+  View as CustomTokensView,
+} from './CustomTokens/CustomTokens';
 export { default as Form } from './Form';
 export { default as Header } from './Header';
 export { default as ImgFromSymbol } from './ImgFromSymbol';
