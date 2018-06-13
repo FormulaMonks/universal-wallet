@@ -86,7 +86,7 @@ const View = ({
       <Fragment>
         {!wallets.length ? (
           <Center>
-            <div>You have not added any wallets yet.</div>
+            <div>You have not added any wallets</div>
             <DivAddEmpty>
               <Link to="new-wallet">Add wallet</Link>
             </DivAddEmpty>
