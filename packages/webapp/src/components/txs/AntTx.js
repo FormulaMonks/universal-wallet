@@ -5,7 +5,7 @@ import {
   validateAddress,
   generateTx,
   getTxInfo,
-} from '../../utils/eth';
+} from '../../utils/ant';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -104,7 +104,7 @@ export default class EthTx extends Component {
     const { to, from, amount, privateKey } = this.props;
     if (this.validAddresses(to, from)) {
       try {
-        const { ether, wei, gwei } = await getTxInfo();
+        const { ether, wei, gwei } = await getTxInfo({ to, from, amount });
         await generateTx({ to, from, privateKey, amount });
         this.setState({
           info: [

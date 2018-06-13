@@ -46,7 +46,7 @@ const View = ({
             />
 
             <Select
-              value={symbol}
+              value={symbol.toLowerCase()}
               onChange={onChangeHandler}
               name="selectSymbol"
               required={required}

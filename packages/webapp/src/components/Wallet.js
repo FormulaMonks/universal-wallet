@@ -4,6 +4,20 @@ import { Balance, BalanceStore, Currency, Spinner } from './';
 import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
 
+const ExtraBalance = ({ balance }) => {
+  if (!Array.isArray(balance)) {
+    return null;
+  }
+
+  return (
+    <Leaders>
+      <div>Ether</div>
+      <Dots />
+      <div>ETH {balance[1]}</div>
+    </Leaders>
+  );
+};
+
 const View = ({ wallet, walletsLoading, coins, coinsLoading }) => {
   if (!wallet || walletsLoading || coinsLoading) {
     return <Spinner />;
@@ -32,6 +46,10 @@ const View = ({ wallet, walletsLoading, coins, coinsLoading }) => {
           <Balance wallet={wallet} />
         </div>
       </Leaders>
+
+      <BalanceStore wallet={wallet}>
+        <ExtraBalance />
+      </BalanceStore>
 
       <Leaders>
         <div>USD</div>

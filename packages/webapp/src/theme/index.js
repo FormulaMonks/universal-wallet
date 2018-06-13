@@ -158,6 +158,7 @@ export const H3Wallet = styled.h3`
   align-items: center;
   justify-content: center;
   text-align: center;
+  word-break: break-all;
 
   & img,
   & svg {
@@ -177,5 +178,39 @@ export const DivQrPublicAddress = Center.extend`
     font-size: 12px;
     word-break: break-all;
     min-height: 17px;
+  }
+`;
+
+/* addresses/tokens common */
+export const DivGrid = styled.div`
+  text-align: left;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-gap: 0.5em;
+  min-height: 70px;
+`;
+
+export const DivInner = styled.div`
+  padding-top: 4px;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  word-break: break-all;
+`;
+
+export const ButtonAdd = Button.extend`
+  margin-top: 2em;
+`;
+
+export const DivBtns = styled.div`
+  display: grid;
+  grid-gap: 1em;
+  margin: 2em auto 0;
+  text-align: center;
+  width: fit-content;
+  grid-template-columns: auto auto;
+
+  & button:nth-of-type(1) {
+    order: 2;
   }
 `;

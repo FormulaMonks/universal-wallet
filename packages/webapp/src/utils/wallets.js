@@ -2,8 +2,9 @@ import * as btc from './btc';
 import * as bch from './bch';
 import * as eth from './eth';
 import * as btg from './btg';
+import * as ant from './ant';
 
-const wallets = [btc, bch, eth, btg];
+const wallets = [btc, bch, eth, btg, ant];
 
 /* generate */
 export const generate = symbol =>
@@ -21,14 +22,13 @@ export const generate = symbol =>
     },
   );
 
-export const generateAvailable = () => {
-  return wallets.reduce((p, { NAME, SYMBOL, generateWallet }) => {
+export const generateAvailable = () =>
+  wallets.reduce((p, { NAME, SYMBOL, generateWallet }) => {
     if (generateWallet && SYMBOL && NAME) {
       p.push({ symbol: SYMBOL, name: NAME });
     }
     return p;
   }, []);
-};
 
 /* to wif */
 export const toWif = symbol =>
@@ -44,14 +44,13 @@ export const toWif = symbol =>
     },
   );
 
-export const toWifAvailable = () => {
-  return wallets.reduce((p, { NAME, SYMBOL, toWif }) => {
+export const toWifAvailable = () =>
+  wallets.reduce((p, { NAME, SYMBOL, toWif }) => {
     if (toWif && SYMBOL && NAME) {
       p.push({ symbol: SYMBOL, name: NAME });
     }
     return p;
   }, []);
-};
 
 /* from wif */
 export const fromWif = symbol =>
@@ -67,14 +66,13 @@ export const fromWif = symbol =>
     },
   );
 
-export const fromWifAvailable = () => {
-  return wallets.reduce((p, { NAME, SYMBOL, fromWif }) => {
+export const fromWifAvailable = () =>
+  wallets.reduce((p, { NAME, SYMBOL, fromWif }) => {
     if (fromWif && SYMBOL && NAME) {
       p.push({ symbol: SYMBOL, name: NAME });
     }
     return p;
   }, []);
-};
 
 /* defaults */
 export const defaults = symbol =>
@@ -86,14 +84,13 @@ export const defaults = symbol =>
   }, {});
 
 /* broadcast */
-export const broadcastAvailable = () => {
-  return wallets.reduce((p, { NAME, SYMBOL, broadcast }) => {
+export const broadcastAvailable = () =>
+  wallets.reduce((p, { NAME, SYMBOL, broadcast }) => {
     if (broadcast && SYMBOL && NAME) {
       p.push({ symbol: SYMBOL, name: NAME });
     }
     return p;
   }, []);
-};
 
 export const broadcast = symbol =>
   wallets.reduce(
@@ -104,6 +101,32 @@ export const broadcast = symbol =>
       return p;
     },
     () => {
-      throw new Error(`broadcast method has not been implemented for ${symbol}`);
+      throw new Error(
+        `broadcast method has not been implemented for ${symbol}`,
+      );
+    },
+  );
+
+/* balance */
+export const getBalanceAvailable = () =>
+  wallets.reduce((p, { NAME, SYMBOL, getBalance }) => {
+    if (getBalance && SYMBOL && NAME) {
+      p.push({ symbol: SYMBOL, name: NAME });
+    }
+    return p;
+  }, []);
+
+export const getBalance = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, getBalance }) => {
+      if (SYMBOL && SYMBOL === symbol.toLowerCase() && getBalance) {
+        p = getBalance;
+      }
+      return p;
+    },
+    () => {
+      throw new Error(
+        `getBalance method has not been implemented for ${symbol}`,
+      );
     },
   );
