@@ -63,15 +63,16 @@ const DivLeaders = Leaders.extend`
 
 const View = ({
   wallets,
-  walletsError,
   walletsLoading,
   walletPick,
   coins,
   coinsLoading,
+  tokens,
+  tokensLoading,
   ...rest
-}) => (
-  <Fragment>
-    {walletsError}
+}) => {
+
+  return <Fragment>
     <SectionHeader>
       <SectionTitle>My wallets</SectionTitle>
       {!!wallets.length && (
@@ -80,7 +81,7 @@ const View = ({
         </DivAdd>
       )}
     </SectionHeader>
-    {walletsLoading ? (
+    {walletsLoading || coinsLoading || tokensLoading ? (
       <Spinner />
     ) : (
       <Fragment>
@@ -95,6 +96,7 @@ const View = ({
           <UlGrid>
             {wallets.map(wallet => {
               const { id, alias, symbol } = wallet;
+              const token = tokens.find(t => t.symbol === symbol)
 
               return (
                 <LiGrid key={`wallets-${id}`}>
@@ -111,7 +113,7 @@ const View = ({
                         <div>Balance</div>
                         <Dots />
                         <div>
-                          <Balance wallet={wallet} />
+                          <Balance wallet={wallet} token={token} />
                         </div>
                       </DivLeaders>
 
@@ -132,7 +134,7 @@ const View = ({
       </Fragment>
     )}
   </Fragment>
-);
+}
 
 class Store extends Component {
   state = {
