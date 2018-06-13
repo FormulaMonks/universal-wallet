@@ -1,14 +1,21 @@
 import React, { Fragment } from 'react';
-import { CoinsStore, NavHeader, Wallets } from '../components';
+import {
+  CustomTokensStore,
+  CoinsStore,
+  NavHeader,
+  Wallets,
+} from '../components';
 import { Section } from '../theme';
 
 export default props => (
   <Fragment>
     <NavHeader />
     <Section>
-      <CoinsStore>
-        <Wallets {...props} />
-      </CoinsStore>
+      <CustomTokensStore>
+        <CoinsStore>
+          <Wallets {...props} />
+        </CoinsStore>
+      </CustomTokensStore>
     </Section>
   </Fragment>
 );
