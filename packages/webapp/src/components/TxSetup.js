@@ -99,7 +99,7 @@ export default class SetupTx extends Component {
     return (
       <details>
         <StickySummary>
-          <H4>Send {symbol}</H4>
+          <H4>Send {symbol.toUpperCase()}</H4>
         </StickySummary>
 
         <div>
