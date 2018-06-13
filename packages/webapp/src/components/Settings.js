@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Center, StickySummary, Leaders, Dots, Button } from '../theme';
-import { Form, CoinsView } from './';
+import { Form, CoinsTokens } from './';
 
 const Centered = Center.extend`
   margin: 2em auto;
@@ -51,10 +51,12 @@ class Settings extends Component {
       walletsLoading,
       coin,
       coins,
-      coinPick,
       coinsLoading,
+      token,
+      tokens,
+      tokensLoading,
     } = this.props;
-    if (!wallet || walletsLoading || coinsLoading) {
+    if (!wallet || walletsLoading || coinsLoading || tokensLoading) {
       return null;
     }
 
@@ -183,7 +185,13 @@ class Settings extends Component {
           <Leaders>
             Coin
             <Dots />
-            <CoinsView coin={coin} coins={coins} coinPick={coinPick} />
+            <CoinsTokens
+              tokens={tokens}
+              token={token}
+              coin={coin}
+              coins={coins}
+              onChange={this.onPick}
+            />
           </Leaders>
 
           <Centered>
@@ -215,6 +223,27 @@ class Settings extends Component {
       await walletsPut(id, newValues);
     }
   };
+
+  onPick = symbol => {
+    const {
+      coins,
+      coinPick,
+      coinRelease,
+      tokens,
+      tokenPick,
+      tokenRelease,
+    } = this.props;
+    coinRelease();
+    tokenRelease();
+    if (coins.find(c => c.symbol === symbol)) {
+      coinPick(symbol);
+      return;
+    }
+    const { id } = tokens.find(t => t.symbol === symbol);
+    if (id) {
+      tokenPick(id);
+    }
+  }
 }
 
 export default Settings;
