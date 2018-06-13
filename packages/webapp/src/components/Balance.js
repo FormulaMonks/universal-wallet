@@ -1,5 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { getBalance, getBalanceAvailable } from '../utils/wallets';
+import { getBalance as getBalanceToken } from '../utils/tokens';
 import Compose from './Compose';
 
 const INITIAL_STATE = {
@@ -62,13 +63,15 @@ class Store extends Component {
 
   get = () => {
     this.setState({ loading: true }, async () => {
+      const { token, wallet } = this.props;
       const {
         publicAddress,
         balanceURL,
         balanceProp,
         balanceUnit,
         symbol,
-      } = this.props.wallet;
+      } = wallet;
+
       try {
         const res = await fetch(`${balanceURL}${publicAddress}`);
         const data = await res.json();
@@ -92,6 +95,9 @@ class Store extends Component {
         let tokenBalance = null;
         if (getBalanceAvailable().find(o => o.symbol === symbol)) {
           tokenBalance = await getBalance(symbol)(publicAddress);
+        }
+        if (token) {
+          tokenBalance = await getBalanceToken({ token, publicAddress });
         }
 
         const balance = data[balanceProp] * balanceUnit;
