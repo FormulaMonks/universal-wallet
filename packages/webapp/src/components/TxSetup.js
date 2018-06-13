@@ -189,7 +189,7 @@ export default class SetupTx extends Component {
                               key={`send-to-address-book-${id}`}
                               value={`address-book-${id}`}
                             >
-                              {alias} {symbol.toUpperCase()}
+                              {alias} ({symbol.toUpperCase()})
                             </option>
                           ))}
                       </optgroup>
@@ -204,7 +204,7 @@ export default class SetupTx extends Component {
                               key={`send-to-my-wallets-${id}`}
                               value={`wallet-${id}`}
                             >
-                              {alias} {symbol.toUpperCase()}
+                              {alias} ({symbol.toUpperCase()})
                             </option>
                           ))}
                       </optgroup>
