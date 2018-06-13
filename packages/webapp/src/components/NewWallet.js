@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Spinner, CoinsView, Form } from '../components';
+import { Spinner, CoinsTokens, Form } from '../components';
 import { SectionHeader, SectionTitle, Button, Leaders, Dots } from '../theme';
 import {
   generate,
@@ -8,6 +8,11 @@ import {
   fromWifAvailable,
   defaults,
 } from '../utils/wallets';
+import {
+  defaults as tokenDefaults,
+  generate as tokenGenerate,
+  fromWif as tokenFromWif,
+} from '../utils/tokens';
 import styled from 'styled-components';
 
 const LeadersFirst = Leaders.extend`
@@ -101,9 +106,8 @@ class NewWallet extends Component {
                   <Button
                     disabled={
                       !alias ||
-                      !fromWifAvailable().find(
-                        o => o.symbol === symbol,
-                      )
+                      (!fromWifAvailable().find(o => o.symbol === symbol) &&
+                        !token)
                     }
                     onClick={this.onScan}
                   >
@@ -111,10 +115,29 @@ class NewWallet extends Component {
                   </Button>
                 </LeadersOptions>
                 <DivNote>
-                  * Only available for:{' '}
-                  {fromWifAvailable()
-                    .map(o => o.name)
-                    .join(', ')}
+                  * Available for some coins.
+                  {coin && (
+                    <Fragment>
+                      {!generateAvailable().find(
+                        o => o.symbol === coin.symbol,
+                      ) ? (
+                        <Fragment>
+                          {' '}
+                          NOT available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()})
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          {' '}
+                          Available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()})
+                        </Fragment>
+                      )}
+                    </Fragment>
+                  )}
+                  {token && <Fragment>{' '}Available for all custom tokens.</Fragment>}
                 </DivNote>
 
                 <LeadersOptions>
@@ -123,9 +146,8 @@ class NewWallet extends Component {
                   <Button
                     disabled={
                       !alias ||
-                      !generateAvailable().find(
-                        o => o.symbol === symbol,
-                      )
+                      (!generateAvailable().find(o => o.symbol === symbol) &&
+                        !token)
                     }
                     onClick={this.onGenerate}
                   >
@@ -133,10 +155,29 @@ class NewWallet extends Component {
                   </Button>
                 </LeadersOptions>
                 <DivNote>
-                  * Only available for:{' '}
-                  {generateAvailable()
-                    .map(o => o.name)
-                    .join(', ')}
+                  * Available for some coins.
+                  {coin && (
+                    <Fragment>
+                      {!generateAvailable().find(
+                        o => o.symbol === coin.symbol,
+                      ) ? (
+                        <Fragment>
+                          {' '}
+                          NOT available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()}).
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          {' '}
+                          Available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()}).
+                        </Fragment>
+                      )}
+                    </Fragment>
+                  )}
+                  {token && <Fragment>{' '}Available for all custom tokens.</Fragment>}
                 </DivNote>
 
                 <Form onSubmit={this.onBlank}>
@@ -184,62 +225,62 @@ class NewWallet extends Component {
   onBlank = form => {
     const { alias } = this.state;
     const { coin, token } = this.props;
-    const { symbol } = coin || token;
     const { inputPublicAddress, inputPrivateKey } = form.elements;
     const privateKey = inputPrivateKey.value;
     const publicAddress = inputPublicAddress.value;
-    const data = defaults(symbol);
+    const data = coin ? defaults(coin.symbol) : tokenDefaults(token);
+
     this.post({ ...data, alias, privateKey, publicAddress });
   };
 
   onGenerate = () => {
     const { alias } = this.state;
     const { coin, token } = this.props;
-    const { symbol } = coin || token;
-    if (
-      generateAvailable().find(
-        w => w.symbol === symbol,
-      )
-    ) {
-      const data = generate(symbol)();
-      this.post({ ...data, alias });
-    }
+    const data = coin ? generate(coin.symbol)() : tokenGenerate(token);
+
+    this.post({ ...data, alias });
   };
 
   onImportWIF = wif => {
     const { alias } = this.state;
     const { coin, token } = this.props;
-    const { symbol } = coin || token;
-    const data = fromWif(symbol)(wif);
+    const data = coin
+      ? fromWif(coin.symbol)(wif)
+      : tokenFromWif({ token, wif });
+
     this.post({ ...data, alias });
   };
 
   onScan = () => {
     const { coin, token, qrScan } = this.props;
-    const { symbol='' } = coin || token || {};
-    if (
-      fromWifAvailable().find(
-        i => i.symbol === symbol,
-      )
-    ) {
-      qrScan();
-    }
+    qrScan();
   };
 
   pick = symbol => {
-    const { coins, coinPick, tokenPick } = this.props;
+    const {
+      coins,
+      coinPick,
+      coinRelease,
+      tokens,
+      tokenPick,
+      tokenRelease,
+    } = this.props;
+    coinRelease();
+    tokenRelease();
     if (coins.find(c => c.symbol === symbol)) {
       coinPick(symbol);
       return;
     }
-    tokenPick(symbol);
+    const { id } = tokens.find(t => t.symbol === symbol);
+    if (id) {
+      tokenPick(id);
+    }
   };
 
   post = async obj => {
     const { history, walletsPost } = this.props;
-    console.log('post: ', obj)
-    //const { id } = await walletsPost(obj);
-    //history.push(`/${id}`);
+    const { id } = await walletsPost(obj);
+    history.push(`/wallets/${id}`);
   };
 }
 
