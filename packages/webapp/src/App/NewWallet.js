@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import {
   CoinsStore,
+  CustomTokensStore,
   NavHeader,
   NewWallet,
   QrReader,
@@ -14,9 +15,11 @@ export default props => (
     <Section>
       <WalletsStore>
         <CoinsStore>
-          <QrReader>
-            <NewWallet {...props} />
-          </QrReader>
+          <CustomTokensStore>
+            <QrReader>
+              <NewWallet {...props} />
+            </QrReader>
+          </CustomTokensStore>
         </CoinsStore>
       </WalletsStore>
     </Section>
