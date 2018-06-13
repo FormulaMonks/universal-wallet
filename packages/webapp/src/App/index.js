@@ -6,6 +6,7 @@ import {
   Switch,
 } from 'react-router-dom';
 import Home from './Home'
+import Wallets from './Wallets'
 import Wallet from './Wallet'
 import AddressBook from './AddressBook';
 import NewWallet from './NewWallet'
@@ -22,7 +23,8 @@ class App extends Component {
             <Route exact path="/" component={Home} />
             <Route path="/address-book" component={AddressBook} />
             <Route path="/new-wallet" component={NewWallet} />
-            <Route exact path="/:id" component={Wallet} />
+            <Route exact path="/wallets" component={Wallets} />
+            <Route exact path="/wallets/:id" component={Wallet} />
             <Redirect from="*" to="/404" />
           </Switch>
         </Auth>
