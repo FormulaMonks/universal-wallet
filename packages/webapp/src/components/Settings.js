@@ -204,7 +204,7 @@ class Settings extends Component {
     if (window.confirm(msg)) {
       const { history, wallet: { id }, walletsDelete } = this.props;
       await walletsDelete(id);
-      history.replace('/');
+      history.replace('/wallets');
     }
   };
 
