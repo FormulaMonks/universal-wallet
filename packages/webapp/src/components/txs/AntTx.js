@@ -23,7 +23,7 @@ const validSymbols = ({ toSymbol, fromSymbol }) =>
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
-export default class EthTx extends Component {
+export default class AntTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
