@@ -71,12 +71,8 @@ class Store extends Component {
     }
   };
 
-  pick = tokenIdOrSymbol => {
-    const token = this.state.tokens.find(
-      ({ id, symbol }) =>
-        tokenIdOrSymbol === id ||
-        tokenIdOrSymbol === symbol,
-    );
+  pick = tokenId => {
+    const token = this.state.tokens.find(({ id, symbol }) => tokenId === id);
     if (!token) {
       return;
     }
@@ -164,9 +160,7 @@ class Saga extends Component {
 
   post = async data => {
     const { tokens, tokensPost, tokensGet, tokenPick } = this.props;
-    const exists = tokens.find(
-      ({ symbol }) => symbol === data.symbol,
-    );
+    const exists = tokens.find(({ symbol }) => symbol === data.symbol);
     if (exists) {
       throw new Error('Please use a different symbol');
     }
