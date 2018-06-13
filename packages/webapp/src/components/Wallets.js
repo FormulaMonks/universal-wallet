@@ -105,6 +105,8 @@ const View = ({
                       symbol={symbol}
                       coins={coins}
                       coinsLoading={coinsLoading}
+                      tokens={tokens}
+                      tokensLoading={tokensLoading}
                     />
 
                     <div>
