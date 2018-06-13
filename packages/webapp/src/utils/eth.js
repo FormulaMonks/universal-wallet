@@ -29,7 +29,6 @@ export const sendTx = async tx =>
     }),
   );
 
-
 export const balanceURL = REACT_APP_TESTNET
   ? `https://api-rinkeby.etherscan.io/api?module=account&action=balance&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
   : `https://api.etherscan.io/api?module=account&action=balance&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
