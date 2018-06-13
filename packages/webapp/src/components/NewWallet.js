@@ -252,8 +252,7 @@ class NewWallet extends Component {
   };
 
   onScan = () => {
-    const { coin, token, qrScan } = this.props;
-    qrScan();
+    this.props.qrScan();
   };
 
   pick = symbol => {
