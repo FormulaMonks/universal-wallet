@@ -98,7 +98,7 @@ const View = ({
 
               return (
                 <LiGrid key={`wallets-${id}`}>
-                  <Link to={`/${id}`}>
+                  <Link to={`/wallets/${id}`}>
                     <ImgFromSymbol
                       symbol={symbol}
                       coins={coins}
