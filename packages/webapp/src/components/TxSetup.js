@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
 import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
 import { sort as sortWallets } from '../components/Wallets';
-import { sort as sortTokens } from '../components/CustomTokens/CustomTokens';
 import {
   StickySummary,
   Leaders,
@@ -51,9 +50,8 @@ const filterOutUnavailableCoins = (coins, tokens, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
       c.symbol === symbol &&
-      (c.status !== 'unavailable' || c.symbol === fromSymbol) ||
-    tokens.find(t => t.symbol === symbol)
-  );
+      (c.status !== 'unavailable' || c.symbol === fromSymbol),
+  ) || tokens.find(t => t.symbol === symbol);
 
 export default class SetupTx extends Component {
   state = { to: '', toId: '', toSymbol: '', amount: 0 };
@@ -191,7 +189,7 @@ export default class SetupTx extends Component {
                               key={`send-to-address-book-${id}`}
                               value={`address-book-${id}`}
                             >
-                              {alias} {symbol.toUpperCase()}
+                              {alias} ({symbol.toUpperCase()})
                             </option>
                           ))}
                       </optgroup>
@@ -206,7 +204,7 @@ export default class SetupTx extends Component {
                               key={`send-to-my-wallets-${id}`}
                               value={`wallet-${id}`}
                             >
-                              {alias} {symbol.toUpperCase()}
+                              {alias} ({symbol.toUpperCase()})
                             </option>
                           ))}
                       </optgroup>
@@ -240,7 +238,7 @@ export default class SetupTx extends Component {
   };
 
   onSelectToChange = e => {
-    const { wallets, tokens, addressBook } = this.props;
+    const { wallets, addressBook } = this.props;
     const value = e.currentTarget.value;
     let list = wallets;
     let prefix = 'wallet-';
