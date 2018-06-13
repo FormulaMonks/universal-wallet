@@ -79,7 +79,8 @@ class Store extends Component {
     this.setState({ address });
   };
 
-  post = async obj => {
+  post = async ({ symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const newObj = {
@@ -93,7 +94,8 @@ class Store extends Component {
     return newObj;
   };
 
-  put = async (addressId, obj) => {
+  put = async (addressId, { symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const { addressBook } = this.state;

@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import qr from 'qr-encode';
-import { Balance, BalanceStore, Currency, Spinner } from './';
+import { Balance, BalanceStore, Currency, Spinner, ImgFromSymbol } from './';
 import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
 
@@ -18,19 +18,29 @@ const ExtraBalance = ({ balance }) => {
   );
 };
 
-const View = ({ wallet, walletsLoading, coins, coinsLoading }) => {
+const View = ({
+  wallet,
+  walletsLoading,
+  coins,
+  coinsLoading,
+  tokens,
+  tokensLoading,
+}) => {
   if (!wallet || walletsLoading || coinsLoading) {
     return <Spinner />;
   }
   const { publicAddress, alias, symbol } = wallet;
-  const { imageSmall } = coins.find(
-    c => c.symbol.toLowerCase() === symbol.toLowerCase(),
-  );
 
   return (
     <Fragment>
       <H3Wallet>
-        {imageSmall && <img src={imageSmall} alt={symbol} />}
+        <ImgFromSymbol
+          symbol={symbol}
+          coins={coins}
+          tokens={tokens}
+          coinsLoading={coinsLoading}
+          tokensLoading={tokensLoading}
+        />
         {alias}
       </H3Wallet>
 

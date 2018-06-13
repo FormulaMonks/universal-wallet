@@ -75,11 +75,10 @@ class Store extends Component {
       : balanceMaybeArray;
 
     // if not BTC get value in BTC
-    const symbolCased = balanceSymbol.toLowerCase();
     let toBTC = 1;
-    if (symbolCased !== SYMBOL) {
+    if (balanceSymbol !== SYMBOL) {
       try {
-        const { rate } = await fetchMarketInfo(symbolCased, SYMBOL);
+        const { rate } = await fetchMarketInfo(balanceSymbol, SYMBOL);
         toBTC = rate;
       } catch (e) {
         this.setState({

@@ -90,9 +90,7 @@ class Store extends Component {
         // return balance as an array, default view will check and only rener
         // the first value, and custom views can handle the data as they please
         let tokenBalance = null;
-        if (
-          getBalanceAvailable().find(o => o.symbol === symbol.toLowerCase())
-        ) {
+        if (getBalanceAvailable().find(o => o.symbol === symbol)) {
           tokenBalance = await getBalance(symbol)(publicAddress);
         }
 

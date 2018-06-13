@@ -79,7 +79,12 @@ class TokensView extends Component {
   }
 
   add = async () => {
-    this.props.tokensPost({ name: '', symbol: '', contract: '', decimals: 18 });
+    const { tokens, tokensPost }= this.props
+    let symbol = ''
+    if (tokens.find(t => t.symbol === symbol)) {
+      symbol = `${Date.now()}`
+    }
+    tokensPost({ name: '', symbol, contract: '', decimals: 18 });
   };
 
   pick = id => () => {

@@ -56,9 +56,7 @@ class AddressView extends Component {
     }
     const { alias } = address;
     const { publicAddress, symbol } = this.state;
-    const coin = coins.find(
-      c => c.symbol.toLowerCase() === symbol.toLowerCase(),
-    );
+    const coin = coins.find(c => c.symbol === symbol);
 
     return (
       <Fragment>

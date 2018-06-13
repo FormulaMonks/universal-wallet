@@ -48,9 +48,9 @@ const LeadersOptions = LeadersQrScan.extend`
 const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
-      c.symbol.toLowerCase() === symbol.toLowerCase() &&
+      c.symbol === symbol &&
       (c.status !== 'unavailable' ||
-        c.symbol.toLowerCase() === fromSymbol.toLowerCase()),
+        c.symbol === fromSymbol),
   );
 
 export default class SetupTx extends Component {
@@ -143,7 +143,7 @@ export default class SetupTx extends Component {
             <CoinsView
               onChange={this.onSelectToSymbolChange}
               coin={coins.find(
-                ({ symbol }) => toSymbol.toLowerCase() === symbol.toLowerCase(),
+                ({ symbol }) => toSymbol === symbol,
               )}
               coins={coins}
               filterOutUnavailable={true}
@@ -170,7 +170,7 @@ export default class SetupTx extends Component {
                       Address Book & My Wallets
                     </option>
                     {filteredAddressBook.length && (
-                      <optgroup key="send-to-address-book" label="AddressBook">
+                      <optgroup key="send-to-address-book" label="Address Book">
                         {filteredAddressBook
                           .sort(sortAddressBook)
                           .map(({ id, alias }) => (

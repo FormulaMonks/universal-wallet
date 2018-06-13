@@ -188,7 +188,8 @@ class Store extends Component {
     }
   };
 
-  post = async obj => {
+  post = async ({ symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const newObj = {
@@ -202,7 +203,8 @@ class Store extends Component {
     return newObj;
   };
 
-  put = async (walletId, obj) => {
+  put = async (walletId, { symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const { wallets } = this.state;
@@ -243,12 +245,7 @@ class Saga extends Component {
   }
 
   render() {
-    const {
-      children,
-      wallets,
-      walletsPut,
-      ...rest
-    } = this.props;
+    const { children, wallets, walletsPut, ...rest } = this.props;
 
     return (
       <Fragment>

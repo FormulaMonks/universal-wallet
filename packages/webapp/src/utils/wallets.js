@@ -10,7 +10,7 @@ const wallets = [btc, bch, eth, btg, ant];
 export const generate = symbol =>
   wallets.reduce(
     (p, { SYMBOL, generateWallet }) => {
-      if (SYMBOL && SYMBOL === symbol.toLowerCase() && generateWallet) {
+      if (SYMBOL && SYMBOL === symbol && generateWallet) {
         p = generateWallet;
       }
       return p;
@@ -34,7 +34,7 @@ export const generateAvailable = () =>
 export const toWif = symbol =>
   wallets.reduce(
     (p, { SYMBOL, toWif }) => {
-      if (SYMBOL && SYMBOL === symbol.toLowerCase() && toWif) {
+      if (SYMBOL && SYMBOL === symbol && toWif) {
         p = toWif;
       }
       return p;
@@ -56,7 +56,7 @@ export const toWifAvailable = () =>
 export const fromWif = symbol =>
   wallets.reduce(
     (p, { SYMBOL, fromWif }) => {
-      if (SYMBOL && SYMBOL === symbol.toLowerCase() && fromWif) {
+      if (SYMBOL && SYMBOL === symbol && fromWif) {
         p = fromWif;
       }
       return p;
@@ -77,11 +77,11 @@ export const fromWifAvailable = () =>
 /* defaults */
 export const defaults = symbol =>
   wallets.reduce((p, { DEFAULTS, SYMBOL }) => {
-    if (SYMBOL && SYMBOL === symbol.toLowerCase() && DEFAULTS) {
+    if (SYMBOL && SYMBOL === symbol && DEFAULTS) {
       p = DEFAULTS;
     }
     return p;
-  }, {});
+  }, { symbol });
 
 /* broadcast */
 export const broadcastAvailable = () =>
@@ -95,7 +95,7 @@ export const broadcastAvailable = () =>
 export const broadcast = symbol =>
   wallets.reduce(
     (p, { SYMBOL, broadcast }) => {
-      if (SYMBOL && SYMBOL === symbol.toLowerCase() && broadcast) {
+      if (SYMBOL && SYMBOL === symbol && broadcast) {
         p = broadcast;
       }
       return p;
@@ -119,7 +119,7 @@ export const getBalanceAvailable = () =>
 export const getBalance = symbol =>
   wallets.reduce(
     (p, { SYMBOL, getBalance }) => {
-      if (SYMBOL && SYMBOL === symbol.toLowerCase() && getBalance) {
+      if (SYMBOL && SYMBOL === symbol && getBalance) {
         p = getBalance;
       }
       return p;
