@@ -15,6 +15,7 @@ export {
   Store as CoinsStore,
   View as CoinsView,
 } from './Coins';
+export { default as CoinsTokens } from './CoinsTokens';
 export {
   default as Currency,
   Store as CurrencyStore,

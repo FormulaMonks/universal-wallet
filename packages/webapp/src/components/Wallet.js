@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import qr from 'qr-encode';
-import { Balance, BalanceStore, Currency, Spinner } from './';
+import { Balance, BalanceStore, Currency, Spinner, ImgFromSymbol } from './';
 import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
 
@@ -18,19 +18,30 @@ const ExtraBalance = ({ balance }) => {
   );
 };
 
-const View = ({ wallet, walletsLoading, coins, coinsLoading }) => {
-  if (!wallet || walletsLoading || coinsLoading) {
+const View = ({
+  wallet,
+  walletsLoading,
+  coins,
+  coinsLoading,
+  tokens,
+  tokensLoading,
+}) => {
+  if (!wallet || walletsLoading || coinsLoading || tokensLoading) {
     return <Spinner />;
   }
   const { publicAddress, alias, symbol } = wallet;
-  const { imageSmall } = coins.find(
-    c => c.symbol.toLowerCase() === symbol.toLowerCase(),
-  );
+  const token = tokens.find(t => t.symbol === symbol);
 
   return (
     <Fragment>
       <H3Wallet>
-        {imageSmall && <img src={imageSmall} alt={symbol} />}
+        <ImgFromSymbol
+          symbol={symbol}
+          coins={coins}
+          tokens={tokens}
+          coinsLoading={coinsLoading}
+          tokensLoading={tokensLoading}
+        />
         {alias}
       </H3Wallet>
 
@@ -43,11 +54,11 @@ const View = ({ wallet, walletsLoading, coins, coinsLoading }) => {
         <div>Balance</div>
         <Dots />
         <div>
-          <Balance wallet={wallet} />
+          <Balance wallet={wallet} token={token} />
         </div>
       </Leaders>
 
-      <BalanceStore wallet={wallet}>
+      <BalanceStore wallet={wallet} token={token}>
         <ExtraBalance />
       </BalanceStore>
 
@@ -78,6 +89,9 @@ class Saga extends Component {
       coin,
       coins,
       coinsLoading,
+      token,
+      tokens,
+      tokensLoading,
     } = this.props;
     if (
       id !== prevProps.match.params.id ||
@@ -86,7 +100,10 @@ class Saga extends Component {
       (wallet && !prevProps.wallet) ||
       coinsLoading !== prevProps.coinsLoading ||
       coins.length !== prevProps.coins.length ||
-      (coin && !prevProps.coin)
+      (coin && !prevProps.coin) ||
+      tokensLoading !== prevProps.tokensLoading ||
+      tokens.length !== prevProps.tokens.length ||
+      (token && !prevProps.token)
     ) {
       this.check();
     }
@@ -114,22 +131,35 @@ class Saga extends Component {
       coin,
       coinPick,
       coinsLoading,
+      token,
+      tokenPick,
+      tokens,
+      tokensLoading,
       match: { params: { id } },
     } = this.props;
 
-    if (walletsLoading || coinsLoading) {
+    if (walletsLoading || coinsLoading || tokensLoading) {
       return;
     }
+
     if (!id || !wallets.find(w => w.id === id)) {
       this.props.history.push('/404');
       return;
     }
+
     if (!wallet) {
       walletPick(id);
       return;
     }
-    if (!coin) {
-      coinPick(wallet.symbol);
+
+    const { symbol } = wallet;
+    if (!coin && !token) {
+      const { id } = tokens.find(t => t.symbol === symbol);
+      if (id) {
+        tokenPick(id);
+        return;
+      }
+      coinPick(symbol);
       return;
     }
 

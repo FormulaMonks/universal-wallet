@@ -214,3 +214,19 @@ export const DivBtns = styled.div`
     order: 2;
   }
 `;
+
+/* coins/coinsCustomTokens common*/
+export const DivSelect = styled.div`
+  display: inline-block;
+  position: relative;
+`;
+
+export const Select = styled.select`
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  cursor: pointer;
+`;

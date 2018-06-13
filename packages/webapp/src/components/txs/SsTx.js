@@ -18,8 +18,7 @@ const INITIAL_STATE = {
 };
 
 const txValidProps = props =>
-  validProps(props) &&
-  props.toSymbol.toLowerCase() !== props.fromSymbol.toLowerCase();
+  validProps(props) && props.toSymbol !== props.fromSymbol;
 
 export default class SsTx extends Component {
   state = { ...INITIAL_STATE };
@@ -45,7 +44,7 @@ export default class SsTx extends Component {
       txChecking ||
       !fromSymbol ||
       !toSymbol ||
-      toSymbol.toLowerCase() === fromSymbol.toLowerCase()
+      toSymbol === fromSymbol
     ) {
       return (
         <Fragment>
@@ -84,7 +83,7 @@ export default class SsTx extends Component {
     const opts = {
       depositAmount: amount,
       withdrawal: to,
-      pair: `${fromSymbol.toLowerCase()}_${toSymbol.toLowerCase()}`,
+      pair: `${fromSymbol}_${toSymbol}`,
       returnAddress: from,
     };
 

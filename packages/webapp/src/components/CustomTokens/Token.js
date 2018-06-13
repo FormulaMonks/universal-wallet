@@ -11,7 +11,7 @@ const DivError = styled.div`
 const H3Name = H3Wallet.extend`
   min-height: 25px;
 
-  & svg{
+  & svg {
     font-size: 25px;
   }
 `;
@@ -25,7 +25,7 @@ const getFormValues = ({
   return {
     name: inputName.value,
     contract: inputContract.value,
-    symbol: inputSymbol.value,
+    symbol: inputSymbol.value.toLowerCase(),
     decimals: inputDecimals.value,
   };
 };
@@ -157,10 +157,15 @@ class TokenView extends Component {
   };
 
   put = form => {
-    const { coins, token: { id }, tokensPut } = this.props;
+    const { coins, token: { id }, tokensPut, tokens } = this.props;
     const data = getFormValues(form.elements);
-    if (coins.find(({ symbol }) => symbol === data.symbol)) {
-      this.setState({ error: 'Could not save Token. Please use a different symbol.' });
+    if (
+      coins.find(({ symbol }) => symbol === data.symbol) ||
+      tokens.find(({ symbol }) => symbol === data.symbol)
+    ) {
+      this.setState({
+        error: 'Could not save Token. Please use a different symbol.',
+      });
       return;
     }
     tokensPut(id, data);

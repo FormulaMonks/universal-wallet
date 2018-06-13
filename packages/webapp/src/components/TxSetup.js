@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { CoinsView, CurrencyStore, CurrencyView, Tx } from './';
+import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
 import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
 import { sort as sortWallets } from '../components/Wallets';
+import { sort as sortTokens } from '../components/CustomTokens/CustomTokens';
 import {
   StickySummary,
   Leaders,
@@ -45,12 +46,13 @@ const LeadersOptions = LeadersQrScan.extend`
 // filters out unavailable coins for this wallet to pick from wallets/address book
 // if same coin is unavailable it is not filtered out since txs to same
 // coin are available
-const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) =>
+// same custom token is not filtered out
+const filterOutUnavailableCoins = (coins, tokens, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
-      c.symbol.toLowerCase() === symbol.toLowerCase() &&
-      (c.status !== 'unavailable' ||
-        c.symbol.toLowerCase() === fromSymbol.toLowerCase()),
+      c.symbol === symbol &&
+      (c.status !== 'unavailable' || c.symbol === fromSymbol) ||
+    tokens.find(t => t.symbol === symbol)
   );
 
 export default class SetupTx extends Component {
@@ -69,13 +71,22 @@ export default class SetupTx extends Component {
       walletsLoading,
       coinsLoading,
       addressBookLoading,
+      tokens,
+      tokensLoading,
     } = this.props;
-    if (!wallet || walletsLoading || coinsLoading || addressBookLoading) {
+    if (
+      !wallet ||
+      walletsLoading ||
+      coinsLoading ||
+      addressBookLoading ||
+      tokensLoading
+    ) {
       return null;
     }
 
     const { symbol } = wallet;
-    if (!canBroadcast(symbol)) {
+    const token = tokens.find(t => t.symbol === symbol);
+    if (!canBroadcast(symbol) && !token) {
       return (
         <details>
           <summary>
@@ -90,11 +101,12 @@ export default class SetupTx extends Component {
 
     const { balance, coins, addressBook, wallets } = this.props;
     const { to, toId, toSymbol, amount } = this.state;
-    const filterOut = filterOutUnavailableCoins(coins, symbol);
+    const filterOut = filterOutUnavailableCoins(coins, tokens, symbol);
     const filteredWallets = wallets
       .filter(({ id }) => id !== wallet.id)
       .filter(filterOut);
     const filteredAddressBook = addressBook.filter(filterOut);
+    const filteredTokens = tokens.filter(t => t.symbol === symbol);
 
     return (
       <details>
@@ -138,14 +150,14 @@ export default class SetupTx extends Component {
           </LeadersDeposit>
 
           <LeadersCoins>
-            <div>Crypto currency</div>
+            <div>Crypto currency/Custom tokens</div>
             <Dots />
-            <CoinsView
+            <CoinsTokens
               onChange={this.onSelectToSymbolChange}
-              coin={coins.find(
-                ({ symbol }) => toSymbol.toLowerCase() === symbol.toLowerCase(),
-              )}
+              coin={coins.find(({ symbol }) => toSymbol === symbol)}
               coins={coins}
+              tokens={filteredTokens}
+              token={tokens.find(({ symbol }) => toSymbol === symbol)}
               filterOutUnavailable={true}
             />
           </LeadersCoins>
@@ -167,32 +179,34 @@ export default class SetupTx extends Component {
                 filteredWallets.length && (
                   <select value={toId} onChange={this.onSelectToChange}>
                     <option key="send-to-label" disabled value="" hidden>
-                      Address Book & My Wallets
+                      Address Book / My Wallets / Custom Tokens
                     </option>
+
                     {filteredAddressBook.length && (
-                      <optgroup key="send-to-address-book" label="AddressBook">
+                      <optgroup key="send-to-address-book" label="Address Book">
                         {filteredAddressBook
                           .sort(sortAddressBook)
-                          .map(({ id, alias }) => (
+                          .map(({ id, alias, symbol }) => (
                             <option
                               key={`send-to-address-book-${id}`}
                               value={`address-book-${id}`}
                             >
-                              {alias}
+                              {alias} {symbol.toUpperCase()}
                             </option>
                           ))}
                       </optgroup>
                     )}
+
                     {filteredWallets.length && (
                       <optgroup key="send-to-my-wallets" label="My Wallets">
                         {filteredWallets
                           .sort(sortWallets)
-                          .map(({ id, alias }) => (
+                          .map(({ id, alias, symbol }) => (
                             <option
                               key={`send-to-my-wallets-${id}`}
                               value={`wallet-${id}`}
                             >
-                              {alias}
+                              {alias} {symbol.toUpperCase()}
                             </option>
                           ))}
                       </optgroup>
@@ -211,6 +225,7 @@ export default class SetupTx extends Component {
           amount={amount}
           balance={balance}
           privateKey={wallet.privateKey}
+          token={token}
         />
       </details>
     );
@@ -225,12 +240,13 @@ export default class SetupTx extends Component {
   };
 
   onSelectToChange = e => {
+    const { wallets, tokens, addressBook } = this.props;
     const value = e.currentTarget.value;
-    let list = this.props.wallets;
+    let list = wallets;
     let prefix = 'wallet-';
     if (value.includes('address-book-')) {
       prefix = 'address-book-';
-      list = this.props.addressBook;
+      list = addressBook;
     }
     const { publicAddress: to, id, symbol: toSymbol } = list.find(
       ({ id }) => `${prefix}${id}` === value,

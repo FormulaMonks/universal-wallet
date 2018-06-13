@@ -18,8 +18,7 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === SYMBOL &&
-  fromSymbol.toLowerCase() === SYMBOL;
+  toSymbol === SYMBOL && fromSymbol === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 

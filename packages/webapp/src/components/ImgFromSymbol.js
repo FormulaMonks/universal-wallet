@@ -10,32 +10,48 @@ const DivI = Div.extend`
   font-size: 20px;
 `;
 
-const ImgFromSymbol = ({ symbol, coins, coinsLoading }) => {
-  if (coinsLoading) {
+const ImgFromSymbol = ({
+  symbol = '',
+  coins = [],
+  coinsLoading = false,
+  tokens = [],
+  tokensLoading = false,
+}) => {
+  if (coinsLoading || tokensLoading) {
     return null;
   }
 
   if (!symbol) {
     return (
-      <DivI>
+      <DivI key="no-symbol">
         <i className="fas fa-coins" />
       </DivI>
     );
   }
 
-  const { imageSmall, name } = coins.find(c => c.symbol.toLowerCase() === symbol.toLowerCase());
-  if (!imageSmall) {
+  const coin = coins.find(c => c.symbol === symbol);
+  if (coin) {
+    const { imageSmall, name } = coin;
     return (
-      <DivI>
-        <i className="fas fa-coins" />
+      <Div>
+        <img src={imageSmall} alt={name} />
+      </Div>
+    );
+  }
+
+  const token = tokens.find(t => t.symbol === symbol);
+  if (token) {
+    return (
+      <DivI key={`token-${symbol}`}>
+        <i className="fab fa-empire" />
       </DivI>
     );
   }
 
   return (
-    <Div>
-      <img src={imageSmall} alt={name} />
-    </Div>
+    <DivI key="default">
+      <i className="fas fa-coins" />
+    </DivI>
   );
 };
 

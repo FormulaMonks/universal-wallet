@@ -1,23 +1,8 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { SHAPESHIFT_GETCOINS } from '../utils/ss';
 import Compose from './Compose';
-import styled from 'styled-components';
 import { ImgFromSymbol } from './';
-
-const DivSelect = styled.div`
-  display: inline-block;
-  position: relative;
-`;
-
-const Select = styled.select`
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  right: 0;
-  top: 0;
-  opacity: 0;
-  cursor: pointer;
-`;
+import { DivSelect, Select } from '../theme';
 
 const View = ({
   coin,
@@ -46,7 +31,7 @@ const View = ({
             />
 
             <Select
-              value={symbol.toLowerCase()}
+              value={symbol}
               onChange={onChangeHandler}
               name="selectSymbol"
               required={required}
@@ -56,7 +41,7 @@ const View = ({
               </option>
               {coins.map(({ name, symbol }) => (
                 <option key={`coins-${symbol}`} value={symbol}>
-                  {name} ({symbol})
+                  {name} ({symbol.toUpperCase()})
                 </option>
               ))}
             </Select>
@@ -95,15 +80,18 @@ class Store extends Component {
   get = async () => {
     try {
       const res = await fetch(SHAPESHIFT_GETCOINS);
-      const coins = await res.json();
-      this.setState({ coins: Object.values(coins), loading: false });
+      const coinsFromJSON = await res.json();
+      const coins = Object.values(coinsFromJSON).map(({ symbol, ...rest }) => ({ ...rest, symbol: symbol.toLowerCase() }))
+      this.setState({ coins, loading: false });
     } catch (e) {
       this.setState({ error: e.toString() });
     }
   };
 
   pick = coinSymbol => {
-    const coin = this.state.coins.find(({ symbol }) => symbol.toLowerCase() === coinSymbol.toLowerCase());
+    const coin = this.state.coins.find(
+      ({ symbol }) => symbol === coinSymbol,
+    );
     this.setState({ coin });
   };
 

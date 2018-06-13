@@ -63,15 +63,16 @@ const DivLeaders = Leaders.extend`
 
 const View = ({
   wallets,
-  walletsError,
   walletsLoading,
   walletPick,
   coins,
   coinsLoading,
+  tokens,
+  tokensLoading,
   ...rest
-}) => (
-  <Fragment>
-    {walletsError}
+}) => {
+
+  return <Fragment>
     <SectionHeader>
       <SectionTitle>My wallets</SectionTitle>
       {!!wallets.length && (
@@ -80,7 +81,7 @@ const View = ({
         </DivAdd>
       )}
     </SectionHeader>
-    {walletsLoading ? (
+    {walletsLoading || coinsLoading || tokensLoading ? (
       <Spinner />
     ) : (
       <Fragment>
@@ -95,6 +96,7 @@ const View = ({
           <UlGrid>
             {wallets.map(wallet => {
               const { id, alias, symbol } = wallet;
+              const token = tokens.find(t => t.symbol === symbol)
 
               return (
                 <LiGrid key={`wallets-${id}`}>
@@ -103,6 +105,8 @@ const View = ({
                       symbol={symbol}
                       coins={coins}
                       coinsLoading={coinsLoading}
+                      tokens={tokens}
+                      tokensLoading={tokensLoading}
                     />
 
                     <div>
@@ -111,7 +115,7 @@ const View = ({
                         <div>Balance</div>
                         <Dots />
                         <div>
-                          <Balance wallet={wallet} />
+                          <Balance wallet={wallet} token={token} />
                         </div>
                       </DivLeaders>
 
@@ -132,7 +136,7 @@ const View = ({
       </Fragment>
     )}
   </Fragment>
-);
+}
 
 class Store extends Component {
   state = {
@@ -188,7 +192,8 @@ class Store extends Component {
     }
   };
 
-  post = async obj => {
+  post = async ({ symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const newObj = {
@@ -202,7 +207,8 @@ class Store extends Component {
     return newObj;
   };
 
-  put = async (walletId, obj) => {
+  put = async (walletId, { symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const { wallets } = this.state;
@@ -243,12 +249,7 @@ class Saga extends Component {
   }
 
   render() {
-    const {
-      children,
-      wallets,
-      walletsPut,
-      ...rest
-    } = this.props;
+    const { children, wallets, walletsPut, ...rest } = this.props;
 
     return (
       <Fragment>

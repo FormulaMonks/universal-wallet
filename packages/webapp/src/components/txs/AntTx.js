@@ -18,12 +18,12 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === SYMBOL &&
-  fromSymbol.toLowerCase() === SYMBOL;
+  toSymbol === SYMBOL &&
+  fromSymbol === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
-export default class EthTx extends Component {
+export default class AntTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {

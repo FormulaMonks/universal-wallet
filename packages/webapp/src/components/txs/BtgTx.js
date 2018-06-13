@@ -1,10 +1,5 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import {
-  SYMBOL,
-  _broadcast,
-  fetchFee,
-  validateAddress,
-} from '../../utils/btg';
+import { SYMBOL, _broadcast, fetchFee, validateAddress } from '../../utils/btg';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -17,8 +12,7 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === SYMBOL &&
-  fromSymbol.toLowerCase() === SYMBOL;
+  toSymbol === SYMBOL && fromSymbol === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 

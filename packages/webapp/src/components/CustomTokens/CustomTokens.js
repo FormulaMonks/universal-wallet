@@ -72,14 +72,15 @@ class Store extends Component {
   };
 
   pick = tokenId => {
-    const token = this.state.tokens.find(({ id }) => tokenId === id);
+    const token = this.state.tokens.find(({ id, symbol }) => tokenId === id);
     if (!token) {
       return;
     }
     this.setState({ token });
   };
 
-  post = async obj => {
+  post = async ({ symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const newObj = {
@@ -93,7 +94,8 @@ class Store extends Component {
     return newObj;
   };
 
-  put = async (tokenId, obj) => {
+  put = async (tokenId, { symbol, ...rest }) => {
+    const obj = { ...rest, symbol: symbol.toLowerCase() };
     this.setState({ loading: true });
 
     const { tokens } = this.state;
@@ -141,12 +143,7 @@ class Saga extends Component {
   }
 
   delete = async tokenId => {
-    const {
-      token,
-      tokenRelease,
-      tokensDelete,
-      tokensGet,
-    } = this.props;
+    const { token, tokenRelease, tokensDelete, tokensGet } = this.props;
     if (token && token.id === tokenId) {
       tokenRelease();
     }
@@ -162,7 +159,11 @@ class Saga extends Component {
   };
 
   post = async data => {
-    const { tokensPost, tokensGet, tokenPick } = this.props;
+    const { tokens, tokensPost, tokensGet, tokenPick } = this.props;
+    const exists = tokens.find(({ symbol }) => symbol === data.symbol);
+    if (exists) {
+      throw new Error('Please use a different symbol');
+    }
     const newToken = await tokensPost(data);
     await tokensGet();
     tokenPick(newToken.id);
