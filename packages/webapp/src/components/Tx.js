@@ -1,11 +1,13 @@
 import React from 'react';
 import {
-  TxStore,
-  SsTxStore,
-  BtcTxStore,
+  AntTxStore,
   BchTxStore,
+  BtcTxStore,
   BtgTxStore,
   EthTxStore,
+  SsTxStore,
+  TokensTxStore,
+  TxStore,
 } from './txs';
 import Compose from './Compose';
 import styled from 'styled-components';
@@ -36,11 +38,11 @@ const DivTx = styled.div`
 
 const DivInfoLabel = styled.div`
   min-width: fit-content;
-`
+`;
 
 const DivInfoVal = styled.div`
   word-break: break-all;
-`
+`;
 
 const View = ({
   txId,
@@ -126,7 +128,11 @@ const Store = ({ children, ...props }) => (
       <BtcTxStore>
         <BchTxStore>
           <BtgTxStore>
-            <EthTxStore children={children} />
+            <EthTxStore>
+              <AntTxStore>
+                <TokensTxStore children={children} />
+              </AntTxStore>
+            </EthTxStore>
           </BtgTxStore>
         </BchTxStore>
       </BtcTxStore>

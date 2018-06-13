@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Spinner, CoinsView, Form } from '../components';
+import { Spinner, CoinsTokens, Form } from '../components';
 import { SectionHeader, SectionTitle, Button, Leaders, Dots } from '../theme';
 import {
   generate,
@@ -8,6 +8,11 @@ import {
   fromWifAvailable,
   defaults,
 } from '../utils/wallets';
+import {
+  defaults as tokenDefaults,
+  generate as tokenGenerate,
+  fromWif as tokenFromWif,
+} from '../utils/tokens';
 import styled from 'styled-components';
 
 const LeadersFirst = Leaders.extend`
@@ -48,116 +53,167 @@ class NewWallet extends Component {
   }
 
   render() {
-    const { coin, coins, coinsLoading } = this.props;
+    const {
+      coin,
+      coins,
+      coinsLoading,
+      token,
+      tokens,
+      tokensLoading,
+    } = this.props;
     const { alias } = this.state;
+    const { symbol = '' } = coin || token || {};
 
     return (
       <Fragment>
         <SectionHeader>
           <SectionTitle>New Wallet</SectionTitle>
         </SectionHeader>
-        {coinsLoading && <Spinner />}
-        {!coinsLoading && (
-          <Fragment>
-            <LeadersFirst>
-              1. Pick a coin:
-              <Dots />
-              <CoinsView coin={coin} coins={coins} onChange={this.pick} />
-            </LeadersFirst>
-
-            <LeadersNewWallet>
-              2. Set an alias:
-              <Dots />
-              <input
-                disabled={!coin}
-                type="text"
-                placeholder="Alias"
-                onInput={this.aliasInput}
-              />
-            </LeadersNewWallet>
-
-            <LeadersNewWallet>
-              3. Pick one method to create the wallet:
-            </LeadersNewWallet>
-            <DivOptions>
-              <LeadersOptions>
-                a. Import with WIF QR code
+        {(tokensLoading || coinsLoading) && <Spinner />}
+        {!coinsLoading &&
+          !tokensLoading && (
+            <Fragment>
+              <LeadersFirst>
+                1. Pick a coin:
                 <Dots />
-                <Button
-                  disabled={
-                    !alias ||
-                    !fromWifAvailable().find(
-                      o => o.symbol === coin.symbol.toLowerCase(),
-                    )
-                  }
-                  onClick={this.onScan}
-                >
-                  Scan
-                </Button>
-              </LeadersOptions>
-              <DivNote>
-                * Only available for:{' '}
-                {fromWifAvailable()
-                  .map(o => o.name)
-                  .join(', ')}
-              </DivNote>
+                <CoinsTokens
+                  coin={coin}
+                  coins={coins}
+                  tokens={tokens}
+                  token={token}
+                  onChange={this.pick}
+                />
+              </LeadersFirst>
 
-              <LeadersOptions>
-                <DivOptionTitle>b. Generate wallet</DivOptionTitle>
+              <LeadersNewWallet>
+                2. Set an alias:
                 <Dots />
-                <Button
-                  disabled={
-                    !alias ||
-                    !generateAvailable().find(
-                      o => o.symbol === coin.symbol.toLowerCase(),
-                    )
-                  }
-                  onClick={this.onGenerate}
-                >
-                  Generate
-                </Button>
-              </LeadersOptions>
-              <DivNote>
-                * Only available for:{' '}
-                {generateAvailable()
-                  .map(o => o.name)
-                  .join(', ')}
-              </DivNote>
+                <input
+                  disabled={!coin && !token}
+                  type="text"
+                  placeholder="Alias"
+                  onInput={this.aliasInput}
+                />
+              </LeadersNewWallet>
 
-              <Form onSubmit={this.onBlank}>
-                <Leaders>
-                  <div>c. Enter details manually</div>
+              <LeadersNewWallet>
+                3. Pick one method to create the wallet:
+              </LeadersNewWallet>
+              <DivOptions>
+                <LeadersOptions>
+                  a. Import with WIF QR code
                   <Dots />
-                  <Button type="submit" disabled={!alias}>
-                    Save
+                  <Button
+                    disabled={
+                      !alias ||
+                      (!fromWifAvailable().find(o => o.symbol === symbol) &&
+                        !token)
+                    }
+                    onClick={this.onScan}
+                  >
+                    Scan
                   </Button>
-                </Leaders>
-                <DivOptions>
-                  <LeadersNewWallet>
-                    <div>Private Key (unencrypted)</div>
+                </LeadersOptions>
+                <DivNote>
+                  * Available for some coins.
+                  {coin && (
+                    <Fragment>
+                      {!generateAvailable().find(
+                        o => o.symbol === coin.symbol,
+                      ) ? (
+                        <Fragment>
+                          {' '}
+                          NOT available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()})
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          {' '}
+                          Available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()})
+                        </Fragment>
+                      )}
+                    </Fragment>
+                  )}
+                  {token && <Fragment>{' '}Available for all custom tokens.</Fragment>}
+                </DivNote>
+
+                <LeadersOptions>
+                  <DivOptionTitle>b. Generate wallet</DivOptionTitle>
+                  <Dots />
+                  <Button
+                    disabled={
+                      !alias ||
+                      (!generateAvailable().find(o => o.symbol === symbol) &&
+                        !token)
+                    }
+                    onClick={this.onGenerate}
+                  >
+                    Generate
+                  </Button>
+                </LeadersOptions>
+                <DivNote>
+                  * Available for some coins.
+                  {coin && (
+                    <Fragment>
+                      {!generateAvailable().find(
+                        o => o.symbol === coin.symbol,
+                      ) ? (
+                        <Fragment>
+                          {' '}
+                          NOT available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()}).
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          {' '}
+                          Available for {
+                            coin.name
+                          } ({coin.symbol.toUpperCase()}).
+                        </Fragment>
+                      )}
+                    </Fragment>
+                  )}
+                  {token && <Fragment>{' '}Available for all custom tokens.</Fragment>}
+                </DivNote>
+
+                <Form onSubmit={this.onBlank}>
+                  <Leaders>
+                    <div>c. Enter details manually</div>
                     <Dots />
-                    <input
-                      required
-                      name="inputPrivateKey"
-                      type="password"
-                      placeholder="Private Key"
-                    />
-                  </LeadersNewWallet>
-                  <LeadersNewWallet>
-                    <div>Public Address</div>
-                    <Dots />
-                    <input
-                      required
-                      name="inputPublicAddress"
-                      type="text"
-                      placeholder="Public Address"
-                    />
-                  </LeadersNewWallet>
-                </DivOptions>
-              </Form>
-            </DivOptions>
-          </Fragment>
-        )}
+                    <Button type="submit" disabled={!alias}>
+                      Save
+                    </Button>
+                  </Leaders>
+                  <DivOptions>
+                    <LeadersNewWallet>
+                      <div>Private Key (unencrypted)</div>
+                      <Dots />
+                      <input
+                        required
+                        name="inputPrivateKey"
+                        type="password"
+                        placeholder="Private Key"
+                      />
+                    </LeadersNewWallet>
+                    <LeadersNewWallet>
+                      <div>Public Address</div>
+                      <Dots />
+                      <input
+                        required
+                        name="inputPublicAddress"
+                        type="text"
+                        placeholder="Public Address"
+                      />
+                    </LeadersNewWallet>
+                  </DivOptions>
+                </Form>
+              </DivOptions>
+            </Fragment>
+          )}
       </Fragment>
     );
   }
@@ -168,49 +224,62 @@ class NewWallet extends Component {
 
   onBlank = form => {
     const { alias } = this.state;
-    const { coin: { symbol } } = this.props;
+    const { coin, token } = this.props;
     const { inputPublicAddress, inputPrivateKey } = form.elements;
     const privateKey = inputPrivateKey.value;
     const publicAddress = inputPublicAddress.value;
-    const data = defaults(symbol);
+    const data = coin ? defaults(coin.symbol) : tokenDefaults(token);
+
     this.post({ ...data, alias, privateKey, publicAddress });
   };
 
   onGenerate = () => {
     const { alias } = this.state;
-    const { coin: { symbol } } = this.props;
-    if (
-      generateAvailable().find(
-        w => w.symbol.toLowerCase() === symbol.toLowerCase(),
-      )
-    ) {
-      const data = generate(symbol.toLowerCase())();
-      this.post({ ...data, alias });
-    }
+    const { coin, token } = this.props;
+    const data = coin ? generate(coin.symbol)() : tokenGenerate(token);
+
+    this.post({ ...data, alias });
   };
 
   onImportWIF = wif => {
     const { alias } = this.state;
-    const { coin: { symbol } } = this.props;
-    const data = fromWif(symbol)(wif);
+    const { coin, token } = this.props;
+    const data = coin
+      ? fromWif(coin.symbol)(wif)
+      : tokenFromWif({ token, wif });
+
     this.post({ ...data, alias });
   };
 
   onScan = () => {
-    const { coin: { symbol }, qrScan } = this.props;
-    if (fromWifAvailable().find(i => i.symbol === symbol.toLowerCase())) {
-      qrScan();
-    }
+    this.props.qrScan();
   };
 
   pick = symbol => {
-    this.props.coinPick(symbol);
+    const {
+      coins,
+      coinPick,
+      coinRelease,
+      tokens,
+      tokenPick,
+      tokenRelease,
+    } = this.props;
+    coinRelease();
+    tokenRelease();
+    if (coins.find(c => c.symbol === symbol)) {
+      coinPick(symbol);
+      return;
+    }
+    const { id } = tokens.find(t => t.symbol === symbol);
+    if (id) {
+      tokenPick(id);
+    }
   };
 
   post = async obj => {
     const { history, walletsPost } = this.props;
     const { id } = await walletsPost(obj);
-    history.push(`/${id}`);
+    history.push(`/wallets/${id}`);
   };
 }
 

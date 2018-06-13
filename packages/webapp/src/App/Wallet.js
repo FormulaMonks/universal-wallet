@@ -3,6 +3,7 @@ import {
   AddressBookStore,
   BalanceStore,
   CoinsStore,
+  CustomTokensStore,
   NavHeader,
   Settings,
   Spinner,
@@ -33,15 +34,17 @@ export default props => (
     <NavHeader />
     <Section>
       <WalletsStore {...props}>
-        <BalanceStore>
-          <CoinsStore>
-            <AddressBookStore>
-              <QrReader>
-                <Wallet />
-              </QrReader>
-            </AddressBookStore>
-          </CoinsStore>
-        </BalanceStore>
+        <CustomTokensStore>
+          <BalanceStore>
+            <CoinsStore>
+              <AddressBookStore>
+                <QrReader>
+                  <Wallet />
+                </QrReader>
+              </AddressBookStore>
+            </CoinsStore>
+          </BalanceStore>
+        </CustomTokensStore>
       </WalletsStore>
     </Section>
   </Fragment>

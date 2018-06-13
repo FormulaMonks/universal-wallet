@@ -1,4 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
+import { getBalance, getBalanceAvailable } from '../utils/wallets';
+import { getBalance as getBalanceToken } from '../utils/tokens';
 import Compose from './Compose';
 
 const INITIAL_STATE = {
@@ -59,36 +61,57 @@ class Store extends Component {
     });
   };
 
-  get = async () => {
-    this.setState({ loading: true });
-    const {
-      publicAddress,
-      balanceURL,
-      balanceProp,
-      balanceUnit,
-    } = this.props.wallet;
-    try {
-      const res = await fetch(`${balanceURL}${publicAddress}`);
-      const data = await res.json();
-      if (!data.hasOwnProperty(balanceProp)) {
+  get = () => {
+    this.setState({ loading: true }, async () => {
+      const { token, wallet } = this.props;
+      const {
+        publicAddress,
+        balanceURL,
+        balanceProp,
+        balanceUnit,
+        symbol,
+      } = wallet;
+
+      try {
+        const res = await fetch(`${balanceURL}${publicAddress}`);
+        const data = await res.json();
+        if (!data.hasOwnProperty(balanceProp)) {
+          this.setState({
+            error: (
+              <div>
+                There was an error getting the wallet balance: the response did
+                not include the balance property
+              </div>
+            ),
+          });
+          return;
+        }
+
+        // TODO: improve this, for the time being tokens have two balances
+        // one for the token itself and another for ether, if the wallet has
+        // a getBalance method in can get the blance for the token
+        // return balance as an array, default view will check and only rener
+        // the first value, and custom views can handle the data as they please
+        let tokenBalance = null;
+        if (getBalanceAvailable().find(o => o.symbol === symbol)) {
+          tokenBalance = await getBalance(symbol)(publicAddress);
+        }
+        if (token) {
+          tokenBalance = await getBalanceToken({ token, publicAddress });
+        }
+
+        const balance = data[balanceProp] * balanceUnit;
         this.setState({
-          error: (
-            <div>
-              There was an error getting the wallet balance: the response did
-              not include the balance property
-            </div>
-          ),
+          balance: tokenBalance !== null ? [tokenBalance, balance] : balance,
+          loading: false,
         });
-        return;
+      } catch (e) {
+        this.setState({
+          error: <div>Currently unavailable</div>,
+          loading: false,
+        });
       }
-      const balance = data[balanceProp] * balanceUnit;
-      this.setState({ balance });
-    } catch (e) {
-      this.setState({
-        error: <div>Currently unavailable</div>,
-      });
-    }
-    this.setState({ loading: false });
+    });
   };
 }
 
@@ -103,7 +126,8 @@ const View = ({ balance, balanceSymbol, balanceError, balanceLoading }) => {
       {balanceLoading && '.'}
       {balance && (
         <Fragment>
-          {balanceSymbol.toUpperCase()} {balance}
+          {balanceSymbol.toUpperCase()}{' '}
+          {Array.isArray(balance) ? balance[0] : balance}
         </Fragment>
       )}
     </Fragment>

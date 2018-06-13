@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import styled from 'styled-components';
 import {
   SectionHeader,
   SectionTitle,
@@ -9,27 +8,11 @@ import {
   Dots,
   UlGrid,
   LiGrid,
+  DivGrid,
+  DivInner,
+  ButtonAdd,
 } from '../../theme';
 import { Spinner, ImgFromSymbol } from '../';
-
-const DivGrid = styled.div`
-  text-align: left;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-gap: 0.5em;
-  min-height: 70px;
-`;
-
-const DivInner = styled.div`
-  padding-top: 4px;
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
-`;
-
-const ButtonAdd = Button.extend`
-  margin-top: 2em;
-`;
 
 class AddressBookView extends Component {
   render() {
@@ -54,7 +37,7 @@ class AddressBookView extends Component {
           <Fragment>
             {!addressBook.length ? (
               <Center>
-                <div>You have not added any addresses yet.</div>
+                <div>You have not added any addresses</div>
                 <ButtonAdd onClick={this.add}>Add address</ButtonAdd>
               </Center>
             ) : (
@@ -64,7 +47,7 @@ class AddressBookView extends Component {
                   const created = new Date(createdAt);
 
                   return (
-                    <LiGrid key={`addrssBook-${id}`}>
+                    <LiGrid key={`addressBook-${id}`}>
                       <button onClick={this.pick(id)}>
                         <DivGrid>
                           <ImgFromSymbol

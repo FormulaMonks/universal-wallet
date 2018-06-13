@@ -1,10 +1,5 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import {
-  SYMBOL,
-  broadcast,
-  fetchFee,
-  validateAddress,
-} from '../../utils/btg';
+import { SYMBOL, _broadcast, fetchFee, validateAddress } from '../../utils/btg';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -17,8 +12,7 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === SYMBOL &&
-  fromSymbol.toLowerCase() === SYMBOL;
+  toSymbol === SYMBOL && fromSymbol === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
@@ -69,7 +63,7 @@ export default class BtgTx extends Component {
   broadcast = async () => {
     this.setState({ broadcasting: 'In progress' });
     try {
-      const txId = await broadcast(this.props);
+      const txId = await _broadcast(this.props);
       this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
       console.error('-- Could not broadcast transaction error:  ', e);

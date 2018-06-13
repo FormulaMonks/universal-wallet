@@ -80,7 +80,7 @@ class Store extends Component {
 
     if (
       !toWifAvailable().find(
-        i => i.symbol.toLowerCase() === symbol.toLowerCase(),
+        i => i.symbol === symbol,
       )
     ) {
       return null;

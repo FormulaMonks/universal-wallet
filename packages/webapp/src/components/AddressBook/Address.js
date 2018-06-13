@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import styled from 'styled-components';
 import qr from 'qr-encode';
 import {
   Button,
@@ -9,24 +8,12 @@ import {
   Dots,
   H3Address,
   DivQrPublicAddress,
+  DivBtns,
 } from '../../theme';
 import { Spinner, ImgFromSymbol, CoinsView, Form } from '../';
 
 const LeadersAddress = Leaders.extend`
   margin-top: 2em;
-`;
-
-const DivBtns = styled.div`
-  display: grid;
-  grid-gap: 1em;
-  margin: 2em auto 0;
-  text-align: center;
-  width: fit-content;
-  grid-template-columns: auto auto;
-
-  & button:nth-of-type(1) {
-    order: 2;
-  }
 `;
 
 const getFormValues = ({ inputAlias, inputPublicAddress, selectSymbol }) => {
@@ -69,7 +56,7 @@ class AddressView extends Component {
     }
     const { alias } = address;
     const { publicAddress, symbol } = this.state;
-    const coin = coins.find(c => c.symbol.toLowerCase() === symbol.toLowerCase());
+    const coin = coins.find(c => c.symbol === symbol);
 
     return (
       <Fragment>

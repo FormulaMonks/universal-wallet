@@ -49,7 +49,7 @@ export const placeOrder = async opts => {
 };
 
 export const canBroadcast = symbol =>
-  broadcastAvailable().find(o => o.symbol === symbol.toLowerCase());
+  broadcastAvailable().find(o => o.symbol === symbol);
 
 export const broadcast = async ({ fromSymbol, ...params }) => {
   return broadcastInterface(fromSymbol)({ fromSymbol, ...params });

@@ -1,10 +1,10 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  SYMBOL,
   broadcast,
-  fetchFee,
   validateAddress,
-} from '../../utils/btc';
+  generateTx,
+  getTxInfo,
+} from '../../utils/tokens';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -16,13 +16,15 @@ const INITIAL_STATE = {
   valid: false,
 };
 
-const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol === SYMBOL &&
-  fromSymbol === SYMBOL;
+const validSymbols = ({ toSymbol, fromSymbol, token }) =>
+  token &&
+  toSymbol === fromSymbol &&
+  token.symbol === toSymbol &&
+  token.symbol === fromSymbol;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
-export default class BtcTx extends Component {
+export default class TokensTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -80,27 +82,18 @@ export default class BtcTx extends Component {
     }
   };
 
-  validAmountFeeBalance(amount, fee, balance) {
-    this.setState({ checking: 'Validating Amount + Fee < Balance' });
-    if (amount + fee > balance) {
-      this.setState({ error: 'Amount + fee exceeds balance' });
-      return false;
-    }
-    return true;
-  }
-
   validAddresses(to, from) {
     this.setState({ checking: 'Validating deposit address' });
     if (!validateAddress(to)) {
       this.setState({
-        error: 'Deposit info isn’t valid bitcoin address',
+        error: 'Deposit info isn’t valid ethereum address',
       });
       return false;
     }
     this.setState({ checking: 'Validating withdrawal address' });
     if (!validateAddress(from)) {
       this.setState({
-        error: 'Wallet info doesn’t have valid bitcoin address',
+        error: 'Wallet info doesn’t have valid ethereum address',
       });
       return false;
     }
@@ -109,21 +102,29 @@ export default class BtcTx extends Component {
 
   validate = async () => {
     this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
-    const { to, from, amount, balance, privateKey } = this.props;
+    const { to, toSymbol, from, amount, privateKey, token } = this.props;
     if (this.validAddresses(to, from)) {
       try {
-        const fee = await fetchFee({ to, from, privateKey, amount });
-        if (this.validAmountFeeBalance(amount, fee, balance)) {
-          this.setState({
-            info: [{ label: 'Fee', value: fee }],
-            valid: true,
-            checking: 'Tx can take place',
-          });
-          return;
-        }
+        const { ether, wei, gwei } = await getTxInfo({
+          to,
+          from,
+          amount,
+          token,
+        });
+        await generateTx({ to, from, privateKey, amount, token });
+        this.setState({
+          info: [
+            { label: 'Gas price', value: `${gwei.price} gwei` },
+            { label: 'Gas limit', value: `${wei.limit} wei` },
+            { label: 'Estimated fee', value: `${ether.aproxFee} ether` },
+          ],
+          valid: true,
+          checking: 'Tx can take place',
+        });
+        return;
       } catch (e) {
-        console.error('Could not fetch transaction fee error: ', e);
-        this.setState({ error: 'Could not fetch transaction fee' });
+        console.error('Could not fetch transaction info error: ', e);
+        this.setState({ error: 'Could not fetch transaction info' });
       }
     }
     this.setState({ checking: 'Please review errors' });

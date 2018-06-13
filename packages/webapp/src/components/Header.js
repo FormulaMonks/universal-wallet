@@ -41,7 +41,7 @@ export default ({ children }) => (
   <Fragment>
     {process.env.REACT_APP_TESTNET ? <div>Testnet ON</div> : null}
     <Header>
-      <Link to="/">
+      <Link to="/wallets">
         <Logo>
           <i className="fas fa-wallet" />DIRUA
         </Logo>

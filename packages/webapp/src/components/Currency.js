@@ -60,7 +60,7 @@ class Store extends Component {
         this.setState({ currency: 0, loading: false });
         return;
       }
-      if (!balance || !balanceSymbol || isNaN(balance)) {
+      if (!balance || !balanceSymbol || (isNaN(balance) && !Array.isArray(balance))) {
         return;
       }
       this.get();
@@ -69,16 +69,16 @@ class Store extends Component {
 
   get = async () => {
     this.setState({ loading: true });
-    const { balance, balanceSymbol } = this.props;
+    const { balance: balanceMaybeArray, balanceSymbol } = this.props;
+    const balance = Array.isArray(balanceMaybeArray)
+      ? balanceMaybeArray[0]
+      : balanceMaybeArray;
+
     // if not BTC get value in BTC
-    const symbolCased = balanceSymbol.toLowerCase();
     let toBTC = 1;
-    if (symbolCased !== SYMBOL) {
+    if (balanceSymbol !== SYMBOL) {
       try {
-        const { rate } = await fetchMarketInfo(
-          symbolCased,
-          SYMBOL,
-        );
+        const { rate } = await fetchMarketInfo(balanceSymbol, SYMBOL);
         toBTC = rate;
       } catch (e) {
         this.setState({
