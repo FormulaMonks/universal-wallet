@@ -102,7 +102,7 @@ export default class TokensTx extends Component {
 
   validate = async () => {
     this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
-    const { to, toSymbol, from, amount, privateKey, token } = this.props;
+    const { to, from, amount, privateKey, token } = this.props;
     if (this.validAddresses(to, from)) {
       try {
         const { ether, wei, gwei } = await getTxInfo({

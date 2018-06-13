@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
 import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
 import { sort as sortWallets } from '../components/Wallets';
-import { sort as sortTokens } from '../components/CustomTokens/CustomTokens';
 import {
   StickySummary,
   Leaders,
@@ -240,7 +239,7 @@ export default class SetupTx extends Component {
   };
 
   onSelectToChange = e => {
-    const { wallets, tokens, addressBook } = this.props;
+    const { wallets, addressBook } = this.props;
     const value = e.currentTarget.value;
     let list = wallets;
     let prefix = 'wallet-';
