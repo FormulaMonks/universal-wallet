@@ -6,6 +6,7 @@ import {
   BtgTxStore,
   EthTxStore,
   SsTxStore,
+  TokensTxStore,
   TxStore,
 } from './txs';
 import Compose from './Compose';
@@ -128,7 +129,9 @@ const Store = ({ children, ...props }) => (
         <BchTxStore>
           <BtgTxStore>
             <EthTxStore>
-              <AntTxStore children={children} />
+              <AntTxStore>
+                <TokensTxStore children={children} />
+              </AntTxStore>
             </EthTxStore>
           </BtgTxStore>
         </BchTxStore>
