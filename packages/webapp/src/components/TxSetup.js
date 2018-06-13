@@ -225,6 +225,7 @@ export default class SetupTx extends Component {
           amount={amount}
           balance={balance}
           privateKey={wallet.privateKey}
+          token={token}
         />
       </details>
     );
