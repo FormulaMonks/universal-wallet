@@ -50,9 +50,8 @@ const filterOutUnavailableCoins = (coins, tokens, fromSymbol) => ({ symbol }) =>
   coins.find(
     c =>
       c.symbol === symbol &&
-      (c.status !== 'unavailable' || c.symbol === fromSymbol) ||
-    tokens.find(t => t.symbol === symbol)
-  );
+      (c.status !== 'unavailable' || c.symbol === fromSymbol),
+  ) || tokens.find(t => t.symbol === symbol);
 
 export default class SetupTx extends Component {
   state = { to: '', toId: '', toSymbol: '', amount: 0 };
