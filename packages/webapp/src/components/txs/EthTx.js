@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  SYMBOL as ETHER_SYMBOL_LOWER_CASED,
+  SYMBOL,
   broadcast,
   validateAddress,
   generateTx,
@@ -18,8 +18,8 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol.toLowerCase() === ETHER_SYMBOL_LOWER_CASED &&
-  fromSymbol.toLowerCase() === ETHER_SYMBOL_LOWER_CASED;
+  toSymbol.toLowerCase() === SYMBOL &&
+  fromSymbol.toLowerCase() === SYMBOL;
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
