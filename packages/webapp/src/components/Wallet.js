@@ -26,8 +26,6 @@ const View = ({
           symbol={symbol}
           coins={coins}
           tokens={tokens}
-          coinsLoading={coinsLoading}
-          tokensLoading={tokensLoading}
         />
         {alias} ({symbol.toUpperCase()})
       </H3Wallet>
@@ -53,7 +51,7 @@ const View = ({
         <div>USD</div>
         <Dots />
         <BalanceStore wallet={wallet}>
-          <Currency />
+          <Currency coins={coins} />
         </BalanceStore>
       </Leaders>
     </Fragment>

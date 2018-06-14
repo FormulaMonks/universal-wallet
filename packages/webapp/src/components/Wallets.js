@@ -110,13 +110,13 @@ const View = ({
                       <ImgFromSymbol
                         symbol={symbol}
                         coins={coins}
-                        coinsLoading={coinsLoading}
                         tokens={tokens}
-                        tokensLoading={tokensLoading}
                       />
 
                       <div>
-                        <div>{alias} ({symbol.toUpperCase()})</div>
+                        <div>
+                          {alias} ({symbol.toUpperCase()})
+                        </div>
                         <DivLeaders>
                           <div>Balance</div>
                           <Dots />
@@ -125,15 +125,17 @@ const View = ({
                           </div>
                         </DivLeaders>
 
-                        <BalanceStore wallet={wallet} token={token}>
-                          <ExtraBalance />
-                        </BalanceStore>
+                        <DivExtraBalance>
+                          <BalanceStore wallet={wallet} token={token}>
+                            <ExtraBalance />
+                          </BalanceStore>
+                        </DivExtraBalance>
 
                         <DivLeaders>
                           <div>USD</div>
                           <Dots />
                           <BalanceStore wallet={wallet}>
-                            <Currency />
+                            <Currency coins={coins} />
                           </BalanceStore>
                         </DivLeaders>
                       </div>
