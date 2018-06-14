@@ -9,6 +9,7 @@ import {
   BalanceStore,
   Currency,
   ImgFromSymbol,
+  ExtraBalance,
 } from '../components';
 import {
   SectionHeader,
@@ -61,19 +62,9 @@ const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
 
-const ExtraBalance = ({ balance }) => {
-  if (!Array.isArray(balance)) {
-    return null;
-  }
-
-  return (
-    <DivLeaders>
-      <div>Ether</div>
-      <Dots />
-      <div>ETH {balance[1]}</div>
-    </DivLeaders>
-  );
-};
+const DivExtraBalance = styled.div`
+  margin-right: 0.5em;
+`;
 
 const View = ({
   wallets,
