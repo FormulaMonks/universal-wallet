@@ -10,7 +10,7 @@ import {
   DivQrPublicAddress,
   DivBtns,
 } from '../../theme';
-import { Spinner, ImgFromSymbol, CoinsView, Form } from '../';
+import { Spinner, ImgFromSymbol, CoinsTokens, Form } from '../';
 
 const LeadersAddress = Leaders.extend`
   margin-top: 2em;
@@ -50,19 +50,20 @@ class AddressView extends Component {
   }
 
   render() {
-    const { coins, coinsLoading, address, qrScan } = this.props;
-    if (coinsLoading) {
+    const { coins, coinsLoading, tokens, tokensLoading , address, qrScan } = this.props;
+    if (coinsLoading || tokensLoading) {
       return <Spinner />;
     }
     const { alias } = address;
     const { publicAddress, symbol } = this.state;
     const coin = coins.find(c => c.symbol === symbol);
+    const token = tokens.find(t => t.symbol === symbol);
 
     return (
       <Fragment>
         <H3Address>
-          <ImgFromSymbol symbol={symbol} coins={coins} />
-          {alias}
+          <ImgFromSymbol symbol={symbol} coins={coins} tokens={tokens} />
+          {alias} ({symbol.toUpperCase()})
         </H3Address>
 
         <DivQrPublicAddress>
@@ -107,10 +108,12 @@ class AddressView extends Component {
           <LeadersCoins>
             <div>Crypto currency</div>
             <Dots />
-            <CoinsView
+            <CoinsTokens
               required={true}
               coin={coin}
               coins={coins}
+              token={token}
+              tokens={tokens}
               onChange={this.coinChange}
             />
           </LeadersCoins>
