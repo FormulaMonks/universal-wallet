@@ -7,7 +7,8 @@ import {
 } from 'blockstack';
 import styled from 'styled-components';
 import { Header, BlockstackLink, Spinner } from './';
-import { Button } from '../theme'
+import { Button } from '../theme';
+import { QrReader } from '../components';
 
 const Wrap = styled.div`
   & button {
@@ -54,7 +55,9 @@ export default class Auth extends Component {
             <Header />
             <Content>
               <Button onClick={this.onSignIn}>Sign in with Blockstack</Button>
-              <BlockstackLink />
+              <QrReader>
+                <BlockstackLink />
+              </QrReader>
             </Content>
           </Wrap>
         )}
