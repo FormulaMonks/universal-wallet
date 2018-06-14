@@ -5,6 +5,7 @@ import styled from 'styled-components';
 const Logo = styled.div`
   font-family: 'Anaheim', sans-serif;
   display: flex;
+  flex-grow: 1;
   align-items: center;
   font-size: 30px;
   letter-spacing: 1px;
@@ -33,7 +34,8 @@ const Header = styled.header`
     font-size: 26px;
     color: #fff;
     text-decoration: none;
-    flex-grow: 1;
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -41,11 +43,11 @@ export default ({ children }) => (
   <Fragment>
     {process.env.REACT_APP_TESTNET ? <div>Testnet ON</div> : null}
     <Header>
-      <Link to="/wallets">
-        <Logo>
+      <Logo>
+        <Link to="/wallets">
           <i className="fas fa-wallet" />DIRUA
-        </Logo>
-      </Link>
+        </Link>
+      </Logo>
       {children}
     </Header>
   </Fragment>
