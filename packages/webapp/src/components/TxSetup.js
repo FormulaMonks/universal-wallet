@@ -1,12 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
-import {
-  Leaders,
-  LeadersCoins,
-  LeadersQrScan,
-  Dots,
-} from '../theme';
+import { Leaders, LeadersCoins, LeadersQrScan, Dots } from '../theme';
 import { canBroadcast } from '../utils/ss';
 
 const H4 = styled.h4`
@@ -158,9 +153,10 @@ export default class SetupTx extends Component {
     const { to, toId, toSymbol, amount } = this.state;
     const filteredWallets = wallets
       .filter(({ id }) => id !== wallet.id)
-      .filter(filterOut(coins, tokens, symbol))
-    const filteredAddressBook = addressBook
-      .filter(filterOut(coins, tokens, symbol))
+      .filter(filterOut(coins, tokens, symbol));
+    const filteredAddressBook = addressBook.filter(
+      filterOut(coins, tokens, symbol),
+    );
     const filteredTokens = tokens.filter(t => t.symbol === symbol);
     const filteredCoins = coins.filter(
       filterOutUnavailableCoins(coins, symbol),
@@ -188,7 +184,11 @@ export default class SetupTx extends Component {
           <DivToCurrency>Estimated USD</DivToCurrency>
           <Dots />
           <DivCurrency>
-            <CurrencyStore balanceSymbol={wallet.symbol} balance={amount}>
+            <CurrencyStore
+              balanceSymbol={wallet.symbol}
+              balance={amount}
+              coins={coins}
+            >
               <CurrencyView />
             </CurrencyStore>
           </DivCurrency>
