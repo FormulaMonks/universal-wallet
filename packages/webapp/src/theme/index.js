@@ -16,14 +16,6 @@ export const SectionTitle = styled.h2`
   margin: 0;
 `;
 
-export const StickySummary = styled.summary`
-  position: sticky;
-  top: 70px;
-  display: block;
-  background: #fff;
-  z-index: 1;
-`;
-
 /* buttons */
 export const Button = styled.button`
   font-family: 'Open Sans', sans-serif;
@@ -85,8 +77,11 @@ export const LiGrid = styled.li`
 
   & button {
     width: 100%;
+    display: block;
     background: none;
     cursor: pointer;
+    padding: 0;
+    margin: 0;
   }
 
   @media (min-width: 600px) {
@@ -183,6 +178,7 @@ export const DivQrPublicAddress = Center.extend`
 
 /* addresses/tokens common */
 export const DivGrid = styled.div`
+  width: 100%;
   text-align: left;
   display: grid;
   grid-template-columns: auto 1fr;

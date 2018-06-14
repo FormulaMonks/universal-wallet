@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
 import {
-  StickySummary,
   Leaders,
   LeadersCoins,
   LeadersQrScan,
@@ -169,106 +168,104 @@ export default class SetupTx extends Component {
 
     return (
       <details>
-        <StickySummary>
+        <summary>
           <H4>Send {symbol.toUpperCase()}</H4>
-        </StickySummary>
+        </summary>
 
-        <div>
-          <Leaders>
-            <div>Amount</div>
-            <Dots />
-            <input
-              name="amount"
-              placeholder="amount"
-              value={amount}
-              type="text"
-              onInput={this.onInputAmountInput}
-            />
-          </Leaders>
+        <Leaders>
+          <div>Amount</div>
+          <Dots />
+          <input
+            name="amount"
+            placeholder="Amount"
+            value={amount}
+            type="text"
+            onInput={this.onInputAmountInput}
+          />
+        </Leaders>
 
-          <Leaders>
-            <DivToCurrency>Estimated USD</DivToCurrency>
-            <Dots />
-            <DivCurrency>
-              <CurrencyStore balanceSymbol={wallet.symbol} balance={amount}>
-                <CurrencyView />
-              </CurrencyStore>
-            </DivCurrency>
-          </Leaders>
+        <Leaders>
+          <DivToCurrency>Estimated USD</DivToCurrency>
+          <Dots />
+          <DivCurrency>
+            <CurrencyStore balanceSymbol={wallet.symbol} balance={amount}>
+              <CurrencyView />
+            </CurrencyStore>
+          </DivCurrency>
+        </Leaders>
 
-          <LeadersDeposit>
-            <div>Deposit address</div>
-            <Dots />
-            <input
-              type="text"
-              name="to"
-              placeholder="Public Address"
-              value={to}
-              onChange={this.onInputToChange}
-            />
-          </LeadersDeposit>
+        <LeadersDeposit>
+          <div>Deposit address</div>
+          <Dots />
+          <input
+            type="text"
+            name="to"
+            placeholder="Public Address"
+            value={to}
+            onChange={this.onInputToChange}
+          />
+        </LeadersDeposit>
 
-          <LeadersCoins>
-            <div>Crypto currency/Custom tokens</div>
-            <Dots />
-            <CoinsTokens
-              onChange={this.onSelectToSymbolChange}
-              coin={filteredCoins.find(({ symbol }) => toSymbol === symbol)}
-              coins={filteredCoins}
-              tokens={filteredTokens}
-              token={filteredTokens.find(({ symbol }) => toSymbol === symbol)}
-            />
-          </LeadersCoins>
+        <LeadersCoins>
+          <div>Crypto currency/Custom tokens</div>
+          <Dots />
+          <CoinsTokens
+            onChange={this.onSelectToSymbolChange}
+            coin={filteredCoins.find(({ symbol }) => toSymbol === symbol)}
+            coins={filteredCoins}
+            tokens={filteredTokens}
+            token={filteredTokens.find(({ symbol }) => toSymbol === symbol)}
+          />
+        </LeadersCoins>
 
-          <LeadersQrScan>
-            <div>Scan from QR Code</div>
-            <Dots />
-            <button title="Scan from QR Code" onClick={this.props.qrScan}>
-              <i className="fas fa-qrcode" />
-            </button>
-          </LeadersQrScan>
+        <LeadersQrScan>
+          <div>Scan from QR Code</div>
+          <Dots />
+          <button title="Scan from QR Code" onClick={this.props.qrScan}>
+            <i className="fas fa-qrcode" />
+          </button>
+        </LeadersQrScan>
 
-          <LeadersOptions>
-            <div>Choose from Wallets/Address book</div>
-            <Dots />
-            <i className="far fa-address-book" />
-            <Fragment>
-              {(!!filteredAddressBook.length || !!filteredWallets.length) && (
-                <select value={toId} onChange={this.onSelectToChange}>
-                  <option key="send-to-label" disabled value="" hidden>
-                    Address Book / My Wallets
-                  </option>
+        <LeadersOptions>
+          <div>Choose from Wallets/Address book</div>
+          <Dots />
+          <i className="far fa-address-book" />
+          <Fragment>
+            {(!!filteredAddressBook.length || !!filteredWallets.length) && (
+              <select value={toId} onChange={this.onSelectToChange}>
+                <option key="send-to-label" disabled value="" hidden>
+                  Address Book / My Wallets
+                </option>
 
-                  {!!filteredAddressBook.length && (
-                    <optgroup key="send-to-address-book" label="Address Book">
-                      {filteredAddressBook.map(({ id, alias, symbol }) => (
-                        <option
-                          key={`send-to-address-book-${id}`}
-                          value={`address-book-${id}`}
-                        >
-                          {alias} ({symbol.toUpperCase()})
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
+                {!!filteredAddressBook.length && (
+                  <optgroup key="send-to-address-book" label="Address Book">
+                    {filteredAddressBook.map(({ id, alias, symbol }) => (
+                      <option
+                        key={`send-to-address-book-${id}`}
+                        value={`address-book-${id}`}
+                      >
+                        {alias} ({symbol.toUpperCase()})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
 
-                  {!!filteredWallets.length && (
-                    <optgroup key="send-to-my-wallets" label="My Wallets">
-                      {filteredWallets.map(({ id, alias, symbol }) => (
-                        <option
-                          key={`send-to-my-wallets-${id}`}
-                          value={`wallet-${id}`}
-                        >
-                          {alias} ({symbol.toUpperCase()})
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-              )}
-            </Fragment>
-          </LeadersOptions>
-        </div>
+                {!!filteredWallets.length && (
+                  <optgroup key="send-to-my-wallets" label="My Wallets">
+                    {filteredWallets.map(({ id, alias, symbol }) => (
+                      <option
+                        key={`send-to-my-wallets-${id}`}
+                        value={`wallet-${id}`}
+                      >
+                        {alias} ({symbol.toUpperCase()})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+            )}
+          </Fragment>
+        </LeadersOptions>
 
         <Tx
           to={to}
