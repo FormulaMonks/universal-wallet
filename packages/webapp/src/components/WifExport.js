@@ -2,6 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
 import { Center, StickySummary } from '../theme';
 import { toWif, toWifAvailable } from '../utils/wallets';
+import { toWif as toWifToken } from '../utils/tokens';
 import qr from 'qr-encode';
 import Compose from './Compose';
 
@@ -47,9 +48,11 @@ class Store extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { wallet, token } = this.props;
     if (
-      (!prevProps.wallet && this.props.wallet) ||
-      (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
+      (!prevProps.wallet && wallet) ||
+      (prevProps.wallet && prevProps.wallet.id !== wallet.id) ||
+      (token && !prevProps.token)
     ) {
       this.get();
     }
@@ -71,23 +74,18 @@ class Store extends Component {
   }
 
   get = () => {
-    const { wallet, walletsLoading } = this.props;
+    const { token, wallet, walletsLoading } = this.props;
     if (!wallet || walletsLoading) {
       return null;
     }
 
-    const { privateKey, symbol } = wallet;
-
-    if (
-      !toWifAvailable().find(
-        i => i.symbol === symbol,
-      )
-    ) {
+    const { symbol, privateKey } = wallet;
+    if (!toWifAvailable().find(i => i.symbol === symbol) && !token) {
       return null;
     }
 
     try {
-      const wif = toWif(symbol)(privateKey)
+      const wif = token ? toWifToken(privateKey) : toWif(symbol)(privateKey);
       this.setState({ wif });
     } catch (e) {
       console.error('--Could not export wallet to WIF error: ', e);

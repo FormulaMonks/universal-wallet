@@ -12,7 +12,7 @@ import ABI from './abi';
 
 const toTokens = (decimals, a) => a * (10 ** decimals);
 
-export { validateAddress } from './eth';
+export { validateAddress, toWif } from './eth';
 
 export const defaults = ({ symbol, decimals }) => {
   const { symbol: ethSymbol, balanceUnit: ethBalanceUnit, ...rest } = DEFAULTS;

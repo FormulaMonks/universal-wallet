@@ -154,9 +154,9 @@ class Saga extends Component {
 
     const { symbol } = wallet;
     if (!coin && !token) {
-      const { id } = tokens.find(t => t.symbol === symbol);
-      if (id) {
-        tokenPick(id);
+      const token = tokens.find(t => t.symbol === symbol);
+      if (token) {
+        tokenPick(token.id);
         return;
       }
       coinPick(symbol);
