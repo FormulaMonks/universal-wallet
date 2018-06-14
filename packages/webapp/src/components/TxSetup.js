@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
-import { sort as sortAddressBook } from '../components/AddressBook/AddressBook';
-import { sort as sortWallets } from '../components/Wallets';
 import {
   StickySummary,
   Leaders,
@@ -42,16 +40,76 @@ const LeadersOptions = LeadersQrScan.extend`
   }
 `;
 
-// filters out unavailable coins for this wallet to pick from wallets/address book
-// if same coin is unavailable it is not filtered out since txs to same
-// coin are available
-// same custom token is not filtered out
-const filterOutUnavailableCoins = (coins, tokens, fromSymbol) => ({ symbol }) =>
-  coins.find(
-    c =>
-      c.symbol === symbol &&
-      (c.status !== 'unavailable' || c.symbol === fromSymbol),
-  ) || tokens.find(t => t.symbol === symbol);
+const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) => {
+  const fromCoin = coins.find(c => c.symbol === fromSymbol);
+  const toCoin = coins.find(c => c.symbol === symbol);
+  // token
+  if (!fromCoin) {
+    return false;
+  }
+  // from coin unavailable
+  // except is same symbol as to coin
+  if (fromCoin.status !== 'available' && fromCoin.symbol !== toCoin.symbol) {
+    return false;
+  }
+  // to coin is unavailable
+  // except if same symbol as from coin
+  if (
+    !toCoin ||
+    (toCoin.status === 'unavailable' && toCoin.symbol !== fromSymbol)
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const filterOut = (coins, tokens, fromSymbol) => ({ symbol }) => {
+  const fromCoin = coins.find(c => c.symbol === fromSymbol);
+  const fromToken = tokens.find(t => t.symbol === fromSymbol);
+  const from = fromCoin || fromToken;
+  const toCoin = coins.find(c => c.symbol === symbol);
+  const toToken = tokens.find(t => t.symbol === symbol);
+  const to = toCoin || toToken;
+  // how did this get here?
+  if (!to && !from) {
+    return false;
+  }
+  // coins
+  // from coin to token
+  if (fromCoin && toToken) {
+    return false;
+  }
+  // from coin is unavailable except if same symbol to coin
+  if (
+    fromCoin &&
+    toCoin &&
+    fromCoin.status === 'unavailable' &&
+    fromCoin.symbol !== toCoin.symbol
+  ) {
+    return false;
+  }
+  // to coin is unavailable except if same symbol as from coin
+  if (
+    fromCoin &&
+    toCoin &&
+    toCoin.status === 'unavailable' &&
+    fromCoin.symbol !== toCoin.symbol
+  ) {
+    return false;
+  }
+  // tokens
+  // if from token to coin
+  if (fromToken && toCoin) {
+    return false;
+  }
+  // if not same symbol
+  if (fromToken && toToken && fromToken.symbol !== toToken.symbol) {
+    return false;
+  }
+
+  return true;
+};
 
 export default class SetupTx extends Component {
   state = { to: '', toId: '', toSymbol: '', amount: 0 };
@@ -99,12 +157,15 @@ export default class SetupTx extends Component {
 
     const { balance, coins, addressBook, wallets } = this.props;
     const { to, toId, toSymbol, amount } = this.state;
-    const filterOut = filterOutUnavailableCoins(coins, tokens, symbol);
     const filteredWallets = wallets
       .filter(({ id }) => id !== wallet.id)
-      .filter(filterOut);
-    const filteredAddressBook = addressBook.filter(filterOut);
+      .filter(filterOut(coins, tokens, symbol))
+    const filteredAddressBook = addressBook
+      .filter(filterOut(coins, tokens, symbol))
     const filteredTokens = tokens.filter(t => t.symbol === symbol);
+    const filteredCoins = coins.filter(
+      filterOutUnavailableCoins(coins, symbol),
+    );
 
     return (
       <details>
@@ -152,11 +213,10 @@ export default class SetupTx extends Component {
             <Dots />
             <CoinsTokens
               onChange={this.onSelectToSymbolChange}
-              coin={coins.find(({ symbol }) => toSymbol === symbol)}
-              coins={coins}
+              coin={filteredCoins.find(({ symbol }) => toSymbol === symbol)}
+              coins={filteredCoins}
               tokens={filteredTokens}
-              token={tokens.find(({ symbol }) => toSymbol === symbol)}
-              filterOutUnavailable={true}
+              token={filteredTokens.find(({ symbol }) => toSymbol === symbol)}
             />
           </LeadersCoins>
 
@@ -173,44 +233,39 @@ export default class SetupTx extends Component {
             <Dots />
             <i className="far fa-address-book" />
             <Fragment>
-              {filteredAddressBook.length &&
-                filteredWallets.length && (
-                  <select value={toId} onChange={this.onSelectToChange}>
-                    <option key="send-to-label" disabled value="" hidden>
-                      Address Book / My Wallets / Custom Tokens
-                    </option>
+              {(!!filteredAddressBook.length || !!filteredWallets.length) && (
+                <select value={toId} onChange={this.onSelectToChange}>
+                  <option key="send-to-label" disabled value="" hidden>
+                    Address Book / My Wallets
+                  </option>
 
-                    {filteredAddressBook.length && (
-                      <optgroup key="send-to-address-book" label="Address Book">
-                        {filteredAddressBook
-                          .sort(sortAddressBook)
-                          .map(({ id, alias, symbol }) => (
-                            <option
-                              key={`send-to-address-book-${id}`}
-                              value={`address-book-${id}`}
-                            >
-                              {alias} ({symbol.toUpperCase()})
-                            </option>
-                          ))}
-                      </optgroup>
-                    )}
+                  {!!filteredAddressBook.length && (
+                    <optgroup key="send-to-address-book" label="Address Book">
+                      {filteredAddressBook.map(({ id, alias, symbol }) => (
+                        <option
+                          key={`send-to-address-book-${id}`}
+                          value={`address-book-${id}`}
+                        >
+                          {alias} ({symbol.toUpperCase()})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
 
-                    {filteredWallets.length && (
-                      <optgroup key="send-to-my-wallets" label="My Wallets">
-                        {filteredWallets
-                          .sort(sortWallets)
-                          .map(({ id, alias, symbol }) => (
-                            <option
-                              key={`send-to-my-wallets-${id}`}
-                              value={`wallet-${id}`}
-                            >
-                              {alias} ({symbol.toUpperCase()})
-                            </option>
-                          ))}
-                      </optgroup>
-                    )}
-                  </select>
-                )}
+                  {!!filteredWallets.length && (
+                    <optgroup key="send-to-my-wallets" label="My Wallets">
+                      {filteredWallets.map(({ id, alias, symbol }) => (
+                        <option
+                          key={`send-to-my-wallets-${id}`}
+                          value={`wallet-${id}`}
+                        >
+                          {alias} ({symbol.toUpperCase()})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+              )}
             </Fragment>
           </LeadersOptions>
         </div>

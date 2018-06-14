@@ -125,7 +125,7 @@ const View = ({
                       />
 
                       <div>
-                        <div>{alias}</div>
+                        <div>{alias} ({symbol.toUpperCase()})</div>
                         <DivLeaders>
                           <div>Balance</div>
                           <Dots />

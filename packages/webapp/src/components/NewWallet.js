@@ -137,7 +137,7 @@ class NewWallet extends Component {
                       )}
                     </Fragment>
                   )}
-                  {token && <Fragment>{' '}Available for all custom tokens.</Fragment>}
+                  {token && <Fragment>{' '}Available for {token.name} ({token.symbol.toUpperCase()}).</Fragment>}
                 </DivNote>
 
                 <LeadersOptions>

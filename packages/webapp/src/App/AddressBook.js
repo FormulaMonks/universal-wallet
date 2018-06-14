@@ -1,5 +1,11 @@
 import React, { Fragment } from 'react';
-import { NavHeader, CoinsStore, AddressBook, QrReader } from '../components';
+import {
+  NavHeader,
+  CustomTokensStore,
+  CoinsStore,
+  AddressBook,
+  QrReader,
+} from '../components';
 import { Section } from '../theme';
 
 export default () => (
@@ -7,9 +13,11 @@ export default () => (
     <NavHeader />
     <Section>
       <QrReader>
-        <CoinsStore>
-          <AddressBook />
-        </CoinsStore>
+        <CustomTokensStore>
+          <CoinsStore>
+            <AddressBook />
+          </CoinsStore>
+        </CustomTokensStore>
       </QrReader>
     </Section>
   </Fragment>
