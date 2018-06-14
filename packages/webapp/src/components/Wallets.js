@@ -63,7 +63,7 @@ const DivLeaders = Leaders.extend`
 `;
 
 const DivExtraBalance = styled.div`
-  margin-right: 0.5em;
+  margin-right: 0.7em;
 `;
 
 const View = ({
