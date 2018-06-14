@@ -1,6 +1,6 @@
 {
   "name": "universal-wallet-webapp",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "homepage": "https://dirua.exchange",
   "dependencies": {
     "bgoldjs-lib": "^3.3.2",

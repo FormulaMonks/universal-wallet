@@ -42,7 +42,7 @@ const View = ({
           coinsLoading={coinsLoading}
           tokensLoading={tokensLoading}
         />
-        {alias}
+        {alias} ({symbol.toUpperCase()})
       </H3Wallet>
 
       <DivQrPublicAddress>

@@ -1,7 +1,7 @@
-export { default as AntTxStore } from './AntTx'
 export { default as BchTxStore } from './BchTx'
 export { default as BtcTxStore } from './BtcTx'
 export { default as BtgTxStore } from './BtgTx'
+export { default as ERC20TxStore } from './ERC20Tx'
 export { default as EthTxStore } from './EthTx'
 export { default as SsTxStore } from './SsTx'
 export { default as TokensTxStore } from './TokensTx'

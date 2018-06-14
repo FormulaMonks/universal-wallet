@@ -108,16 +108,16 @@ export default class SsTx extends Component {
     pair,
     minerFee,
   }) => {
-    const { from, fromSymbol, privateKey, amount } = this.props;
+    const { from, fromSymbol, toSymbol, privateKey, amount } = this.props;
 
     const date = new Date(expiration);
     const info = [
       { label: 'Pair', value: pair },
       { label: 'Quoted rate', value: quotedRate },
-      { label: 'Miner Fee', value: `${fromSymbol} ${minerFee}` },
+      { label: 'Miner Fee', value: `${fromSymbol.toUpperCase()} ${minerFee}` },
       {
         label: 'Amount to receive',
-        value: `${fromSymbol} ${withdrawalAmount}`,
+        value: `${toSymbol.toUpperCase()} ${withdrawalAmount}`,
       },
       { label: 'Order Id', value: orderId },
       { label: 'ShapeShift address', value: deposit },
@@ -217,10 +217,16 @@ export default class SsTx extends Component {
         const info = [
           { label: 'Pair', value: pair },
           { label: 'Rate', value: rate },
-          { label: 'Miner Fee', value: `${fromSymbol} ${minerFee}` },
-          { label: 'Limit', value: `${fromSymbol} ${limit}` },
-          { label: 'Minimum', value: `${fromSymbol} ${minimum}` },
-          { label: 'Amount to receive', value: `${toSymbol} ${amount * rate}` },
+          {
+            label: 'Miner Fee',
+            value: `${fromSymbol.toUpperCase()} ${minerFee}`,
+          },
+          { label: 'Limit', value: `${fromSymbol.toUpperCase()} ${limit}` },
+          { label: 'Minimum', value: `${fromSymbol.toUpperCase()} ${minimum}` },
+          {
+            label: 'Amount to receive',
+            value: `${toSymbol.toUpperCase()} ${amount * rate}`,
+          },
         ];
         this.setState({ info, valid: true, checking: 'Tx can take place' });
         return;

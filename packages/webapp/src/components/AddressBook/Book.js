@@ -22,6 +22,8 @@ class AddressBookView extends Component {
       addressBookLoading,
       coins,
       coinsLoading,
+      tokens,
+      tokensLoading,
     } = this.props;
 
     return (
@@ -29,9 +31,11 @@ class AddressBookView extends Component {
         {addressBookError}
         <SectionHeader>
           <SectionTitle>Address Book</SectionTitle>
-          {!!addressBook.length && <Button onClick={this.add}>Add address</Button>}
+          {!!addressBook.length && (
+            <Button onClick={this.add}>Add address</Button>
+          )}
         </SectionHeader>
-        {coinsLoading || addressBookLoading ? (
+        {coinsLoading || tokensLoading || addressBookLoading ? (
           <Spinner />
         ) : (
           <Fragment>
@@ -53,11 +57,11 @@ class AddressBookView extends Component {
                           <ImgFromSymbol
                             symbol={symbol}
                             coins={coins}
-                            coinsLoading={coinsLoading}
+                            tokens={tokens}
                           />
 
                           <DivInner>
-                            <div>{alias}</div>
+                            <div>{alias} ({symbol.toUpperCase()})</div>
                             <Leaders>
                               Created
                               <Dots />
@@ -78,7 +82,7 @@ class AddressBookView extends Component {
   }
 
   add = async () => {
-    this.props.addressBookPost({ alias: 'New address', publicAddress: '' });
+    this.props.addressBookPost({ alias: 'New address', publicAddress: '', symbol:'' });
   };
 
   pick = id => () => {

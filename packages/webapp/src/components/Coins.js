@@ -109,7 +109,7 @@ class Saga extends Component {
     const { children, ...rest } = this.props;
     const { filterOutUnavailable, coins } = rest;
     const filteredCoins = coins.filter(
-      ({ status }) => filterOutUnavailable || status !== 'unavailable',
+      ({ status }) => !filterOutUnavailable || status !== 'unavailable',
     );
     return (
       <Fragment>

@@ -61,82 +61,102 @@ const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
 
+const ExtraBalance = ({ balance }) => {
+  if (!Array.isArray(balance)) {
+    return null;
+  }
+
+  return (
+    <DivLeaders>
+      <div>Ether</div>
+      <Dots />
+      <div>ETH {balance[1]}</div>
+    </DivLeaders>
+  );
+};
+
 const View = ({
   wallets,
   walletsLoading,
   walletPick,
   coins,
   coinsLoading,
+  token,
   tokens,
   tokensLoading,
   ...rest
 }) => {
-
-  return <Fragment>
-    <SectionHeader>
-      <SectionTitle>My wallets</SectionTitle>
-      {!!wallets.length && (
-        <DivAdd>
-          <Link to="new-wallet">Add wallet</Link>
-        </DivAdd>
-      )}
-    </SectionHeader>
-    {walletsLoading || coinsLoading || tokensLoading ? (
-      <Spinner />
-    ) : (
-      <Fragment>
-        {!wallets.length ? (
-          <Center>
-            <div>You have not added any wallets</div>
-            <DivAddEmpty>
-              <Link to="new-wallet">Add wallet</Link>
-            </DivAddEmpty>
-          </Center>
-        ) : (
-          <UlGrid>
-            {wallets.map(wallet => {
-              const { id, alias, symbol } = wallet;
-              const token = tokens.find(t => t.symbol === symbol)
-
-              return (
-                <LiGrid key={`wallets-${id}`}>
-                  <Link to={`/wallets/${id}`}>
-                    <ImgFromSymbol
-                      symbol={symbol}
-                      coins={coins}
-                      coinsLoading={coinsLoading}
-                      tokens={tokens}
-                      tokensLoading={tokensLoading}
-                    />
-
-                    <div>
-                      <div>{alias}</div>
-                      <DivLeaders>
-                        <div>Balance</div>
-                        <Dots />
-                        <div>
-                          <Balance wallet={wallet} token={token} />
-                        </div>
-                      </DivLeaders>
-
-                      <DivLeaders>
-                        <div>USD</div>
-                        <Dots />
-                        <BalanceStore wallet={wallet}>
-                          <Currency />
-                        </BalanceStore>
-                      </DivLeaders>
-                    </div>
-                  </Link>
-                </LiGrid>
-              );
-            })}
-          </UlGrid>
+  return (
+    <Fragment>
+      <SectionHeader>
+        <SectionTitle>My wallets</SectionTitle>
+        {!!wallets.length && (
+          <DivAdd>
+            <Link to="new-wallet">Add wallet</Link>
+          </DivAdd>
         )}
-      </Fragment>
-    )}
-  </Fragment>
-}
+      </SectionHeader>
+      {walletsLoading || coinsLoading || tokensLoading ? (
+        <Spinner />
+      ) : (
+        <Fragment>
+          {!wallets.length ? (
+            <Center>
+              <div>You have not added any wallets</div>
+              <DivAddEmpty>
+                <Link to="new-wallet">Add wallet</Link>
+              </DivAddEmpty>
+            </Center>
+          ) : (
+            <UlGrid>
+              {wallets.map(wallet => {
+                const { id, alias, symbol } = wallet;
+                const token = tokens.find(t => t.symbol === symbol);
+
+                return (
+                  <LiGrid key={`wallets-${id}`}>
+                    <Link to={`/wallets/${id}`}>
+                      <ImgFromSymbol
+                        symbol={symbol}
+                        coins={coins}
+                        coinsLoading={coinsLoading}
+                        tokens={tokens}
+                        tokensLoading={tokensLoading}
+                      />
+
+                      <div>
+                        <div>{alias} ({symbol.toUpperCase()})</div>
+                        <DivLeaders>
+                          <div>Balance</div>
+                          <Dots />
+                          <div>
+                            <Balance wallet={wallet} token={token} />
+                          </div>
+                        </DivLeaders>
+
+                        <BalanceStore wallet={wallet} token={token}>
+                          <ExtraBalance />
+                        </BalanceStore>
+
+                        <DivLeaders>
+                          <div>USD</div>
+                          <Dots />
+                          <BalanceStore wallet={wallet}>
+                            <Currency />
+                          </BalanceStore>
+                        </DivLeaders>
+                      </div>
+                    </Link>
+                  </LiGrid>
+                );
+              })}
+            </UlGrid>
+          )}
+        </Fragment>
+      )}
+    </Fragment>
+  );
+};
 
 class Store extends Component {
   state = {

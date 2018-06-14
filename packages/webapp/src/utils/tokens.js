@@ -10,7 +10,7 @@ import {
 } from './eth';
 import ABI from './abi';
 
-const toTokens = (decimals, a) => a * (10 ** decimals);
+const toTokens = (decimals, a) => a * 10 ** decimals;
 
 export { validateAddress, toWif } from './eth';
 
