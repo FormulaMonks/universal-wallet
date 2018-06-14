@@ -1,63 +1,43 @@
 import EthereumTx from 'ethereumjs-tx';
+import ABI from './abi';
 import {
-  sendTx,
-  eth,
-  utils,
-  generateWallet,
-  fromWif as fromWifEth,
   DEFAULTS,
   CHAIN_ID,
+  eth,
+  utils,
+  sendTx,
+  generateWallet,
+  fromWif as fromWifEth,
 } from './eth';
-import ABI from './abi';
+
+const TESTNET = process.env.REACT_APP_TESTNET;
 
 const toTokens = (decimals, a) => a * 10 ** decimals;
 
+export const TOKENS = {
+  zrx: {
+    contract: TESTNET
+      ? '0x00F58D6d585F84B2d7267940CeDe30Ce2FE6eAE8'
+      : '0xe41d2489571d322189246dafa5ebde1f4699f498',
+    decimals: 18,
+    name: '0x',
+  },
+  ant: {
+    decimals: 18,
+    contract: '0x960b236A07cf122663c4303350609A66A7B288C0',
+    name: 'Aragon',
+  },
+};
+
 export { validateAddress, toWif } from './eth';
-
-export const defaults = ({ symbol, decimals }) => {
-  const { symbol: ethSymbol, balanceUnit: ethBalanceUnit, ...rest } = DEFAULTS;
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
-
-export const generate = ({ symbol, decimals }) => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = generateWallet();
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
-
-export const fromWif = ({ token: { symbol, decimals }, wif }) => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = fromWifEth(wif);
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
-
-export const getBalance = async ({
-  publicAddress: from,
-  token: { contract: contractAddress, decimals },
-}) => {
-  const contract = new eth.Contract(ABI, contractAddress, { from });
-  const tokens = await contract.methods.balanceOf(from).call();
-  return tokens * 1 / 10 ** decimals;
-};
 
 export const broadcast = async params => {
   const tx = await generateTx(params);
   return await sendTx(tx);
 };
 
-export const generateTx = async ({
-  to,
-  from,
-  privateKey: rawPK,
-  amount,
-  token: { contract: contractAddress, decimals },
-}) => {
+export const generateTx = async ({ symbol, to, from, privateKey: rawPK, amount }) => {
+  const { contract: contractAddress, decimals } = TOKENS[symbol];
   const privateKey = rawPK.indexOf('0x') === 0 ? rawPK.substr(2) : rawPK;
   const nonce = await eth.getTransactionCount(from);
   const gasPriceInWei = await eth.getGasPrice();
@@ -81,12 +61,8 @@ export const generateTx = async ({
   return tx.serialize();
 };
 
-export const getTxInfo = async ({
-  to,
-  from,
-  amount,
-  token: { contract: contractAddress, decimals },
-}) => {
+export const getTxInfo = async ({ to, from, amount, symbol }) => {
+  const { contract: contractAddress, decimals } = TOKENS[symbol];
   const priceInWei = await eth.getGasPrice();
   const contract = new eth.Contract(ABI, contractAddress, { from });
   const gasLimitInWei = await contract.methods
@@ -111,4 +87,34 @@ export const getTxInfo = async ({
       aproxFee: utils.fromWei(`${aproxFeeInWei}`, 'gwei'),
     },
   };
+};
+
+export const generate = symbol => () => {
+  const {
+    symbol: ethSymbol,
+    balanceUnit: ethBalanceUnit,
+    ...rest
+  } = generateWallet();
+  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
+};
+
+export const fromWif = symbol => wif => {
+  const {
+    symbol: ethSymbol,
+    balanceUnit: ethBalanceUnit,
+    ...rest
+  } = fromWifEth(wif);
+  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
+};
+
+export const defaults = symbol => {
+  const { symbol: ethSymbol, balanceUnit: ethBalanceUnit, ...rest } = DEFAULTS;
+  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
+};
+
+export const getBalance = symbol => async from => {
+  const { contract: contractAddress, decimals } = TOKENS[symbol];
+  const contract = new eth.Contract(ABI, contractAddress, { from });
+  const tokens = await contract.methods.balanceOf(from).call();
+  return tokens * 1 / 10 ** decimals;
 };

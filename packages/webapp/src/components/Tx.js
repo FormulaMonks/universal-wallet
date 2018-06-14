@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  AntTxStore,
   BchTxStore,
   BtcTxStore,
   BtgTxStore,
+  ERC20TxStore,
   EthTxStore,
   SsTxStore,
   TokensTxStore,
@@ -129,9 +129,9 @@ const Store = ({ children, ...props }) => (
         <BchTxStore>
           <BtgTxStore>
             <EthTxStore>
-              <AntTxStore>
+              <ERC20TxStore>
                 <TokensTxStore children={children} />
-              </AntTxStore>
+              </ERC20TxStore>
             </EthTxStore>
           </BtgTxStore>
         </BchTxStore>

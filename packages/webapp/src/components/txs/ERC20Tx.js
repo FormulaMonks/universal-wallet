@@ -1,11 +1,11 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import {
-  SYMBOL,
   broadcast,
   validateAddress,
   generateTx,
   getTxInfo,
-} from '../../utils/ant';
+  TOKENS,
+} from '../../utils/erc20';
 import { propsChanged, validProps } from '../../utils/tx';
 
 const INITIAL_STATE = {
@@ -18,12 +18,13 @@ const INITIAL_STATE = {
 };
 
 const validSymbols = ({ toSymbol, fromSymbol }) =>
-  toSymbol === SYMBOL &&
-  fromSymbol === SYMBOL;
+  toSymbol === fromSymbol &&
+  Object.keys(TOKENS).find(symbol => symbol === toSymbol) &&
+  Object.keys(TOKENS).find(symbol => symbol === fromSymbol);
 
 const txValidProps = props => validProps(props) && validSymbols(props);
 
-export default class AntTx extends Component {
+export default class ERC20Tx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -70,7 +71,8 @@ export default class AntTx extends Component {
   broadcast = async () => {
     this.setState({ broadcasting: 'In progress' });
     try {
-      const txId = await broadcast(this.props);
+      const { toSymbol: symbol } = this.props;
+      const txId = await broadcast({ ...this.props, symbol });
       this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
       console.error('-- Could not broadcast transaction error:  ', e);
@@ -101,11 +103,16 @@ export default class AntTx extends Component {
 
   validate = async () => {
     this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
-    const { to, from, amount, privateKey } = this.props;
+    const { to, toSymbol: symbol, from, amount, privateKey } = this.props;
     if (this.validAddresses(to, from)) {
       try {
-        const { ether, wei, gwei } = await getTxInfo({ to, from, amount });
-        await generateTx({ to, from, privateKey, amount });
+        const { ether, wei, gwei } = await getTxInfo({
+          symbol,
+          to,
+          from,
+          amount,
+        });
+        await generateTx({ to, from, privateKey, amount, symbol });
         this.setState({
           info: [
             { label: 'Gas price', value: `${gwei.price} gwei` },
