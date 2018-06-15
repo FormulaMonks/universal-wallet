@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Center, StickySummary, Leaders, Dots, Button } from '../theme';
+import { Center, Leaders, Dots, Button } from '../theme';
 import { Form, CoinsTokens } from './';
 
 const Centered = Center.extend`
@@ -77,9 +77,9 @@ class Settings extends Component {
 
     return (
       <details key={Date.now()}>
-        <StickySummary>
+        <summary>
           <H4>Settings</H4>
-        </StickySummary>
+        </summary>
 
         <Leaders>
           Created<Dots />

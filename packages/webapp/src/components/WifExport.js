@@ -1,6 +1,6 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
-import { Center, StickySummary } from '../theme';
+import { Center } from '../theme';
 import { toWif, toWifAvailable } from '../utils/wallets';
 import { toWif as toWifToken } from '../utils/tokens';
 import qr from 'qr-encode';
@@ -28,9 +28,9 @@ const View = ({ wif, walletsLoading }) => {
 
   return (
     <details key={Date.now()}>
-      <StickySummary>
+      <summary>
         <H4>WIF</H4>
-      </StickySummary>
+      </summary>
 
       <Centered>
         <img src={qr(wif)} alt={wif} />

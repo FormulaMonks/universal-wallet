@@ -2,7 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
 import Compose from './Compose';
 import { Spinner } from './';
-import { StickySummary, Leaders, Dots, Ul } from '../theme';
+import { Leaders, Dots, Ul } from '../theme';
 
 const H4 = styled.h4`
   display: inline-block;
@@ -133,9 +133,9 @@ const View = ({
   }
   return (
     <details>
-      <StickySummary>
+      <summary>
         <H4>Transaction History</H4>
-      </StickySummary>
+      </summary>
       {transactionsLoading ? (
         <Spinner />
       ) : transactionsError ? (

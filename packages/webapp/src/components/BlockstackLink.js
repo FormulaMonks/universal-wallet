@@ -1,9 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import QrR from 'react-qr-reader';
-import { Button, Center } from '../theme'
+import { Button, Center } from '../theme';
 
 export default class BlockstackLink extends Component {
   state = { mode: null, url: null };
+
+  componentDidUpdate(prevProps) {
+    const { qrData } = this.props;
+    if (!prevProps.qrData && qrData) {
+      this.setState({ url: qrData });
+    }
+  }
 
   render() {
     const { mode, url } = this.state;
@@ -14,7 +20,9 @@ export default class BlockstackLink extends Component {
           window.location = url;
         }, 3000);
         return (
-          <Center>In short you will be redirected to setup your Blockstack info</Center>
+          <Center>
+            In short you will be redirected to setup your Blockstack info
+          </Center>
         );
       }
 
@@ -22,24 +30,18 @@ export default class BlockstackLink extends Component {
       return <Center>The link has been set, you are ready to sign in.</Center>;
     }
 
-    if (mode) {
-      return (
-        <Fragment>
-          <QrR
-            delay={300}
-            onScan={url => {
-              url && this.setState({ url });
-            }}
-            onError={err => console.log('err: ', err)}
-          />
-        </Fragment>
-      );
-    }
-
     return (
       <Fragment>
-        <Button onClick={() => this.setState({ mode: 'link' })}>Link your device</Button>
-        <Button onClick={() => this.setState({ mode: 'setup' })}>Setup Blockstack Link</Button>
+        <Button
+          onClick={() => this.setState({ mode: 'link' }, this.props.qrScan)}
+        >
+          Link your device
+        </Button>
+        <Button
+          onClick={() => this.setState({ mode: 'setup' }, this.props.qrScan)}
+        >
+          Setup Blockstack Link
+        </Button>
       </Fragment>
     );
   }

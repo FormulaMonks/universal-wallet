@@ -11,11 +11,11 @@ const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
 const balanceURL = REACT_APP_TESTNET
   ? 'https://testnet.blockexplorer.com/api/addr/'
-  : 'https://explorer.blockexplorer.com/api/addr/';
+  : 'https://blockexplorer.com/api/addr/';
 
 const transactionsURL = REACT_APP_TESTNET
   ? 'https://testnet.blockexplorer.com/api/addr/'
-  : 'https://explorer.blockexplorer.com/api/addr/';
+  : 'https://blockexplorer.com/api/addr/';
 
 const toSatoshi = btc => btc * 100000000;
 

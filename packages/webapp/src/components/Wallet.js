@@ -3,20 +3,7 @@ import qr from 'qr-encode';
 import { Balance, BalanceStore, Currency, Spinner, ImgFromSymbol } from './';
 import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
-
-const ExtraBalance = ({ balance }) => {
-  if (!Array.isArray(balance)) {
-    return null;
-  }
-
-  return (
-    <Leaders>
-      <div>Ether</div>
-      <Dots />
-      <div>ETH {balance[1]}</div>
-    </Leaders>
-  );
-};
+import { ExtraBalance } from './';
 
 const View = ({
   wallet,
@@ -39,8 +26,6 @@ const View = ({
           symbol={symbol}
           coins={coins}
           tokens={tokens}
-          coinsLoading={coinsLoading}
-          tokensLoading={tokensLoading}
         />
         {alias} ({symbol.toUpperCase()})
       </H3Wallet>
@@ -66,7 +51,7 @@ const View = ({
         <div>USD</div>
         <Dots />
         <BalanceStore wallet={wallet}>
-          <Currency />
+          <Currency coins={coins} />
         </BalanceStore>
       </Leaders>
     </Fragment>

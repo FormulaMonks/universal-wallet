@@ -19,10 +19,11 @@ class Store extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { balance, balanceSymbol, balanceError } = this.props;
     if (
-      prevProps.balance !== this.props.balance ||
-      prevProps.balanceSymbol !== this.props.balanceSymbol ||
-      prevProps.balanceError !== this.props.balanceError
+      prevProps.balance !== balance ||
+      prevProps.balanceSymbol !== balanceSymbol ||
+      prevProps.balanceError !== balanceError
     ) {
       this.check();
     }
@@ -48,8 +49,11 @@ class Store extends Component {
 
   check = async () => {
     this.setState({ ...INITIAL_STATE }, () => {
-      const { balance, balanceSymbol, balanceError } = this.props;
-      if (balanceError) {
+      const { balance, balanceSymbol, balanceError, coins = [] } = this.props;
+      if (
+        balanceError ||
+        (coins.length && !coins.find(({ symbol }) => symbol === balanceSymbol))
+      ) {
         this.setState({
           error: <div>Currently unavailable</div>,
           loading: false,
@@ -60,7 +64,11 @@ class Store extends Component {
         this.setState({ currency: 0, loading: false });
         return;
       }
-      if (!balance || !balanceSymbol || (isNaN(balance) && !Array.isArray(balance))) {
+      if (
+        !balance ||
+        !balanceSymbol ||
+        (isNaN(balance) && !Array.isArray(balance))
+      ) {
         return;
       }
       this.get();

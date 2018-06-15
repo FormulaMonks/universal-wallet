@@ -161,7 +161,9 @@ class TokenView extends Component {
     const data = getFormValues(form.elements);
     if (
       coins.find(({ symbol }) => symbol === data.symbol) ||
-      tokens.find(({ symbol }) => symbol === data.symbol)
+      tokens.find(
+        ({ symbol, id: tokenId }) => symbol === data.symbol && tokenId !== id,
+      )
     ) {
       this.setState({
         error: 'Could not save Token. Please use a different symbol.',

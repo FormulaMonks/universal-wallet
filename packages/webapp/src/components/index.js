@@ -1,14 +1,14 @@
+export {
+  default as AddressBook,
+  Store as AddressBookStore,
+  View as AddressBookView,
+} from './AddressBook/AddressBook';
 export { default as Auth } from './Auth';
 export {
   default as Balance,
   Store as BalanceStore,
   View as BalanceView,
 } from './Balance';
-export {
-  default as AddressBook,
-  Store as AddressBookStore,
-  View as AddressBookView,
-} from './AddressBook/AddressBook';
 export { default as BlockstackLink } from './BlockstackLink';
 export {
   default as Coins,
@@ -26,6 +26,7 @@ export {
   Store as CustomTokensStore,
   View as CustomTokensView,
 } from './CustomTokens/CustomTokens';
+export { default as ExtraBalance } from './ExtraBalance';
 export { default as Form } from './Form';
 export { default as Header } from './Header';
 export { default as ImgFromSymbol } from './ImgFromSymbol';

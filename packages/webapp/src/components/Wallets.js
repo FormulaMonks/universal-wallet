@@ -9,6 +9,7 @@ import {
   BalanceStore,
   Currency,
   ImgFromSymbol,
+  ExtraBalance,
 } from '../components';
 import {
   SectionHeader,
@@ -61,19 +62,9 @@ const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
 
-const ExtraBalance = ({ balance }) => {
-  if (!Array.isArray(balance)) {
-    return null;
-  }
-
-  return (
-    <DivLeaders>
-      <div>Ether</div>
-      <Dots />
-      <div>ETH {balance[1]}</div>
-    </DivLeaders>
-  );
-};
+const DivExtraBalance = styled.div`
+  margin-right: 0.7em;
+`;
 
 const View = ({
   wallets,
@@ -119,13 +110,13 @@ const View = ({
                       <ImgFromSymbol
                         symbol={symbol}
                         coins={coins}
-                        coinsLoading={coinsLoading}
                         tokens={tokens}
-                        tokensLoading={tokensLoading}
                       />
 
                       <div>
-                        <div>{alias} ({symbol.toUpperCase()})</div>
+                        <div>
+                          {alias} ({symbol.toUpperCase()})
+                        </div>
                         <DivLeaders>
                           <div>Balance</div>
                           <Dots />
@@ -134,15 +125,17 @@ const View = ({
                           </div>
                         </DivLeaders>
 
-                        <BalanceStore wallet={wallet} token={token}>
-                          <ExtraBalance />
-                        </BalanceStore>
+                        <DivExtraBalance>
+                          <BalanceStore wallet={wallet} token={token}>
+                            <ExtraBalance />
+                          </BalanceStore>
+                        </DivExtraBalance>
 
                         <DivLeaders>
                           <div>USD</div>
                           <Dots />
                           <BalanceStore wallet={wallet}>
-                            <Currency />
+                            <Currency coins={coins} />
                           </BalanceStore>
                         </DivLeaders>
                       </div>

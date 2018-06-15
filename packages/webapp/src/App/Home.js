@@ -16,14 +16,13 @@ const Img = styled.img`
 
 const SectionWrap = Section.extend`
   text-align: center;
-  padding-top: 2em;
+  padding-top: 1em;
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 1em;
 `;
 
 const UlLinks = Ul.extend`
-  margin-top: 2em;
   display: grid;
   grid-gap: 1em;
 
@@ -32,15 +31,25 @@ const UlLinks = Ul.extend`
   }
 `;
 
+const Div = styled.div`
+  font-weight: bold;
+`;
+
 export default props => {
-  const { profile: { image: [{ contentUrl }], name } } = loadUserData();
+  const {
+    username,
+    profile: {
+      image: [{ contentUrl = 'https://picsum.photos/200?random' } = {}] = [],
+      name,
+    } = {},
+  } = loadUserData();
 
   return (
     <Fragment>
       <NavHeader />
       <SectionWrap>
         <Img src={contentUrl} alt={name} title={name} />
-        <div>{name}</div>
+        <Div>{name || username}</Div>
         <UlLinks>
           <li>
             <Link to="/wallets">
