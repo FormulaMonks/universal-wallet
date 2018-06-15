@@ -52,7 +52,7 @@ class Store extends Component {
       const { balance, balanceSymbol, balanceError, coins = [] } = this.props;
       if (
         balanceError ||
-        coins.length && !coins.find(({ symbol }) => symbol === balanceSymbol)
+        (coins.length && !coins.find(({ symbol }) => symbol === balanceSymbol))
       ) {
         this.setState({
           error: <div>Currently unavailable</div>,
