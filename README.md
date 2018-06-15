@@ -25,7 +25,7 @@ Dirua is a universal crypto wallet. It was developed with a mobile-first mindset
 - **Distributed app**: Dirua's technology makes it possible to interact with the different crypto networks without having to run full nodes yourself. Dirua provides a default setup for each of the different cyrpto currencies in order to broadcast payments to such networks. If the user chooses so, they can modify their wallet settings so that they point to a different endpoint.
 - **Crypto currencies available**: _Bitcoin, Bitcoin cash, Ethereum, Aragon, FirstBlood, Basic Attention, Bancor, Civic, district0x, Edgeless, Eos, Gnosis, Golem, Matchpool, Numeraire, OmiseGo, Qtum, Augur, RCN (RipioCreditNetwork), iExec RLC, Salt, Status, Storj, Swarm City, TrustCoin/WeTrust, Wings, 0x_ and more are coming.
 - **Custom tokens**: Dirua provides a mechanism to import newly created tokens on the Ethereum network. This way even newly created communities can take advantage of Dirua's payment features.
-- **Cross wallet exchange**: Dirua provides a mechanism to send payments from a withdrawal wallet to a deposit wallet with that belong to different crypto currencies or tokens. This is done using [ShapeShift](https://shapeshift.io/). You can send ETH by having a BTC wallet (with funds), or any other combination with the currencies Dirua supports.
+- **Cross wallet exchange**: Dirua provides a mechanism to send payments from a withdrawal wallet to a deposit wallet that hold different crypto currencies or tokens. This is done using [ShapeShift](https://shapeshift.io/). You can send ETH by having a BTC wallet (with funds), or any other combination with the currencies Dirua supports.
 
 
 ## License
