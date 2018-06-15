@@ -281,8 +281,8 @@ export default class SetupTx extends Component {
     );
   }
 
-  onInputAmountInput = e => {
-    this.setState({ amount: e.currentTarget.value });
+  onInputAmountInput = ({ currentTarget: { value: amount } }) => {
+    this.setState({ amount });
   };
 
   onInputToChange = e => {

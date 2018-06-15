@@ -61,8 +61,8 @@ export default class BtcTx extends Component {
   }
 
   validAmount(amount) {
-    if (!(amount > 0)) {
-      this.setState({ error: 'Amount should be a greater than zero' });
+    if (!(amount > 0) || isNaN(amount)) {
+      this.setState({ error: 'Amount should be a number greater than zero' });
       return false;
     }
     return true;

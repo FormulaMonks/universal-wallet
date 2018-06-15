@@ -2,7 +2,7 @@ import btgjs from 'bgoldjs-lib';
 import Wif from 'wif';
 import BigInteger from 'bigi';
 
-const { TransactionBuilder } = btgjs;
+//const { TransactionBuilder } = btgjs;
 
 const { REACT_APP_TESTNET } = process.env;
 
@@ -33,8 +33,6 @@ const getUnspentUtxos = address =>
     }
   });
 
-window.btg = btgjs;
-window.txb = TransactionBuilder;
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   //const d = BigInteger.fromHex(privateKey);
   //const key = new btgjs.ECPair(d, null, { network: NETWORK, compressed: true });
