@@ -2,6 +2,7 @@ import * as btc from './btc';
 import * as bch from './bch';
 import * as eth from './eth';
 import * as btg from './btg';
+import * as ltc from './ltc';
 import {
   TOKENS,
   generate as generateWalletERC20,
@@ -12,7 +13,7 @@ import {
   broadcast as broadcastERC20,
 } from './erc20';
 
-const wallets = [btc, bch, eth, btg];
+const wallets = [btc, bch, eth, btg, ltc];
 
 /* generate (and the rest too) */
 // get generateWallet from wallets or tokens
