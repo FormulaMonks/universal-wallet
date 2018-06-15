@@ -3,6 +3,7 @@
   "version": "0.0.18",
   "homepage": "https://dirua.exchange",
   "dependencies": {
+    "@dashevo/dashcore-lib": "^0.15.5",
     "bgoldjs-lib": "^3.3.2",
     "bigi": "^1.4.2",
     "bitcoincashjs": "^0.1.10",
