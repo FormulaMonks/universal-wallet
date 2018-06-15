@@ -13,14 +13,13 @@ import { QrReader } from '../components';
 const Wrap = styled.div`
   & button {
     display: block;
-    margin: 3em auto;
-    width: 100%;
+    margin: 1.5em auto;
+    width: 250px;
   }
 `;
 
 const Content = styled.div`
-  width: 70%;
-  margin: auto;
+  margin: 4em auto;
 `;
 
 const LOADING = 'checking current state';
@@ -55,9 +54,11 @@ export default class Auth extends Component {
             <Header />
             <Content>
               <Button onClick={this.onSignIn}>Sign in with Blockstack</Button>
-              <QrReader>
-                <BlockstackLink />
-              </QrReader>
+              {window.orientation > -1 && (
+                <QrReader>
+                  <BlockstackLink />
+                </QrReader>
+              )}
             </Content>
           </Wrap>
         )}
