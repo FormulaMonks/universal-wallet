@@ -9,6 +9,7 @@ import {
   SsTxStore,
   TokensTxStore,
   TxStore,
+  ZecTxStore,
 } from './txs';
 import Compose from './Compose';
 import styled from 'styled-components';
@@ -131,9 +132,11 @@ const Store = ({ children, ...props }) => (
           <BtgTxStore>
             <EthTxStore>
               <LtcTxStore>
-                <ERC20TxStore>
-                  <TokensTxStore children={children} />
-                </ERC20TxStore>
+                <ZecTxStore>
+                  <ERC20TxStore>
+                    <TokensTxStore children={children} />
+                  </ERC20TxStore>
+                </ZecTxStore>
               </LtcTxStore>
             </EthTxStore>
           </BtgTxStore>
