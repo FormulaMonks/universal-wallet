@@ -2,7 +2,7 @@
   "short_name": "Dirua",
   "name": "Dirua",
   "description": "Dirua: a universal crypto wallet",
-  "start_url": "dirua.exchange",
+  "start_url": "/",
   "icons": [
     {
       "src": "https://dirua.exchange/dirua.png",
