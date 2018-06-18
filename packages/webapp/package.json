@@ -28,7 +28,7 @@
     "build": "react-app-rewired build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "deploy:prod": "URL=https://dirua.exchange npm run deploy",
+    "deploy:prod": "URL=https://v1.dirua.exchange npm run deploy",
     "deploy:staging": "URL=https://universal-wallet.surge.sh npm run deploy",
     "deploy:dev": "URL=dev-universal-wallet.surge.sh npm run deploy",
     "deploy": "npm run build && npx surge ./build $URL"
