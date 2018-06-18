@@ -1,23 +1,16 @@
 import { Address, Transaction, PrivateKey } from '@dashevo/dashcore-lib';
-import { Insight } from 'bitcore-explorers';
 
 const { REACT_APP_TESTNET } = process.env;
 
 const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
 const URL = REACT_APP_TESTNET
-  ? 'https://test.insight.dash.siampm.com'
-  : 'https://insight.dash.siampm.com';
+  ? 'https://testnet-insight.dashevo.org/insight-api'
+  : 'https://insight.dashevo.org/insight-api';
 
-const insight = new Insight(URL, NETWORK);
+const balanceURL = URL + '/addr/';
 
-const balanceURL = REACT_APP_TESTNET
-  ? 'https://test.insight.dash.siampm.com/api/addr/'
-  : 'https://insight.dash.siampm.com/api/addr/';
-
-const transactionsURL = REACT_APP_TESTNET
-  ? 'https://test.insight.dash.siampm.com/api/addr/'
-  : 'https://insight.dash.siampm.com/api/addr/';
+const transactionsURL = URL + '/addr/';
 
 const toSatoshi = dash => dash * 100000000;
 
@@ -26,7 +19,7 @@ const toDASH = satoshi => satoshi / 100000000;
 const getUnspentUtxos = address =>
   new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`${URL}/api/addrs/${address}/utxo`);
+      const res = await fetch(`${URL}/addrs/${address}/utxo`);
       const data = await res.json();
       resolve(data);
     } catch (err) {
@@ -49,14 +42,22 @@ const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
 };
 
 const broadcastTx = tx =>
-  new Promise((resolve, reject) =>
-    insight.broadcast(tx.toString(), (err, txId) => {
-      if (err) {
-        reject(`Could not broadcast transaction: ${err}`);
-      }
-      resolve(txId);
-    }),
-  );
+  new Promise(async (resolve, reject) => {
+    try {
+      const raw = await fetch(`${URL}/tx/send`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rawtx: tx.toString() }),
+      });
+      const { txid } = await raw.json();
+      resolve(txid);
+    } catch (err) {
+      reject(`Could not broadcast tx: ${err}`);
+    }
+  });
 
 export const NAME = 'Dashcoin';
 
@@ -103,12 +104,6 @@ export const validateAddress = Address.isValid;
 export const fetchFee = async ({ to, from, privateKey, amount }) => {
   const fromAddress = Address.fromString(from);
   const toAddress = Address.fromString(to);
-  console.log(
-    'fromA: ',
-    fromAddress.toString('hex'),
-    ' toAddress: ',
-    toAddress.toString('hex'),
-  );
   const utxos = await getUnspentUtxos(fromAddress);
   const tx = generateTx({
     utxos,
