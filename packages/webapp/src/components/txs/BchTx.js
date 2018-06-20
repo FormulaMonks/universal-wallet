@@ -122,7 +122,7 @@ export default class BchTx extends Component {
           return;
         }
       } catch (e) {
-        console.error('Could not fetch transaction fee error: ', e);
+        console.error('-- Could not fetch transaction fee error: ', e);
         this.setState({ error: 'Could not fetch transaction fee' });
       }
     }
