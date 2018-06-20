@@ -65,7 +65,6 @@ export { default as WalletAssets } from './WalletAssets';
 export { default as WalletPick } from './WalletPick';
 export {
   default as Wallets,
-  Loaded as WalletsLoaded,
   Store as WalletsStore,
   View as WalletsView,
 } from './Wallets';
