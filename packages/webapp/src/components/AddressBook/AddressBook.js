@@ -4,6 +4,7 @@ import { getFile, putFile } from 'blockstack';
 import Compose from '../Compose';
 import AddressBookView from './Book';
 import AddressView from './Address';
+import { Spinner } from '../';
 
 const ADDRESS_BOOK_JSON = 'address-book.json';
 
@@ -171,7 +172,20 @@ class Saga extends Component {
   };
 }
 
+const Loaded = ({ children, ...rest }) => {
+  const { addressBookLoading } = rest;
+  if (addressBookLoading) {
+    return <Spinner />;
+  }
+
+  return (
+    <Fragment>
+      {Children.map(children, child => cloneElement(child, { ...rest }))}
+    </Fragment>
+  );
+};
+
 const SagaStore = Compose(Store, Saga);
 
-export { SagaStore as Store, View, sort };
+export { SagaStore as Store, View, Loaded, sort };
 export default Compose(SagaStore, View);
