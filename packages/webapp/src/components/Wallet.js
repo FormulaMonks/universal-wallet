@@ -45,8 +45,7 @@ const View = ({
   return (
     <Fragment>
       <Title>
-        {'< '}
-        <Link to={`/wallets/${id}`}>{alias}</Link>
+        ‹ <Link to={`/wallets/${id}`}>{alias}</Link>
       </Title>
       <H3Wallet>
         <ImgFromSymbol coins={coins} tokens={tokens} symbol={symbol} />
