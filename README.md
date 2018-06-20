@@ -19,6 +19,7 @@ Dirua is a universal crypto wallet. It was developed with a mobile-first mindset
 - **QR Scan**: Dirua's QR scanning features provide a user friendly approach to:
   - Importing wallets using **WIF**
   - Reading **public addresses** for payments and/or adding them to your **address book**.
+- **Unlimited** universal wallets for different use cases (eg. personal, work and/or family accounts).
 - **Address Book**: Dirua offers the user the tools to maintain a list of the most commonly used addresses for quick access when sending payments.
 - **P2P identity**: Dirua does not have a sign up form, nor does it store any user data on any of our servers. Dirua provides a mechanism for the users to sign in and use the app via [Blockstack](https://blockstack.org/t). Blockstack provides the identity layer for this distributed app (you can read more about it here: [Blockchain identity](https://blockstack.org/posts/blockchain-identity)).
 - **Data storage**: Dirua uses Blockstack's tools to store the user's data. Blockstack provides a mechanism for users to control their data by setting up their own storage provider (you can read more about it here: [Gaia](https://github.com/blockstack/gaia)).
