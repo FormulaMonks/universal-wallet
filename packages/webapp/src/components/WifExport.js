@@ -1,8 +1,7 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import styled from 'styled-components';
 import { Center } from '../theme';
-import { toWif, toWifAvailable } from '../utils/wallets';
-import { toWif as toWifToken } from '../utils/tokens';
+import { PrivateKey } from 'bitcore-lib';
 import qr from 'qr-encode';
 import Compose from './Compose';
 
@@ -74,18 +73,15 @@ class Store extends Component {
   }
 
   get = () => {
-    const { token, wallet, walletsLoading } = this.props;
+    const { wallet, walletsLoading } = this.props;
     if (!wallet || walletsLoading) {
       return null;
     }
 
-    const { symbol, privateKey } = wallet;
-    if (!toWifAvailable().find(i => i.symbol === symbol) && !token) {
-      return null;
-    }
-
+    const { privateKey } = wallet;
     try {
-      const wif = token ? toWifToken(privateKey) : toWif(symbol)(privateKey);
+      const pk = new PrivateKey(privateKey);
+      const wif = pk.toWIF();
       this.setState({ wif });
     } catch (e) {
       console.error('--Could not export wallet to WIF error: ', e);
