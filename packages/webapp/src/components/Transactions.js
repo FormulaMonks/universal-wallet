@@ -3,6 +3,11 @@ import styled from 'styled-components';
 import Compose from './Compose';
 import { Spinner } from './';
 import { Leaders, Dots, Ul } from '../theme';
+import { getTransactions, getTransactionURL } from '../utils/wallets';
+import {
+  getTransactions as getTransactionsToken,
+  getTransactionURL as getTransactionURLToken,
+} from '../utils/tokens';
 
 const H4 = styled.h4`
   display: inline-block;
@@ -25,16 +30,19 @@ const DivVal = styled.div`
   word-break: break-all;
 `;
 
+const INITIAL_STATE = {
+  transactions: [],
+  error: null,
+  loading: true,
+};
+
 class Store extends Component {
-  state = {
-    transactions: [],
-    error: null,
-    loading: false,
-    has: false,
-  };
+  state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    this.check();
+    if (this.props.wallet) {
+      this.get();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -42,12 +50,12 @@ class Store extends Component {
       (!prevProps.wallet && this.props.wallet) ||
       (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
     ) {
-      this.check();
+      this.get();
     }
   }
 
   render() {
-    const { transactions, loading, error, has } = this.state;
+    const { transactions, loading, error } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -56,7 +64,6 @@ class Store extends Component {
           cloneElement(child, {
             ...rest,
             transactions,
-            transactionsHas: has,
             transactionsLoading: loading,
             transactionsError: error,
           }),
@@ -65,104 +72,103 @@ class Store extends Component {
     );
   }
 
-  check = async () => {
-    this.setState({
-      loading: false,
-      transactions: [],
-      error: null,
-      has: false,
-    });
-
-    const { wallet } = this.props;
-    if (!wallet) {
-      return;
-    }
-
-    const { transactionsURL, transactionsProp } = wallet;
-    if (!transactionsURL || !transactionsProp) {
-      return;
-    }
-
-    this.get();
-  };
-
   get = async () => {
-    this.setState({ loading: true, has: true });
+    this.setState({ ...INITIAL_STATE, loading: true }, async () => {
+      const { wallet: { privateKey, assets }, tokens } = this.props;
 
-    const {
-      publicAddress,
-      transactionsURL,
-      transactionsProp,
-    } = this.props.wallet;
+      const transactions = await Promise.all(
+        assets.map(async symbol => {
+          const token = tokens.find(t => t.symbol === symbol);
+          try {
+            const url = token
+              ? getTransactionURLToken(symbol)
+              : getTransactionURL(symbol);
+            const transactions = token
+              ? await getTransactionsToken(symbol)({ token, privateKey })
+              : await getTransactions(symbol)(privateKey);
+            return { symbol, transactions, url };
+          } catch (e) {
+            return { symbol, transactions: [] };
+          }
+        }),
+      );
 
-    try {
-      const res = await fetch(`${transactionsURL}${publicAddress}`);
-      const data = await res.json();
-      if (!data.hasOwnProperty(transactionsProp)) {
-        throw new Error(
-          'The transaction did not include the transactions property',
-        );
-      }
-
-      const transactions = data[transactionsProp];
-      if (!Array.isArray(transactions)) {
-        throw new Error(JSON.stringify(transactions));
-      }
-
-      this.setState({ transactions });
-    } catch (e) {
-      console.error('--Could not fetch transactions error: ', e);
-      this.setState({
-        error: 'There was an error fetching the wallet transactions',
-      });
-    }
-    this.setState({ loading: false });
+      this.setState({ transactions, loading: false });
+    });
   };
 }
 
 const View = ({
-  transactions,
-  transactionsHas,
-  transactionsLoading,
+  transactions: transactionsAll,
   transactionsError,
+  coins,
+  tokens,
   wallet,
-  walletsLoading,
+  match: { params: { symbol } },
 }) => {
-  if (!transactionsHas || walletsLoading) {
-    return null;
-  }
+  const { transactions = [], url } = transactionsAll.find(
+    t => t.symbol === symbol,
+  );
+
   return (
     <details>
       <summary>
         <H4>Transaction History</H4>
       </summary>
-      {transactionsLoading ? (
-        <Spinner />
-      ) : transactionsError ? (
+
+      {transactionsError ? (
         <div>{transactionsError}</div>
       ) : (
         <Ul>
           {transactions.map((transaction, index) => {
             return (
               <Li key={`transactions-${wallet.id}-${index}`}>
+
                 {typeof transaction === 'string' ? (
                   <Leaders>
-                    <DivProp>Id</DivProp>
+                    <DivProp>Hash</DivProp>
                     <Dots />
-                    <DivVal>{transaction}</DivVal>
+                    <DivVal>
+                      <a
+                        href={`${url}${transaction}`}
+                        target="_blank"
+                        rel="nofollow"
+                      >
+                        {transaction}
+                      </a>
+                    </DivVal>
+
                   </Leaders>
                 ) : (
                   <Fragment>
                     <Ul>
-                      {Object.keys(transaction).map(prop => (
-                        <li key={`transactions-${wallet.id}-${index}-${prop}`}>
-                          <Leaders>
-                            <DivProp>{prop}</DivProp>
-                            <Dots />
-                            <DivVal>{transaction[prop]}</DivVal>
-                          </Leaders>
-                        </li>
-                      ))}
+                      {Object.keys(transaction).map(prop => {
+                        return (
+                          <li
+                            key={`transactions-${wallet.id}-${index}-${prop}`}
+                          >
+
+                            <Leaders>
+                              <DivProp>{prop}</DivProp>
+                              <Dots />
+                              <DivVal>
+                                {prop.toLowerCase() === 'hash' ? (
+                                  <a
+                                    href={`${url}${transaction[prop]}`}
+                                    target="_blank"
+                                    rel="nofollow"
+                                  >
+                                    {transaction[prop]}
+                                  </a>
+                                ) : (
+                                  transaction[prop]
+                                )}
+                              </DivVal>
+
+                            </Leaders>
+                          </li>
+                        );
+                      })}
                     </Ul>
                   </Fragment>
                 )}
