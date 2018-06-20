@@ -1,7 +1,6 @@
-import litecore from 'litecore-lib';
+import { Address, Transaction, PrivateKey } from 'litecore-lib';
 import { Insight } from 'bitcore-explorers';
-
-const { Address, Transaction, PrivateKey } = litecore;
+import { toSatoshi, toBTC } from './btc'
 
 const { REACT_APP_TESTNET } = process.env;
 
@@ -9,21 +8,11 @@ const URL = REACT_APP_TESTNET
   ? 'https://testnet.litecore.io'
   : 'https://insight.litecore.io';
 
-const insight = new Insight(URL)
+const insight = new Insight(URL);
 
 const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
-const balanceURL = REACT_APP_TESTNET
-  ? 'https://testnet.litecore.io/api/addr/'
-  : 'https://insight.litecore.io/api/addr/'
-
-const transactionsURL = REACT_APP_TESTNET
-  ? 'https://testnet.litecore.io/api/addr/'
-  : 'https://insight.litecore.io/api/addr/'
-
-const toSatoshi = ltc => ltc * 100000000;
-
-const toLTC = satoshi => satoshi / 100000000;
+const URL_API = URL + '/api/addr/'
 
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
@@ -63,41 +52,7 @@ export const NAME = 'Litecoin';
 
 export const SYMBOL = 'ltc';
 
-export const DEFAULTS = {
-  balanceURL,
-  balanceProp: 'balance',
-  balanceUnit: 1,
-  transactionsURL,
-  transactionsProp: 'transactions',
-  symbol: SYMBOL,
-};
-
-export const toWif = privateKey => {
-  const pk = new PrivateKey(privateKey);
-  return pk.toWIF();
-};
-
-export const fromWif = wif => {
-  const privateKey = PrivateKey.fromWIF(wif);
-  const publicAddress = privateKey.toAddress(NETWORK);
-
-  return {
-    privateKey: privateKey.toString('hex'),
-    publicAddress: publicAddress.toString('hex'),
-    ...DEFAULTS,
-  };
-};
-
-export const generateWallet = () => {
-  const privateKey = new PrivateKey();
-  const publicAddress = privateKey.toAddress(NETWORK);
-
-  return {
-    privateKey: privateKey.toString('hex'),
-    publicAddress: publicAddress.toString('hex'),
-    ...DEFAULTS,
-  };
-};
+export const URL_TX = URL + '/tx/'
 
 export const validateAddress = Address.isValid;
 
@@ -116,7 +71,7 @@ export const fetchFee = async ({ to, from, privateKey, amount }) => {
   const totalInputs = inputs.reduce((p, c) => p + c.output.satoshis, 0);
   const totalOutputs = outputs.reduce((p, c) => p + c.satoshis, 0);
   const fee = totalInputs - totalOutputs;
-  return toLTC(fee);
+  return toBTC(fee);
 };
 
 export const broadcast = async ({ to, from, privateKey, amount }) => {
@@ -132,3 +87,20 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
   });
   return await broadcastTx(tx);
 };
+
+export const toPublicAddress = privateKey => {
+  const pk = new PrivateKey(privateKey);
+  return pk.toAddress(NETWORK).toString('hex');
+};
+
+export const getBalance = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { balance } = await raw.json();
+  return balance;
+};
+
+export const getTransactions = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { transactions } = await raw.json();
+  return transactions;
+}
