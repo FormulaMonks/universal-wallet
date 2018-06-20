@@ -44,36 +44,9 @@ export const NAME = 'Ethereum';
 
 export const SYMBOL = 'eth';
 
-export const DEFAULTS = {
-  balanceURL,
-  balanceProp: 'result',
-  balanceUnit: 1e-18,
-  transactionsURL,
-  transactionsProp: 'result',
-  symbol: SYMBOL,
-};
-
-export const fromWif = wif => {
-  const { address: publicAddress } = eth.accounts.privateKeyToAccount(wif);
-
-  return {
-    privateKey: wif,
-    publicAddress,
-    ...DEFAULTS,
-  };
-};
-
-export const toWif = privateKey => privateKey
-
-export const generateWallet = () => {
-  const { address: publicAddress, privateKey } = eth.accounts.create();
-
-  return {
-    privateKey,
-    publicAddress,
-    ...DEFAULTS,
-  };
-};
+export const URL_TX = REACT_APP_TESTNET
+  ? 'https://rinkeby.etherscan.io/tx/'
+  : 'https://etherscan.io/tx/'
 
 export const getTxInfo = async () => {
   const priceInWei = await eth.getGasPrice();
@@ -100,7 +73,8 @@ export const getTxInfo = async () => {
 export const validateAddress = utils.isAddress;
 
 export const generateTx = async ({ to, from, privateKey: rawPK, amount }) => {
-  const privateKey = rawPK.indexOf('0x') === 0 ? rawPK.substr(2) : rawPK;
+  const { privateKey } = eth.accounts.privateKeyToAccount(rawPK);
+  console.log(privateKey)
   const nonce = await eth.getTransactionCount(from);
   const valueInWei = utils.toWei(`${amount}`, 'ether');
   const gasPriceInWei = await eth.getGasPrice();
@@ -120,4 +94,21 @@ export const generateTx = async ({ to, from, privateKey: rawPK, amount }) => {
 export const broadcast = async params => {
   const tx = await generateTx(params);
   return await sendTx(tx);
+};
+
+export const toPublicAddress = rawPK => {
+  const privateKey = rawPK.indexOf('0x') === 0 ? rawPK : '0x' + rawPK
+  return eth.accounts.privateKeyToAccount(privateKey).address.toString('hex');
+}
+
+export const getBalance = async privateKey => {
+  const raw = await fetch(balanceURL + toPublicAddress(privateKey));
+  const { result } = await raw.json();
+  return parseFloat(utils.fromWei(result, 'ether'));
+};
+
+export const getTransactions = async privateKey => {
+  const raw = await fetch(transactionsURL + toPublicAddress(privateKey));
+  const { result } = await raw.json();
+  return result;
 };
