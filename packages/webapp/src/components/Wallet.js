@@ -1,156 +1,91 @@
-import React, { Component, Fragment, Children, cloneElement } from 'react';
+import React, { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import qr from 'qr-encode';
-import { Balance, BalanceStore, Currency, Spinner, ImgFromSymbol } from './';
-import Compose from './Compose';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
-import { ExtraBalance } from './';
+import { ImgFromSymbol } from './';
+import { toPublicAddress } from '../utils/wallets';
+import { toPublicAddress as toPublicAddressToken } from '../utils/tokens';
+import styled from 'styled-components';
+import { TOKENS } from '../utils/erc20';
+
+const UNAVAILABLE = 'Currently unavailable';
+
+const Title = styled.h3`
+  padding: 1em 0 0;
+  margin: 0;
+
+  & a {
+    color: initial;
+    text-decoration: none;
+  }
+  & a:hover {
+    text-decoration: underline;
+  }
+`;
 
 const View = ({
   wallet,
-  walletsLoading,
+  match: { params: { symbol } },
   coins,
-  coinsLoading,
   tokens,
-  tokensLoading,
+  balances,
+  totalCurrency,
 }) => {
-  if (!wallet || walletsLoading || coinsLoading || tokensLoading) {
-    return <Spinner />;
-  }
-  const { publicAddress, alias, symbol } = wallet;
+  const { alias, privateKey, id } = wallet;
   const token = tokens.find(t => t.symbol === symbol);
+  const publicAddressMaybeArray = token
+    ? toPublicAddressToken(privateKey)
+    : toPublicAddress(symbol)(privateKey);
+  const publicAddress = Array.isArray(publicAddressMaybeArray)
+    ? publicAddressMaybeArray
+    : [publicAddressMaybeArray];
+  const { balance } = balances.find(b => b.symbol === symbol);
+  const { currency } = totalCurrency.find(c => c.symbol === symbol);
 
   return (
     <Fragment>
+      <Title>
+        {'< '}
+        <Link to={`/wallets/${id}`}>{alias}</Link>
+      </Title>
       <H3Wallet>
-        <ImgFromSymbol
-          symbol={symbol}
-          coins={coins}
-          tokens={tokens}
-        />
-        {alias} ({symbol.toUpperCase()})
+        <ImgFromSymbol coins={coins} tokens={tokens} symbol={symbol} />
+        {symbol.toUpperCase()}
       </H3Wallet>
 
       <DivQrPublicAddress>
-        <img src={qr(publicAddress)} alt={publicAddress} />
-        <div>{publicAddress}</div>
+        {publicAddress.map(address => (
+          <Fragment key={`qr-addresses-${address}`}>
+            <img src={qr(address)} alt={address} />
+            <div>{address}</div>
+          </Fragment>
+        ))}
       </DivQrPublicAddress>
 
       <Leaders>
-        <div>Balance</div>
+        Balance
         <Dots />
-        <div>
-          <Balance wallet={wallet} token={token} />
-        </div>
+        {isNaN(balance)
+          ? UNAVAILABLE
+          : `${symbol.toUpperCase()} ${balance.toLocaleString()}`}
       </Leaders>
-
-      <BalanceStore wallet={wallet} token={token}>
-        <ExtraBalance />
-      </BalanceStore>
 
       <Leaders>
-        <div>USD</div>
+        <div>Estimated USD</div>
         <Dots />
-        <BalanceStore wallet={wallet}>
-          <Currency coins={coins} />
-        </BalanceStore>
+        {isNaN(currency) ? UNAVAILABLE : '$' + currency.toLocaleString()}
       </Leaders>
+
+      {(Object.keys(TOKENS).find(s => s === symbol) ||
+        tokens.find(t => t.symbol === symbol)) && (
+        <Leaders>
+          Ether
+          <Dots />
+          ETH {balances.find(b => b.symbol === 'eth').balance.toLocaleString()}
+        </Leaders>
+      )}
     </Fragment>
   );
 };
 
-class Saga extends Component {
-  state = { loading: true };
-
-  componentDidMount() {
-    this.check();
-  }
-
-  componentDidUpdate(prevProps) {
-    const {
-      match: { params: { id } },
-      wallet,
-      wallets,
-      walletsLoading,
-      coin,
-      coins,
-      coinsLoading,
-      token,
-      tokens,
-      tokensLoading,
-    } = this.props;
-    if (
-      id !== prevProps.match.params.id ||
-      walletsLoading !== prevProps.walletsLoading ||
-      wallets.length !== prevProps.wallets.length ||
-      (wallet && !prevProps.wallet) ||
-      coinsLoading !== prevProps.coinsLoading ||
-      coins.length !== prevProps.coins.length ||
-      (coin && !prevProps.coin) ||
-      tokensLoading !== prevProps.tokensLoading ||
-      tokens.length !== prevProps.tokens.length ||
-      (token && !prevProps.token)
-    ) {
-      this.check();
-    }
-  }
-
-  render() {
-    if (this.state.loading) {
-      return null;
-    }
-    const { children, ...rest } = this.props;
-
-    return (
-      <Fragment>
-        {Children.map(children, child => cloneElement(child, { ...rest }))}
-      </Fragment>
-    );
-  }
-
-  check = () => {
-    const {
-      wallets,
-      walletsLoading,
-      wallet,
-      walletPick,
-      coin,
-      coinPick,
-      coinsLoading,
-      token,
-      tokenPick,
-      tokens,
-      tokensLoading,
-      match: { params: { id } },
-    } = this.props;
-
-    if (walletsLoading || coinsLoading || tokensLoading) {
-      return;
-    }
-
-    if (!id || !wallets.find(w => w.id === id)) {
-      this.props.history.push('/404');
-      return;
-    }
-
-    if (!wallet) {
-      walletPick(id);
-      return;
-    }
-
-    const { symbol } = wallet;
-    if (!coin && !token) {
-      const token = tokens.find(t => t.symbol === symbol);
-      if (token) {
-        tokenPick(token.id);
-        return;
-      }
-      coinPick(symbol);
-      return;
-    }
-
-    this.setState({ loading: false });
-  };
-}
-
-export { View };
-export default Compose(Saga, View);
+export default View;
