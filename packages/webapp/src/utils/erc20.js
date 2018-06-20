@@ -1,23 +1,28 @@
 import EthereumTx from 'ethereumjs-tx';
 import ABI from './abi';
 import {
-  DEFAULTS,
   CHAIN_ID,
   eth,
   utils,
   sendTx,
-  generateWallet,
-  fromWif as fromWifEth,
+  toPublicAddress as toPublicAddressEth,
+  getBalance as getBalanceEth,
 } from './eth';
 
-const TESTNET = process.env.REACT_APP_TESTNET;
+const { REACT_APP_TESTNET, REACT_APP_ETHERSCAN_API_KEY } = process.env;
+
+const transactionsURL = REACT_APP_TESTNET
+  ? `http://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
+  : `http://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
 
 const toTokens = (decimals, a) => a * 10 ** decimals;
 
 export const TOKENS = {
   ant: {
     decimals: 18,
-    contract: '0x960b236A07cf122663c4303350609A66A7B288C0',
+    contract: REACT_APP_TESTNET
+      ? '0xff4e0fe747f999a07ab03ebf3c8b3b5232ef2350'
+      : '0x960b236A07cf122663c4303350609A66A7B288C0',
     name: 'Aragon',
   },
   adt: {
@@ -146,7 +151,7 @@ export const TOKENS = {
     contract: '0x667088b212ce3d06a1b553a7221E1fD19000d9aF',
   },
   zrx: {
-    contract: TESTNET
+    contract: REACT_APP_TESTNET
       ? '0x00F58D6d585F84B2d7267940CeDe30Ce2FE6eAE8'
       : '0xe41d2489571d322189246dafa5ebde1f4699f498',
     decimals: 18,
@@ -154,7 +159,7 @@ export const TOKENS = {
   },
 };
 
-export { validateAddress, toWif } from './eth';
+export { validateAddress, URL_TX } from './eth';
 
 export const broadcast = async params => {
   const tx = await generateTx(params);
@@ -220,32 +225,26 @@ export const getTxInfo = async ({ to, from, amount, symbol }) => {
   };
 };
 
-export const generate = symbol => () => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = generateWallet();
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
-};
-
-export const fromWif = symbol => wif => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = fromWifEth(wif);
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
-};
-
-export const defaults = symbol => {
-  const { symbol: ethSymbol, balanceUnit: ethBalanceUnit, ...rest } = DEFAULTS;
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** TOKENS[symbol].decimals };
-};
-
-export const getBalance = symbol => async from => {
+export const getBalance = symbol => async privateKey => {
+  const from = toPublicAddressEth(privateKey);
   const { contract: contractAddress, decimals } = TOKENS[symbol];
   const contract = new eth.Contract(ABI, contractAddress, { from });
   const tokens = await contract.methods.balanceOf(from).call();
   return tokens * 1 / 10 ** decimals;
 };
+
+export const toPublicAddress = toPublicAddressEth;
+
+/* transactions */
+export const getTransactions = symbol => async privateKey => {
+  const { contract } = TOKENS[symbol];
+  const raw = await fetch(
+    `${transactionsURL}&address=${toPublicAddress(
+      privateKey,
+    )}&contractaddress=${contract}`,
+  );
+  const { result } = await raw.json();
+  return result;
+};
+
+export { getBalanceEth };
