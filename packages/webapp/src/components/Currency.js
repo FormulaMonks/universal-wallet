@@ -77,10 +77,7 @@ class Store extends Component {
 
   get = async () => {
     this.setState({ loading: true });
-    const { balance: balanceMaybeArray, balanceSymbol } = this.props;
-    const balance = Array.isArray(balanceMaybeArray)
-      ? balanceMaybeArray[0]
-      : balanceMaybeArray;
+    const { balance, balanceSymbol } = this.props;
 
     // if not BTC get value in BTC
     let toBTC = 1;
