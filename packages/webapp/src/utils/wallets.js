@@ -6,151 +6,19 @@ import * as ltc from './ltc';
 import * as dash from './dash';
 import {
   TOKENS,
-  generate as generateWalletERC20,
-  fromWif as fromWifERC20,
-  toWif as toWifERC20,
-  defaults as defaultsERC20,
   getBalance as getBalanceERC20,
   broadcast as broadcastERC20,
+  toPublicAddress as toPublicAddressERC20,
+  getTransactions as getTransactionsToken,
+  URL_TX as URL_TX_TOKEN,
 } from './erc20';
 
 const wallets = [btc, bch, eth, btg, ltc, dash];
 
-/* generate (and the rest too) */
-// get generateWallet from wallets or tokens
+// interface for functions for wallets or tokens
 // two reduces: first one (TOKENS) if there is no hit will return
 // the reduce default (function that throws), then the 2nd reduce
 // (wallets) looks for a hit
-export const generate = symbol =>
-  wallets.reduce(
-    (p, { SYMBOL, generateWallet }) => {
-      if (SYMBOL && SYMBOL === symbol && generateWallet) {
-        p = generateWallet;
-      }
-      return p;
-    },
-    Object.keys(TOKENS).reduce(
-      (p, c) => {
-        if (c === symbol) {
-          p = generateWalletERC20(symbol);
-        }
-        return p;
-      },
-      () => {
-        throw new Error(
-          `generatewallet method has not been implemented for ${symbol}`,
-        );
-      },
-    ),
-  );
-
-export const generateAvailable = () =>
-  wallets.reduce(
-    (p, { NAME, SYMBOL, generateWallet }) => {
-      if (generateWallet && SYMBOL && NAME) {
-        p.push({ symbol: SYMBOL, name: NAME });
-      }
-      return p;
-    },
-    Object.keys(TOKENS).map(symbol => ({
-      symbol,
-      name: TOKENS[symbol].name,
-    })),
-  );
-
-/* to wif */
-export const toWif = symbol =>
-  wallets.reduce(
-    (p, { SYMBOL, toWif }) => {
-      if (SYMBOL && SYMBOL === symbol && toWif) {
-        p = toWif;
-      }
-      return p;
-    },
-    Object.keys(TOKENS).reduce(
-      (p, c) => {
-        if (c === symbol) {
-          p = toWifERC20;
-        }
-        return p;
-      },
-      () => {
-        throw new Error(`toWIF method has not been implemented for ${symbol}`);
-      },
-    ),
-  );
-
-export const toWifAvailable = () =>
-  wallets.reduce(
-    (p, { NAME, SYMBOL, toWif }) => {
-      if (toWif && SYMBOL && NAME) {
-        p.push({ symbol: SYMBOL, name: NAME });
-      }
-      return p;
-    },
-    Object.keys(TOKENS).map(symbol => ({
-      symbol,
-      name: TOKENS[symbol].name,
-    })),
-  );
-
-/* from wif */
-export const fromWif = symbol =>
-  wallets.reduce(
-    (p, { SYMBOL, fromWif }) => {
-      if (SYMBOL && SYMBOL === symbol && fromWif) {
-        p = fromWif;
-      }
-      return p;
-    },
-    Object.keys(TOKENS).reduce(
-      (p, c) => {
-        if (c === symbol) {
-          p = fromWifERC20(symbol);
-        }
-        return p;
-      },
-      () => {
-        throw new Error(
-          `fromWIF method has not been implemented for ${symbol}`,
-        );
-      },
-    ),
-  );
-
-export const fromWifAvailable = () =>
-  wallets.reduce(
-    (p, { NAME, SYMBOL, fromWif }) => {
-      if (fromWif && SYMBOL && NAME) {
-        p.push({ symbol: SYMBOL, name: NAME });
-      }
-      return p;
-    },
-    Object.keys(TOKENS).map(symbol => ({
-      symbol,
-      name: TOKENS[symbol].name,
-    })),
-  );
-
-/* defaults */
-export const defaults = symbol =>
-  wallets.reduce(
-    (p, { DEFAULTS, SYMBOL }) => {
-      if (SYMBOL && SYMBOL === symbol && DEFAULTS) {
-        p = DEFAULTS;
-      }
-      return p;
-    },
-    Object.keys(TOKENS).reduce(
-      (p, c) => {
-        if (symbol === c) {
-          p = defaultsERC20(symbol);
-        }
-        return p;
-      },
-      { symbol },
-    ),
-  );
 
 /* broadcast */
 export const broadcastAvailable = () =>
@@ -226,4 +94,83 @@ export const getBalance = symbol =>
         );
       },
     ),
+  );
+
+/* to public address */
+export const toPublicAddressAvailable = () =>
+  wallets.reduce(
+    (p, { NAME, SYMBOL, toPublicAddress }) => {
+      if (toPublicAddress && SYMBOL && NAME) {
+        p.push({ symbol: SYMBOL, name: NAME });
+      }
+      return p;
+    },
+    Object.keys(TOKENS).map(symbol => ({
+      symbol,
+      name: TOKENS[symbol].name,
+    })),
+  );
+
+export const toPublicAddress = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, toPublicAddress }) => {
+      if (SYMBOL && SYMBOL === symbol && toPublicAddress) {
+        p = toPublicAddress;
+      }
+      return p;
+    },
+    Object.keys(TOKENS).reduce(
+      (p, c) => {
+        if (c === symbol) {
+          p = toPublicAddressERC20;
+        }
+        return p;
+      },
+      () => {
+        throw new Error(
+          `toPublicAddress method has not been implemented for ${symbol}`,
+        );
+      },
+    ),
+  );
+
+/* transactions */
+export const getTransactions = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, getTransactions }) => {
+      if (SYMBOL && SYMBOL === symbol && getTransactions) {
+        p = getTransactions;
+      }
+      return p;
+    },
+    Object.keys(TOKENS).reduce(
+      (p, c) => {
+        if (c === symbol) {
+          p = getTransactionsToken(symbol);
+        }
+        return p;
+      },
+      () => {
+        throw new Error(
+          `getTransactions method has not been implemented for ${symbol}`,
+        );
+      },
+    ),
+  );
+
+/* transaction url */
+export const getTransactionURL = symbol =>
+  wallets.reduce(
+    (p, { SYMBOL, URL_TX }) => {
+      if (SYMBOL && SYMBOL === symbol && URL_TX) {
+        p = URL_TX;
+      }
+      return p;
+    },
+    Object.keys(TOKENS).reduce((p, c) => {
+      if (c === symbol) {
+        p = URL_TX_TOKEN;
+      }
+      return p;
+    }, ''),
   );
