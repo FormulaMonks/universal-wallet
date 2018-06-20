@@ -1,7 +1,7 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { SHAPESHIFT_GETCOINS } from '../utils/ss';
 import Compose from './Compose';
-import { ImgFromSymbol } from './';
+import { ImgFromSymbol, Spinner } from './';
 import { DivSelect, Select } from '../theme';
 
 const View = ({
@@ -81,7 +81,10 @@ class Store extends Component {
     try {
       const res = await fetch(SHAPESHIFT_GETCOINS);
       const coinsFromJSON = await res.json();
-      const coins = Object.values(coinsFromJSON).map(({ symbol, ...rest }) => ({ ...rest, symbol: symbol.toLowerCase() }))
+      const coins = Object.values(coinsFromJSON).map(({ symbol, ...rest }) => ({
+        ...rest,
+        symbol: symbol.toLowerCase(),
+      }));
       this.setState({ coins, loading: false });
     } catch (e) {
       this.setState({ error: e.toString() });
@@ -89,9 +92,7 @@ class Store extends Component {
   };
 
   pick = coinSymbol => {
-    const coin = this.state.coins.find(
-      ({ symbol }) => symbol === coinSymbol,
-    );
+    const coin = this.state.coins.find(({ symbol }) => symbol === coinSymbol);
     this.setState({ coin });
   };
 
@@ -124,7 +125,20 @@ class Saga extends Component {
   }
 }
 
+const Loaded = ({ children, ...rest }) => {
+  const { coinsLoading } = rest;
+  if (coinsLoading) {
+    return <Spinner />;
+  }
+
+  return (
+    <Fragment>
+      {Children.map(children, child => cloneElement(child, { ...rest }))}
+    </Fragment>
+  );
+};
+
 const SagaStore = Compose(Store, Saga);
 
-export { SagaStore as Store, View };
+export { SagaStore as Store, View, Loaded };
 export default Compose(SagaStore, View);
