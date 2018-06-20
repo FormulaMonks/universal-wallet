@@ -21,7 +21,7 @@ export default class BlockstackLink extends Component {
         }, 3000);
         return (
           <Center>
-            In short you will be redirected to setup your Blockstack info
+            You will be redirected to setup your Blockstack info
           </Center>
         );
       }
