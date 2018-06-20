@@ -3,44 +3,30 @@ import {
   sendTx,
   eth,
   utils,
-  generateWallet,
-  fromWif as fromWifEth,
-  DEFAULTS,
+  toPublicAddress,
   CHAIN_ID,
+  URL_TX,
 } from './eth';
 import ABI from './abi';
 
+const {
+  REACT_APP_TESTNET,
+  REACT_APP_ETHERSCAN_API_KEY,
+} = process.env;
+
+const transactionsURL = REACT_APP_TESTNET
+  ? `http://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
+  : `http://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
+
 const toTokens = (decimals, a) => a * 10 ** decimals;
 
-export { validateAddress, toWif } from './eth';
-
-export const defaults = ({ symbol, decimals }) => {
-  const { symbol: ethSymbol, balanceUnit: ethBalanceUnit, ...rest } = DEFAULTS;
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
-
-export const generate = ({ symbol, decimals }) => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = generateWallet();
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
-
-export const fromWif = ({ token: { symbol, decimals }, wif }) => {
-  const {
-    symbol: ethSymbol,
-    balanceUnit: ethBalanceUnit,
-    ...rest
-  } = fromWifEth(wif);
-  return { ...rest, symbol, balanceUnit: 1 / 10 ** decimals };
-};
+export { validateAddress, toPublicAddress } from './eth';
 
 export const getBalance = async ({
-  publicAddress: from,
+  privateKey,
   token: { contract: contractAddress, decimals },
 }) => {
+  const from = toPublicAddress(privateKey);
   const contract = new eth.Contract(ABI, contractAddress, { from });
   const tokens = await contract.methods.balanceOf(from).call();
   return tokens * 1 / 10 ** decimals;
@@ -112,3 +98,20 @@ export const getTxInfo = async ({
     },
   };
 };
+
+/* transactions */
+export const getTransactions = symbol => async ({
+  privateKey,
+  token: { contract },
+}) => {
+  const raw = await fetch(
+    `${transactionsURL}&address=${toPublicAddress(
+      privateKey,
+    )}&contractaddress=${contract}`,
+  );
+  const { result } = await raw.json();
+  return result;
+};
+
+/* transaction url */
+export const getTransactionURL = symbol => URL_TX
