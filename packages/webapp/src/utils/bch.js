@@ -1,29 +1,18 @@
-import bch from 'bitcoincashjs';
+import { Address, PrivateKey, Transaction } from 'bitcoincashjs';
 import { Insight } from 'bitcore-explorers';
-
-const TESTNET = process.env.REACT_APP_TESTNET ? 'testnet' : 'livenet';
+import { toSatoshi, toBTC } from './btc'
 
 const { REACT_APP_TESTNET } = process.env;
 
-const { Address, PrivateKey, Transaction } = bch;
+const URL = REACT_APP_TESTNET
+  ? 'https://test-bch-insight.bitpay.com'
+  : 'https://bch-insight.bitpay.com';
 
-const insight = REACT_APP_TESTNET
-  ? new Insight('https://test-bch-insight.bitpay.com')
-  : new Insight('https://bch-insight.bitpay.com');
+const insight = new Insight(URL);
 
 const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
-const balanceURL = REACT_APP_TESTNET
-  ? 'https://test-bch-insight.bitpay.com/api/addr/'
-  : 'https://bch-insight.bitpay.com/api/addr/';
-
-const transactionsURL = REACT_APP_TESTNET
-  ? 'https://test-bch-insight.bitpay.com/api/addr/'
-  : 'https://bch-insight.bitpay.com/api/addr/';
-
-const toSatoshi = btc => btc * 100000000;
-
-const toBTC = satoshi => satoshi / 100000000;
+const URL_API = URL + '/api/addr/'
 
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
@@ -71,47 +60,13 @@ export const NAME = 'Bitcoin cash';
 
 export const SYMBOL = 'bch';
 
-export const DEFAULTS = {
-  balanceURL,
-  balanceProp: 'balance',
-  balanceUnit: 1,
-  transactionsURL,
-  transactionsProp: 'transactions',
-  symbol: SYMBOL
-};
+export const URL_TX = URL + '/#/tx/'
 
-export const toWif = privateKey => {
-  const pk = new PrivateKey(privateKey);
-  return pk.toWIF();
-};
-
-export const fromWif = wif => {
-  const privateKey = PrivateKey.fromWIF(wif);
-  const publicAddress = privateKey.toAddress(NETWORK);
-
-  return {
-    privateKey: privateKey.toString(),
-    publicAddress: publicAddress.toString(),
-    ...DEFAULTS
-  };
-};
-
-export const generateWallet = () => {
-  const privateKey = new PrivateKey(TESTNET);
-  const publicAddress = privateKey.toAddress();
-
-  return {
-    privateKey: privateKey.toString(),
-    publicAddress: publicAddress.toString(),
-    ...DEFAULTS,
-  };
-};
-
-export const validateAddress = address => Address.isValid(address, TESTNET);
+export const validateAddress = address => Address.isValid(address, NETWORK);
 
 export const fetchFee = async ({ to, from, privateKey, amount }) => {
-  const fromAddress = Address.fromString(from, TESTNET);
-  const toAddress = Address.fromString(to, TESTNET);
+  const fromAddress = Address.fromString(from, NETWORK);
+  const toAddress = Address.fromString(to, NETWORK);
   const utxos = await getUnspentUtxos(fromAddress);
   const tx = generateTx({
     utxos,
@@ -128,8 +83,8 @@ export const fetchFee = async ({ to, from, privateKey, amount }) => {
 };
 
 export const broadcast = async ({ to, from, privateKey, amount }) => {
-  const fromAddress = Address.fromString(from, TESTNET);
-  const toAddress = Address.fromString(to, TESTNET);
+  const fromAddress = Address.fromString(from, NETWORK);
+  const toAddress = Address.fromString(to, NETWORK);
   const utxos = await getUnspentUtxos(fromAddress);
   const tx = generateTx({
     utxos,
@@ -141,3 +96,20 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
   const { result } = await broadcastTx(tx);
   return result;
 };
+
+export const toPublicAddress = privateKey => {
+  const pk = new PrivateKey.fromString(privateKey);
+  return pk.toAddress(NETWORK).toString()
+};
+
+export const getBalance = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { balance } = await raw.json();
+  return balance;
+};
+
+export const getTransactions = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { transactions } = await raw.json();
+  return transactions;
+}
