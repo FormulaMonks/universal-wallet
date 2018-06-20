@@ -1,25 +1,17 @@
-import bitcore from 'bitcore-lib';
+import { Address, Transaction, PrivateKey } from 'bitcore-lib';
 import { Insight } from 'bitcore-explorers';
-
-const { Address, Transaction, PrivateKey } = bitcore;
 
 const { REACT_APP_TESTNET } = process.env;
 
-const insight = REACT_APP_TESTNET ? new Insight('testnet') : new Insight();
-
 const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
-const balanceURL = REACT_APP_TESTNET
-  ? 'https://testnet.blockexplorer.com/api/addr/'
-  : 'https://blockexplorer.com/api/addr/';
+const insight = new Insight(NETWORK);
 
-const transactionsURL = REACT_APP_TESTNET
-  ? 'https://testnet.blockexplorer.com/api/addr/'
-  : 'https://blockexplorer.com/api/addr/';
+const URL = REACT_APP_TESTNET
+  ? 'https://testnet.blockexplorer.com'
+  : 'https://blockexplorer.com';
 
-const toSatoshi = btc => btc * 100000000;
-
-const toBTC = satoshi => satoshi / 100000000;
+const URL_API = URL + '/api/addr/'
 
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
@@ -55,46 +47,19 @@ const broadcastTx = tx =>
     }),
   );
 
+export const toSatoshi = btc => btc * 100000000;
+
+export const toBTC = satoshi => satoshi / 100000000;
+
 export const NAME = 'Bitcoin';
 
 export const SYMBOL = 'btc';
 
-export const DEFAULTS = {
-  balanceURL,
-  balanceProp: 'balance',
-  balanceUnit: 1,
-  transactionsURL,
-  transactionsProp: 'transactions',
-  symbol: SYMBOL
-};
+export const URL_TX = URL + '/tx/'
 
 export const toWif = privateKey => {
   const pk = new PrivateKey(privateKey);
   return pk.toWIF();
-};
-
-export const fromWif = wif => {
-  const privateKey = PrivateKey.fromWIF(wif);
-  const publicAddress = privateKey.toAddress(NETWORK);
-
-  return {
-    privateKey: privateKey.toString('hex'),
-    publicAddress: publicAddress.toString('hex'),
-    ...DEFAULTS
-  };
-};
-
-export const generateWallet = () => {
-  const randBuf = bitcore.crypto.Random.getRandomBuffer(32);
-  const randNum = bitcore.crypto.BN.fromBuffer(randBuf);
-  const privateKey = new bitcore.PrivateKey(randNum);
-  const publicAddress = privateKey.toAddress(NETWORK);
-
-  return {
-    privateKey: privateKey.toString('hex'),
-    publicAddress: publicAddress.toString('hex'),
-    ...DEFAULTS,
-  };
 };
 
 export const validateAddress = Address.isValid;
@@ -130,3 +95,20 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
   });
   return await broadcastTx(tx);
 };
+
+export const toPublicAddress = privateKey => {
+  const pk = new PrivateKey(privateKey);
+  return pk.toAddress(NETWORK).toString('hex');
+};
+
+export const getBalance = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { balance } = await raw.json();
+  return balance;
+};
+
+export const getTransactions = async privateKey => {
+  const raw = await fetch(URL_API + toPublicAddress(privateKey));
+  const { transactions } = await raw.json();
+  return transactions;
+}
