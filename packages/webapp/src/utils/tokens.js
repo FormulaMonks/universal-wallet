@@ -8,15 +8,7 @@ import {
   URL_TX,
 } from './eth';
 import ABI from './abi';
-
-const {
-  REACT_APP_TESTNET,
-  REACT_APP_ETHERSCAN_API_KEY,
-} = process.env;
-
-const transactionsURL = REACT_APP_TESTNET
-  ? `http://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
-  : `http://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
+import { transactionsURL } from './erc20'
 
 const toTokens = (decimals, a) => a * 10 ** decimals;
 

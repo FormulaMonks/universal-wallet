@@ -11,11 +11,11 @@ import {
 
 const { REACT_APP_TESTNET, REACT_APP_ETHERSCAN_API_KEY } = process.env;
 
-const transactionsURL = REACT_APP_TESTNET
-  ? `http://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
-  : `http://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
-
 const toTokens = (decimals, a) => a * 10 ** decimals;
+
+export const transactionsURL = REACT_APP_TESTNET
+  ? `https://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
+  : `https://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
 
 export const TOKENS = {
   ant: {

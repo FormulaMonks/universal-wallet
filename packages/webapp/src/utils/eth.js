@@ -34,8 +34,8 @@ export const balanceURL = REACT_APP_TESTNET
   : `https://api.etherscan.io/api?module=account&action=balance&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
 
 export const transactionsURL = REACT_APP_TESTNET
-  ? `http://api-rinkeby.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
-  : `http://api.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
+  ? `https://api-rinkeby.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
+  : `https://api.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
 
 // chainId - mainnet: 1, rinkeby: 4
 export const CHAIN_ID = REACT_APP_TESTNET ? 4 : 1;
