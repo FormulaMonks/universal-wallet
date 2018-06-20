@@ -68,7 +68,7 @@ export default class Auth extends Component {
 
   onSignIn = () => {
     const url = document.location.href;
-    const manifest = document.location.origin + '/manifest.json';
+    const manifest = 'https://dirua.exchange/manifest.json'
     redirectToSignIn(url, manifest);
   };
 }
