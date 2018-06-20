@@ -181,5 +181,18 @@ const View = ({
   );
 };
 
-export { Store, View };
+const Loaded = ({ children, ...rest }) => {
+  const { transactionsLoading } = rest;
+  if (transactionsLoading) {
+    return <Spinner />;
+  }
+
+  return (
+    <Fragment>
+      {Children.map(children, child => cloneElement(child, { ...rest }))}
+    </Fragment>
+  );
+};
+
+export { Store, View, Loaded };
 export default Compose(Store, View);
