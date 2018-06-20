@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Center, Leaders, Dots, Button } from '../theme';
-import { Form, CoinsTokens } from './';
+import { Form, Assets } from './';
 
 const Centered = Center.extend`
   margin: 2em auto;
@@ -11,27 +11,11 @@ const H4 = styled.h4`
   display: inline-block;
 `;
 
-const getWalletValues = ({
-  inputPrivateKey,
-  inputPublicAddress,
-  inputAlias,
-  inputBalanceURL,
-  inputBalanceProp,
-  inputBalanceUnit,
-  inputTransactionsURL,
-  inputTransactionsProp,
-  selectSymbol,
-}) => {
+const getWalletValues = ({ inputPrivateKey, inputAlias, selectAssets }) => {
   return {
     privateKey: inputPrivateKey.value,
-    publicAddress: inputPublicAddress.value,
     alias: inputAlias.value,
-    balanceURL: inputBalanceURL.value,
-    balanceProp: inputBalanceProp.value,
-    balanceUnit: inputBalanceUnit.value,
-    transactionsURL: inputTransactionsURL.value,
-    transactionsProp: inputTransactionsProp.value,
-    symbol: selectSymbol.value,
+    assets: Array.from(selectAssets.selectedOptions, ({ value }) => value),
   };
 };
 
@@ -49,10 +33,8 @@ class Settings extends Component {
     const {
       wallet,
       walletsLoading,
-      coin,
       coins,
       coinsLoading,
-      token,
       tokens,
       tokensLoading,
     } = this.props;
@@ -60,18 +42,7 @@ class Settings extends Component {
       return null;
     }
 
-    const {
-      createdAt,
-      lastModified,
-      privateKey,
-      publicAddress,
-      alias,
-      balanceURL,
-      balanceProp,
-      balanceUnit,
-      transactionsURL,
-      transactionsProp,
-    } = wallet;
+    const { createdAt, lastModified, privateKey, alias, assets } = wallet;
     const created = new Date(createdAt);
     const modified = new Date(lastModified);
 
@@ -92,30 +63,6 @@ class Settings extends Component {
 
         <Form onSubmit={this.onSubmit}>
           <Leaders>
-            Private Key (unencrypted)
-            <Dots />
-            <input
-              placeholder="Private Key (unencrypted)"
-              type="password"
-              name="inputPrivateKey"
-              required
-              defaultValue={privateKey}
-            />
-          </Leaders>
-
-          <Leaders>
-            Public address
-            <Dots />
-            <input
-              placeholder="Public Address"
-              type="text"
-              name="inputPublicAddress"
-              required
-              defaultValue={publicAddress}
-            />
-          </Leaders>
-
-          <Leaders>
             Alias
             <Dots />
             <input
@@ -128,68 +75,27 @@ class Settings extends Component {
           </Leaders>
 
           <Leaders>
-            Balance URL
+            Private Key (unencrypted)
             <Dots />
             <input
-              placeholder="Balance URL"
-              type="text"
-              name="inputBalanceURL"
-              defaultValue={balanceURL}
+              placeholder="Private Key (unencrypted)"
+              type="password"
+              autoComplete="off"
+              name="inputPrivateKey"
+              required
+              defaultValue={privateKey}
             />
           </Leaders>
 
           <Leaders>
-            Balance property
+            Assets
             <Dots />
-            <input
-              placeholder="Balance Prop"
-              type="text"
-              name="inputBalanceProp"
-              defaultValue={balanceProp}
-            />
-          </Leaders>
-
-          <Leaders>
-            Balance Unit
-            <Dots />
-            <input
-              placeholder="Balance Unit"
-              type="text"
-              name="inputBalanceUnit"
-              defaultValue={balanceUnit}
-            />
-          </Leaders>
-
-          <Leaders>
-            Transactions URL
-            <Dots />
-            <input
-              placeholder="Transactions URL"
-              type="text"
-              name="inputTransactionsURL"
-              defaultValue={transactionsURL}
-            />
-          </Leaders>
-
-          <Leaders>
-            Transactions property
-            <Dots />
-            <input
-              placeholder="Transactions Prop"
-              type="text"
-              name="inputTransactionsProp"
-              defaultValue={transactionsProp}
-            />
-          </Leaders>
-
-          <Leaders>
-            Coin
-            <Dots />
-            <CoinsTokens
+            <Assets
+              multiple={true}
               tokens={tokens}
-              token={token}
-              coin={coin}
               coins={coins}
+              assets={assets}
+              required={true}
               onChange={this.onPick}
             />
           </Leaders>
@@ -223,27 +129,6 @@ class Settings extends Component {
       await walletsPut(id, newValues);
     }
   };
-
-  onPick = symbol => {
-    const {
-      coins,
-      coinPick,
-      coinRelease,
-      tokens,
-      tokenPick,
-      tokenRelease,
-    } = this.props;
-    coinRelease();
-    tokenRelease();
-    if (coins.find(c => c.symbol === symbol)) {
-      coinPick(symbol);
-      return;
-    }
-    const { id } = tokens.find(t => t.symbol === symbol);
-    if (id) {
-      tokenPick(id);
-    }
-  }
 }
 
 export default Settings;
