@@ -110,6 +110,9 @@ export const getTransactions = symbol => async ({
     )}&contractaddress=${contract}`,
   );
   const { result } = await raw.json();
+  if (!Array.isArray(result)) {
+    throw new Error(result);
+  }
   return result;
 };
 

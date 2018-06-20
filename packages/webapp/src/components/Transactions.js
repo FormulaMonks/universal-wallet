@@ -79,16 +79,20 @@ class Store extends Component {
       const transactions = await Promise.all(
         assets.map(async symbol => {
           const token = tokens.find(t => t.symbol === symbol);
+          const url = token
+            ? getTransactionURLToken(symbol)
+            : getTransactionURL(symbol);
           try {
-            const url = token
-              ? getTransactionURLToken(symbol)
-              : getTransactionURL(symbol);
             const transactions = token
               ? await getTransactionsToken(symbol)({ token, privateKey })
               : await getTransactions(symbol)(privateKey);
             return { symbol, transactions, url };
           } catch (e) {
-            return { symbol, transactions: [] };
+            console.warn(
+              `-- Could not get transaction history for ${symbol} error: `,
+              e,
+            );
+            return { symbol, transactions: [], url };
           }
         }),
       );
@@ -123,7 +127,6 @@ const View = ({
           {transactions.map((transaction, index) => {
             return (
               <Li key={`transactions-${wallet.id}-${index}`}>
-
                 {typeof transaction === 'string' ? (
                   <Leaders>
                     <DivProp>Hash</DivProp>
@@ -137,7 +140,6 @@ const View = ({
                         {transaction}
                       </a>
                     </DivVal>
-
                   </Leaders>
                 ) : (
                   <Fragment>
@@ -147,7 +149,6 @@ const View = ({
                           <li
                             key={`transactions-${wallet.id}-${index}-${prop}`}
                           >
-
                             <Leaders>
                               <DivProp>{prop}</DivProp>
                               <Dots />
@@ -164,7 +165,6 @@ const View = ({
                                   transaction[prop]
                                 )}
                               </DivVal>
-
                             </Leaders>
                           </li>
                         );
