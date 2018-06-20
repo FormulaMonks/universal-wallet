@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { Center } from '../theme';
 
 const Logo = styled.div`
   font-family: 'Anaheim', sans-serif;
@@ -23,12 +24,9 @@ const Header = styled.header`
   left: 0;
   right: 0;
   z-index: 10;
-  padding: 1em;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
   background: #598bc7;
   color: #fff;
-  display: flex;
-  align-items: center;
 
   & a {
     font-size: 26px;
@@ -39,16 +37,28 @@ const Header = styled.header`
   }
 `;
 
+const Wrap = styled.div`
+  display: flex;
+  padding: 1em;
+  align-items: center;
+`;
+
+const Centered = Center.extend`
+  height: 0;
+`
+
 export default ({ children }) => (
   <Fragment>
-    {process.env.REACT_APP_TESTNET ? <div>Testnet ON</div> : null}
     <Header>
-      <Logo>
-        <Link to="/wallets">
-          <i className="fas fa-wallet" />DIRUA
-        </Link>
-      </Logo>
-      {children}
+      {process.env.REACT_APP_TESTNET ? <Centered>TESTNET</Centered> : null}
+      <Wrap>
+        <Logo>
+          <Link to="/wallets">
+            <i className="fas fa-wallet" />DIRUA
+          </Link>
+        </Logo>
+        {children}
+      </Wrap>
     </Header>
   </Fragment>
 );
