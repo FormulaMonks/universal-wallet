@@ -77,6 +77,7 @@ class NewWallet extends Component {
                   <Dots />
                   <input
                     required
+                    autoComplete="off"
                     name="inputPrivateKey"
                     type="password"
                     placeholder="Private Key"
