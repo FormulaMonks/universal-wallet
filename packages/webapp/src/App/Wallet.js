@@ -1,28 +1,29 @@
 import React, { Fragment } from 'react';
 import {
-  AddressBookStore,
-  BalanceStore,
+  BalancesStore,
+  BalancesLoaded,
   CoinsStore,
+  CoinsLoaded,
   CustomTokensStore,
+  CustomTokensLoaded,
   NavHeader,
   Settings,
-  Spinner,
-  Transactions,
-  TxSetup,
-  WalletView,
+  TotalCurrencyStore,
+  TotalCurrencyLoaded,
+  WalletAssets,
+  WalletPick,
   WalletsStore,
-  QrReader,
   WifExport,
 } from '../components';
-import { Section } from '../theme';
+import { Section, SectionTitle } from '../theme';
 
 const Wallet = props => {
+  const { wallet: { alias } } = props;
+
   return (
     <Fragment>
-      {!props.wallet && <Spinner />}
-      <WalletView {...props} />
-      <TxSetup {...props} />
-      <Transactions {...props} />
+      <SectionTitle>{alias}</SectionTitle>
+      <WalletAssets {...props} />
       <Settings {...props} />
       <WifExport {...props} />
     </Fragment>
@@ -34,17 +35,25 @@ export default props => (
     <NavHeader />
     <Section>
       <WalletsStore {...props}>
-        <CustomTokensStore>
-          <BalanceStore>
-            <CoinsStore>
-              <AddressBookStore>
-                <QrReader>
-                  <Wallet />
-                </QrReader>
-              </AddressBookStore>
-            </CoinsStore>
-          </BalanceStore>
-        </CustomTokensStore>
+        <WalletPick>
+          <CustomTokensStore>
+            <CustomTokensLoaded>
+              <CoinsStore>
+                <CoinsLoaded>
+                  <BalancesStore>
+                    <BalancesLoaded>
+                      <TotalCurrencyStore>
+                        <TotalCurrencyLoaded>
+                          <Wallet />
+                        </TotalCurrencyLoaded>
+                      </TotalCurrencyStore>
+                    </BalancesLoaded>
+                  </BalancesStore>
+                </CoinsLoaded>
+              </CoinsStore>
+            </CustomTokensLoaded>
+          </CustomTokensStore>
+        </WalletPick>
       </WalletsStore>
     </Section>
   </Fragment>
