@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
 import { Leaders, LeadersCoins, LeadersQrScan, Dots } from '../theme';
 import { canBroadcast } from '../utils/ss';
+import { toPublicAddress } from '../utils/wallets';
+import { toPublicAddress as toPublicAddressToken } from '../utils/tokens';
 
 const H4 = styled.h4`
   display: inline-block;
@@ -33,6 +35,28 @@ const LeadersOptions = LeadersQrScan.extend`
     cursor: pointer;
   }
 `;
+
+// filters out the wallets that can not accept txs from this asset
+// and reduces the assets form the wallet that can receive txs
+// for same wallet (fromId == id) allows other symbols except same one
+const reduceWallets = (coins, tokens, fromSymbol, fromId) => (
+  p,
+  { assets, ...rest },
+) => {
+  const { id } = rest;
+  const availableForTx =
+    fromId === id
+      ? assets
+          .filter(symbol => filterOut(coins, tokens, fromSymbol)({ symbol }))
+          .filter(s => s !== fromSymbol)
+      : assets.filter(symbol =>
+          filterOut(coins, tokens, fromSymbol)({ symbol }),
+        );
+  if (availableForTx.length) {
+    p.push({ assets: availableForTx, ...rest });
+  }
+  return p;
+};
 
 const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) => {
   const fromCoin = coins.find(c => c.symbol === fromSymbol);
@@ -106,7 +130,7 @@ const filterOut = (coins, tokens, fromSymbol) => ({ symbol }) => {
 };
 
 export default class SetupTx extends Component {
-  state = { to: '', toId: '', toSymbol: '', amount: 0 };
+  state = { to: '', toSymbol: '', amount: 0 };
 
   componentDidUpdate(prevProps) {
     const { qrData, qrClear } = this.props;
@@ -117,25 +141,21 @@ export default class SetupTx extends Component {
 
   render() {
     const {
-      wallet,
-      walletsLoading,
-      coinsLoading,
-      addressBookLoading,
+      wallet: { id, privateKey },
       tokens,
-      tokensLoading,
+      match: { params: { symbol } },
+      balances,
+      coins,
+      addressBook,
+      wallets,
     } = this.props;
-    if (
-      !wallet ||
-      walletsLoading ||
-      coinsLoading ||
-      addressBookLoading ||
-      tokensLoading
-    ) {
-      return null;
-    }
-
-    const { symbol } = wallet;
+    const { to, toSymbol, amount } = this.state;
+    const publicAddress = tokens.find(t => t.symbol === symbol)
+      ? toPublicAddressToken(privateKey)
+      : toPublicAddress(symbol)(privateKey);
     const token = tokens.find(t => t.symbol === symbol);
+    const { balance } = balances.find(b => b.symbol === symbol);
+
     if (!canBroadcast(symbol) && !token) {
       return (
         <details>
@@ -149,11 +169,10 @@ export default class SetupTx extends Component {
       );
     }
 
-    const { balance, coins, addressBook, wallets } = this.props;
-    const { to, toId, toSymbol, amount } = this.state;
-    const filteredWallets = wallets
-      .filter(({ id }) => id !== wallet.id)
-      .filter(filterOut(coins, tokens, symbol));
+    const filteredWallets = wallets.reduce(
+      reduceWallets(coins, tokens, symbol, id),
+      [],
+    );
     const filteredAddressBook = addressBook.filter(
       filterOut(coins, tokens, symbol),
     );
@@ -185,7 +204,7 @@ export default class SetupTx extends Component {
           <Dots />
           <DivCurrency>
             <CurrencyStore
-              balanceSymbol={wallet.symbol}
+              balanceSymbol={symbol}
               balance={amount}
               coins={coins}
             >
@@ -227,12 +246,12 @@ export default class SetupTx extends Component {
         </LeadersQrScan>
 
         <LeadersOptions>
-          <div>Choose from Wallets/Address book</div>
+          <div>Address book/My wallets</div>
           <Dots />
           <i className="far fa-address-book" />
           <Fragment>
             {(!!filteredAddressBook.length || !!filteredWallets.length) && (
-              <select value={toId} onChange={this.onSelectToChange}>
+              <select onChange={this.onSelectToChange} defaultValue="">
                 <option key="send-to-label" disabled value="" hidden>
                   Address Book / My Wallets
                 </option>
@@ -251,16 +270,27 @@ export default class SetupTx extends Component {
                 )}
 
                 {!!filteredWallets.length && (
-                  <optgroup key="send-to-my-wallets" label="My Wallets">
-                    {filteredWallets.map(({ id, alias, symbol }) => (
-                      <option
-                        key={`send-to-my-wallets-${id}`}
-                        value={`wallet-${id}`}
-                      >
-                        {alias} ({symbol.toUpperCase()})
-                      </option>
-                    ))}
-                  </optgroup>
+                  <Fragment>
+                    {filteredWallets.map(({ id, alias, assets }) => {
+                      return (
+                        <optgroup
+                          key={`send-to-my-wallets-${id}`}
+                          label={alias}
+                        >
+                          {assets.map(symbol => {
+                            return (
+                              <option
+                                key={`send-to-my-wallets-${id}-${symbol}`}
+                                value={`wallet-${id}--${symbol}`}
+                              >
+                                {alias} ({symbol.toUpperCase()})
+                              </option>
+                            );
+                          })}
+                        </optgroup>
+                      );
+                    })}
+                  </Fragment>
                 )}
               </select>
             )}
@@ -270,11 +300,11 @@ export default class SetupTx extends Component {
         <Tx
           to={to}
           toSymbol={toSymbol}
-          from={wallet.publicAddress}
-          fromSymbol={wallet.symbol}
-          amount={amount}
+          from={publicAddress}
+          fromSymbol={symbol}
+          amount={parseFloat(amount)}
           balance={balance}
-          privateKey={wallet.privateKey}
+          privateKey={privateKey}
           token={token}
         />
       </details>
@@ -286,22 +316,25 @@ export default class SetupTx extends Component {
   };
 
   onInputToChange = e => {
-    this.setState({ to: e.currentTarget.value, toId: '', toSymbol: '' });
+    this.setState({ to: e.currentTarget.value, toSymbol: '' });
   };
 
-  onSelectToChange = e => {
-    const { wallets, addressBook } = this.props;
-    const value = e.currentTarget.value;
-    let list = wallets;
-    let prefix = 'wallet-';
+  onSelectToChange = ({ currentTarget: { value } }) => {
+    const { wallets, addressBook, tokens } = this.props;
     if (value.includes('address-book-')) {
-      prefix = 'address-book-';
-      list = addressBook;
+      const { publicAddress: to, symbol: toSymbol } = addressBook.find(
+        ({ id }) => `address-book-${id}` === value,
+      );
+      this.setState({ to, toSymbol });
+      return;
     }
-    const { publicAddress: to, id, symbol: toSymbol } = list.find(
-      ({ id }) => `${prefix}${id}` === value,
-    );
-    this.setState({ to, toId: `${prefix}${id}`, toSymbol });
+
+    const [val, toSymbol] = value.split('--');
+    const { privateKey } = wallets.find(({ id }) => val === `wallet-${id}`);
+    const to = tokens.find(t => t.symbol === toSymbol)
+      ? toPublicAddressToken(privateKey)
+      : toPublicAddress(toSymbol)(privateKey);
+    this.setState({ to, toSymbol });
   };
 
   onSelectToSymbolChange = toSymbol => {
