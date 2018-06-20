@@ -3,14 +3,7 @@ import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
-import {
-  Spinner,
-  Balance,
-  BalanceStore,
-  Currency,
-  ImgFromSymbol,
-  ExtraBalance,
-} from '../components';
+import { BalancesStore, Spinner, TotalCurrency } from './';
 import {
   SectionHeader,
   SectionTitle,
@@ -22,9 +15,16 @@ import {
 } from '../theme';
 import Compose from './Compose';
 
-const WALLETS_JSON = 'wallets.json';
+const WALLETS_JSON = 'wallets_1.json';
 
 const sort = (a, b) => a.alias.localeCompare(b.alias);
+
+const LiGridWallet = LiGrid.extend`
+  svg {
+    font-size: 20px;
+    color: #999;
+  }
+`;
 
 const DivAdd = styled.div`
   text-align: center;
@@ -62,11 +62,8 @@ const DivLeaders = Leaders.extend`
   margin-right: 1em;
 `;
 
-const DivExtraBalance = styled.div`
-  margin-right: 0.7em;
-`;
-
 const View = ({
+  balances,
   wallets,
   walletsLoading,
   walletPick,
@@ -79,6 +76,7 @@ const View = ({
 }) => {
   return (
     <Fragment>
+
       <SectionHeader>
         <SectionTitle>My wallets</SectionTitle>
         {!!wallets.length && (
@@ -87,10 +85,12 @@ const View = ({
           </DivAdd>
         )}
       </SectionHeader>
-      {walletsLoading || coinsLoading || tokensLoading ? (
+
+      {walletsLoading || coinsLoading || tokensLoading  ? (
         <Spinner />
       ) : (
         <Fragment>
+
           {!wallets.length ? (
             <Center>
               <div>You have not added any wallets</div>
@@ -101,48 +101,29 @@ const View = ({
           ) : (
             <UlGrid>
               {wallets.map(wallet => {
-                const { id, alias, symbol } = wallet;
-                const token = tokens.find(t => t.symbol === symbol);
+                const { id, alias } = wallet;
 
                 return (
-                  <LiGrid key={`wallets-${id}`}>
+                  <LiGridWallet key={`wallets-${id}`}>
                     <Link to={`/wallets/${id}`}>
-                      <ImgFromSymbol
-                        symbol={symbol}
-                        coins={coins}
-                        tokens={tokens}
-                      />
+                      <i className="fas fa-wallet" />
 
                       <div>
-                        <div>
-                          {alias} ({symbol.toUpperCase()})
-                        </div>
-                        <DivLeaders>
-                          <div>Balance</div>
-                          <Dots />
-                          <div>
-                            <Balance wallet={wallet} token={token} />
-                          </div>
-                        </DivLeaders>
-
-                        <DivExtraBalance>
-                          <BalanceStore wallet={wallet} token={token}>
-                            <ExtraBalance />
-                          </BalanceStore>
-                        </DivExtraBalance>
+                        <div>{alias}</div>
 
                         <DivLeaders>
-                          <div>USD</div>
+                          <div>USD (all assets)</div>
                           <Dots />
-                          <BalanceStore wallet={wallet}>
-                            <Currency coins={coins} />
-                          </BalanceStore>
+                          <BalancesStore coins={coins} tokens={tokens} wallet={wallet}>
+                            <TotalCurrency />
+                          </BalancesStore>
                         </DivLeaders>
                       </div>
                     </Link>
-                  </LiGrid>
+                  </LiGridWallet>
                 );
               })}
+
             </UlGrid>
           )}
         </Fragment>
@@ -205,8 +186,7 @@ class Store extends Component {
     }
   };
 
-  post = async ({ symbol, ...rest }) => {
-    const obj = { ...rest, symbol: symbol.toLowerCase() };
+  post = async obj => {
     this.setState({ loading: true });
 
     const newObj = {
@@ -220,8 +200,8 @@ class Store extends Component {
     return newObj;
   };
 
-  put = async (walletId, { symbol, ...rest }) => {
-    const obj = { ...rest, symbol: symbol.toLowerCase() };
+  put = async (walletId, { assets, ...rest }) => {
+    const obj = { ...rest, assets: assets.map(a => a.toLowerCase()) };
     this.setState({ loading: true });
 
     const { wallets } = this.state;
@@ -279,8 +259,9 @@ class Saga extends Component {
   }
 
   put = async (walletId, data) => {
-    const { walletsPut, walletPick, walletsGet } = this.props;
+    const { walletsPut, walletPick, walletsGet, walletRelease } = this.props;
     await walletsPut(walletId, data);
+    walletRelease()
     await walletsGet();
     walletPick(walletId);
   };
@@ -288,7 +269,5 @@ class Saga extends Component {
 
 const StoreSaga = Compose(Store, Saga);
 
-export { sort };
-export { StoreSaga as Store };
-export { View };
+export { sort, StoreSaga as Store, View };
 export default Compose(StoreSaga, View);
