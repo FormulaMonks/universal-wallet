@@ -70,7 +70,7 @@ const View = ({
       </Leaders>
 
       <Leaders>
-        <div>Estimated USD</div>
+        <div>USD</div>
         <Dots />
         {isNaN(currency) ? UNAVAILABLE : '$' + currency.toLocaleString()}
       </Leaders>

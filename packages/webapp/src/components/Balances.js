@@ -155,7 +155,7 @@ const View = ({
                 {symbol.toUpperCase()} {balance}
               </Leaders>
               <LeadersEstimate>
-                Estimated USD
+                USD
                 <Dots />
                 <Currency
                   balance={balance}

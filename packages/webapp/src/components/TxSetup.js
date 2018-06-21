@@ -223,7 +223,7 @@ export default class SetupTx extends Component {
         </Leaders>
 
         <Leaders>
-          <DivToCurrency>Estimated USD</DivToCurrency>
+          <DivToCurrency>USD</DivToCurrency>
           <Dots />
           <DivCurrency>
             <CurrencyStore
