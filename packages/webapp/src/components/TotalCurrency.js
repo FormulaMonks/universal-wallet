@@ -4,7 +4,7 @@ import { fetchMarketInfo } from '../utils/ss';
 import Compose from './Compose';
 import { Spinner } from './';
 
-const BTC_TO_USD = 'https://www.bitstamp.net/api/v2/ticker/btcusd/?cors=1';
+const BTC_TO_USD = 'https://api.coindesk.com/v1/bpi/currentprice.json';
 
 const CURRENTLY_UNAVAILABLE = 'Currently unavailable';
 
@@ -56,8 +56,8 @@ class Store extends Component {
       let toUSD = null;
       try {
         const raw = await fetch(BTC_TO_USD);
-        const { last } = await raw.json();
-        toUSD = last;
+        const { bpi: { USD: { rate_float } } } = await raw.json();
+        toUSD = rate_float;
       } catch (e) {
         console.warn(
           `-- Could not fetch exchange rate from USD to ${SYMBOL}: `,

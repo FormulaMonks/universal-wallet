@@ -3,7 +3,7 @@ import { SYMBOL } from '../utils/btc';
 import { fetchMarketInfo } from '../utils/ss';
 import Compose from './Compose';
 
-const BTC_TO_USD = 'https://www.bitstamp.net/api/v2/ticker/btcusd/?cors=1';
+const BTC_TO_USD = 'https://api.coindesk.com/v1/bpi/currentprice.json';
 
 const INITIAL_STATE = {
   currency: null,
@@ -94,8 +94,8 @@ class Store extends Component {
       }
     }
     try {
-      const res = await fetch(BTC_TO_USD);
-      const { last: toUSD } = await res.json();
+      const raw = await fetch(BTC_TO_USD);
+      const { bpi: { USD: { rate_float: toUSD } } } = await raw.json();
       const currency = balance * toBTC * toUSD;
       if (!isNaN(currency)) {
         this.setState({ currency });
