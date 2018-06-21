@@ -36,7 +36,7 @@ const CoinsTokens = props => {
           Crypto coins & Custom Tokens
         </option>
         {coins.length && (
-          <optgroup key="coins-tokens-coin-label" label="Address Book">
+          <optgroup key="coins-tokens-coin-label" label="Coins">
             {coins.map(({ name, symbol }) => (
               <option key={`coins-tokens-coin-${symbol}`} value={symbol}>
                 {name} ({symbol.toUpperCase()})
