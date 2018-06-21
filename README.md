@@ -32,7 +32,7 @@ Dirua is a universal crypto wallet. It was developed with a mobile-first mindset
 
 Dirua provides a version of the app that connects to the _testnet_ nodes of the different communities to test out the interface. Please note, in-wallet exchange features will not work as Shapeshift only works with transactions on _livenet_ nodes.
 
-The testnet version can be found here: (Dirua @ Testnet)[https://testnet.dirua.exchange].
+The testnet version can be found here: [Dirua @ Testnet](https://testnet.dirua.exchange).
 
 
 ## License
