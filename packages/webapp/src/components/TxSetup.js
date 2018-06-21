@@ -26,6 +26,8 @@ const LeadersDeposit = Leaders.extend`
 `;
 
 const LeadersOptions = LeadersQrScan.extend`
+  min-height: 28px;
+
   & select {
     width: 30px;
     height: 30px;
@@ -36,16 +38,23 @@ const LeadersOptions = LeadersQrScan.extend`
   }
 `;
 
+const { REACT_APP_TESTNET } = process.env;
+
 // filters out the wallets that can not accept txs from this asset
 // and reduces the assets form the wallet that can receive txs
 // for same wallet (fromId == id) allows other symbols except same one
+// testnet: only available same symbol
 const reduceWallets = (coins, tokens, fromSymbol, fromId) => (
   p,
   { assets, ...rest },
 ) => {
   const { id } = rest;
-  const availableForTx =
-    fromId === id
+  const availableForTx = REACT_APP_TESTNET
+    ? // testnet
+      // only same symbol and different wallet
+      assets.filter(symbol => symbol === fromSymbol && fromId !== id)
+    : // livenet
+      fromId === id
       ? assets
           .filter(symbol => filterOut(coins, tokens, fromSymbol)({ symbol }))
           .filter(s => s !== fromSymbol)
@@ -66,7 +75,7 @@ const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) => {
     return false;
   }
   // from coin unavailable
-  // except is same symbol as to coin
+  // except if same symbol as to coin
   if (fromCoin.status !== 'available' && fromCoin.symbol !== toCoin.symbol) {
     return false;
   }
@@ -76,6 +85,11 @@ const filterOutUnavailableCoins = (coins, fromSymbol) => ({ symbol }) => {
     !toCoin ||
     (toCoin.status === 'unavailable' && toCoin.symbol !== fromSymbol)
   ) {
+    return false;
+  }
+
+  // testnet
+  if (REACT_APP_TESTNET && toCoin && toCoin.symbol !== fromSymbol) {
     return false;
   }
 
@@ -123,6 +137,15 @@ const filterOut = (coins, tokens, fromSymbol) => ({ symbol }) => {
   }
   // if not same symbol
   if (fromToken && toToken && fromToken.symbol !== toToken.symbol) {
+    return false;
+  }
+
+  // testnet
+  if (
+    REACT_APP_TESTNET &&
+    ((fromToken && toToken && fromToken.symbol !== toToken.symbol) ||
+      (toCoin && fromCoin && toCoin.symbol !== fromCoin.symbol))
+  ) {
     return false;
   }
 
@@ -248,9 +271,11 @@ export default class SetupTx extends Component {
         <LeadersOptions>
           <div>Address book/My wallets</div>
           <Dots />
-          <i className="far fa-address-book" />
-          <Fragment>
-            {(!!filteredAddressBook.length || !!filteredWallets.length) && (
+          {!(!!filteredAddressBook.length || !!filteredWallets.length) &&
+            `None compatible with ${symbol.toUpperCase()}`}
+          {(!!filteredAddressBook.length || !!filteredWallets.length) && (
+            <Fragment>
+              <i className="far fa-address-book" />
               <select onChange={this.onSelectToChange} defaultValue="">
                 <option key="send-to-label" disabled value="" hidden>
                   Address Book / My Wallets
@@ -293,8 +318,8 @@ export default class SetupTx extends Component {
                   </Fragment>
                 )}
               </select>
-            )}
-          </Fragment>
+            </Fragment>
+          )}
         </LeadersOptions>
 
         <Tx
