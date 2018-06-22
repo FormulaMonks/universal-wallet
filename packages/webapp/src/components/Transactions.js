@@ -78,6 +78,11 @@ class Store extends Component {
 
       const transactions = await Promise.all(
         assets.map(async symbol => {
+          // TODO: improve this
+          // was getting errors possible because of too many requests
+          // to same endpoint for all tokens
+          // throttle
+          await new Promise(r => setTimeout(r, 10))
           const token = tokens.find(t => t.symbol === symbol);
           const url = token
             ? getTransactionURLToken(symbol)
