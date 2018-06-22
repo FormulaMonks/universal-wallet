@@ -104,7 +104,9 @@ export default ({
         multiple={multiple}
         defaultValue={assets}
         required={required}
-        onChange={onChange}
+        onChange={({ currentTarget: { selectedOptions } }) =>
+          onChange(Array.from(selectedOptions, ({ value }) => value))
+        }
       >
         {!!coins.length && (
           <optgroup key="assets-coins" label={CoinsLabel}>
