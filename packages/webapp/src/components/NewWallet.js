@@ -146,8 +146,7 @@ class NewWallet extends Component {
     this.props.qrScan();
   };
 
-  onPick = ({ currentTarget: { selectedOptions } }) => {
-    const assets = Array.from(selectedOptions, ({ value }) => value);
+  onPick = assets => {
     this.setState({ assets });
   };
 
