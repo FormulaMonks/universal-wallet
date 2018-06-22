@@ -15,14 +15,15 @@ const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 const URL_API = URL + '/api/addr/'
 
 const getUnspentUtxos = address =>
-  new Promise((resolve, reject) =>
-    insight.getUnspentUtxos(address, (err, utxos) => {
-      if (err) {
-        reject(`Could not get unspent utxos: ${err}`);
-      }
-      resolve(utxos);
-    }),
-  );
+  new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`${URL}/api/addrs/${address}/utxo`);
+      const data = await res.json();
+      resolve(data);
+    } catch (err) {
+      reject(`Could not get unspent utxos: ${err}`);
+    }
+  });
 
 const generateTx = ({ utxos, fromAddress, toAddress, privateKey, amount }) => {
   const tx = Transaction();
