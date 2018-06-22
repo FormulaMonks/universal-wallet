@@ -35,7 +35,7 @@ export const balanceURL = REACT_APP_TESTNET
 
 export const transactionsURL = REACT_APP_TESTNET
   ? `https://api-rinkeby.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`
-  : `https://api.etherscan.io/api?module=account&action=txlist&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
+  : `https://api.etherscan.io/api?module=account&action=txlist&startblock=0&endblock=99999999&apikey=${REACT_APP_ETHERSCAN_API_KEY}&address=`;
 
 // chainId - mainnet: 1, rinkeby: 4
 export const CHAIN_ID = REACT_APP_TESTNET ? 4 : 1;
@@ -46,7 +46,7 @@ export const SYMBOL = 'eth';
 
 export const URL_TX = REACT_APP_TESTNET
   ? 'https://rinkeby.etherscan.io/tx/'
-  : 'https://etherscan.io/tx/'
+  : 'https://etherscan.io/tx/';
 
 export const getTxInfo = async () => {
   const priceInWei = await eth.getGasPrice();
@@ -96,9 +96,9 @@ export const broadcast = async params => {
 };
 
 export const toPublicAddress = rawPK => {
-  const privateKey = rawPK.indexOf('0x') === 0 ? rawPK : '0x' + rawPK
+  const privateKey = rawPK.indexOf('0x') === 0 ? rawPK : '0x' + rawPK;
   return eth.accounts.privateKeyToAccount(privateKey).address.toString('hex');
-}
+};
 
 export const getBalance = async privateKey => {
   const raw = await fetch(balanceURL + toPublicAddress(privateKey));
@@ -108,6 +108,6 @@ export const getBalance = async privateKey => {
 
 export const getTransactions = async privateKey => {
   const raw = await fetch(transactionsURL + toPublicAddress(privateKey));
-  const { result } = await raw.json();
+  const { result = [] } = await raw.json();
   return result;
 };
