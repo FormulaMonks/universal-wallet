@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { UlGrid, LiGrid, Leaders, Dots } from '../theme';
 import { ImgFromSymbol } from './';
 import styled from 'styled-components';
+import numberToLocale from '../utils/numberToLocale'
 
 const UNAVAILABLE = 'Currently unavailable';
 
@@ -40,14 +41,14 @@ export default ({ wallet, balances, coins, tokens, totalCurrency }) => {
                   <div>
                     {isNaN(balance)
                       ? balance
-                      : `${symbol.toUpperCase()} ${balance}`}
+                      : `${symbol.toUpperCase()} ${numberToLocale(balance)}`}
                   </div>
                 </DivLeaders>
 
                 <DivLeaders>
                   USD
                   <Dots />
-                  <div>{isNaN(currency) ? currency : '$' + currency.toLocaleString()}</div>
+                  <div>{isNaN(currency) ? currency : '$' + numberToLocale(currency)}</div>
                 </DivLeaders>
               </DivAsset>
             </Link>

@@ -3,6 +3,7 @@ import { SYMBOL } from '../utils/btc';
 import { fetchMarketInfo } from '../utils/ss';
 import Compose from './Compose';
 import { Spinner } from './';
+import numberToLocale from '../utils/numberToLocale'
 
 const BTC_TO_USD = 'https://api.coindesk.com/v1/bpi/currentprice.json';
 
@@ -139,7 +140,7 @@ const View = ({
     return 'Currently unavailable';
   }
 
-  return `$${total.toLocaleString()}`;
+  return `$${numberToLocale(total)}`;
 };
 
 const Loaded = ({ children, ...rest }) => {

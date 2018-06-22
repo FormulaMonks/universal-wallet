@@ -9,9 +9,11 @@ const insight = new Insight(NETWORK);
 
 const URL = REACT_APP_TESTNET
   ? 'https://testnet.blockexplorer.com'
-  : 'https://blockexplorer.com';
+  : 'https://explorer.blockstack.org';
 
-const URL_API = URL + '/api/addr/'
+const URL_API = REACT_APP_TESTNET
+  ? URL + '/api/addr/'
+  : URL + '/insight-api/addr/';
 
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
@@ -55,7 +57,7 @@ export const NAME = 'Bitcoin';
 
 export const SYMBOL = 'btc';
 
-export const URL_TX = URL + '/tx/'
+export const URL_TX = URL + '/tx/';
 
 export const toWif = privateKey => {
   const pk = new PrivateKey(privateKey);
@@ -111,4 +113,4 @@ export const getTransactions = async privateKey => {
   const raw = await fetch(URL_API + toPublicAddress(privateKey));
   const { transactions } = await raw.json();
   return transactions;
-}
+};

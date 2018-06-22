@@ -7,6 +7,7 @@ import { toPublicAddress } from '../utils/wallets';
 import { toPublicAddress as toPublicAddressToken } from '../utils/tokens';
 import styled from 'styled-components';
 import { TOKENS } from '../utils/erc20';
+import numberToLocale from '../utils/numberToLocale'
 
 const UNAVAILABLE = 'Currently unavailable';
 
@@ -66,13 +67,13 @@ const View = ({
         <Dots />
         {isNaN(balance)
           ? UNAVAILABLE
-          : `${symbol.toUpperCase()} ${balance.toLocaleString()}`}
+          : `${symbol.toUpperCase()} ${numberToLocale(balance)}`}
       </Leaders>
 
       <Leaders>
         <div>USD</div>
         <Dots />
-        {isNaN(currency) ? UNAVAILABLE : '$' + currency.toLocaleString()}
+        {isNaN(currency) ? UNAVAILABLE : '$' + numberToLocale(currency)}
       </Leaders>
 
       {(Object.keys(TOKENS).find(s => s === symbol) ||
@@ -80,7 +81,7 @@ const View = ({
         <Leaders>
           Ether
           <Dots />
-          ETH {balances.find(b => b.symbol === 'eth').balance.toLocaleString()}
+          ETH {numberToLocale(balances.find(b => b.symbol === 'eth').balance)}
         </Leaders>
       )}
     </Fragment>

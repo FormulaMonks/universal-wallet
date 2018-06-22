@@ -1,6 +1,6 @@
 import { Address, PrivateKey, Transaction } from 'bitcoincashjs';
 import { Insight } from 'bitcore-explorers';
-import { toSatoshi, toBTC } from './btc'
+import { toSatoshi, toBTC } from './btc';
 
 const { REACT_APP_TESTNET } = process.env;
 
@@ -12,7 +12,7 @@ const insight = new Insight(URL);
 
 const NETWORK = REACT_APP_TESTNET ? 'testnet' : 'livenet';
 
-const URL_API = URL + '/api/addr/'
+const URL_API = URL + '/api/addr/';
 
 const getUnspentUtxos = address =>
   new Promise((resolve, reject) =>
@@ -60,7 +60,7 @@ export const NAME = 'Bitcoin cash';
 
 export const SYMBOL = 'bch';
 
-export const URL_TX = URL + '/#/tx/'
+export const URL_TX = URL + '/#/tx/';
 
 export const validateAddress = address => Address.isValid(address, NETWORK);
 
@@ -99,7 +99,10 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
 
 export const toPublicAddress = privateKey => {
   const pk = new PrivateKey.fromString(privateKey);
-  return pk.toAddress(NETWORK).toString()
+  const address = new Address(pk.toAddress(NETWORK));
+  return REACT_APP_TESTNET
+    ? address.toString()
+    : address.toString(Address.CashAddrFormat);
 };
 
 export const getBalance = async privateKey => {
@@ -112,4 +115,4 @@ export const getTransactions = async privateKey => {
   const raw = await fetch(URL_API + toPublicAddress(privateKey));
   const { transactions } = await raw.json();
   return transactions;
-}
+};
