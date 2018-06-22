@@ -74,7 +74,6 @@ export const validateAddress = utils.isAddress;
 
 export const generateTx = async ({ to, from, privateKey: rawPK, amount }) => {
   const { privateKey } = eth.accounts.privateKeyToAccount(rawPK);
-  console.log(privateKey)
   const nonce = await eth.getTransactionCount(from);
   const valueInWei = utils.toWei(`${amount}`, 'ether');
   const gasPriceInWei = await eth.getGasPrice();
