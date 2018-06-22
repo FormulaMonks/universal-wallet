@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Leaders, Dots, Button } from '../theme';
 import { Form, Assets } from './';
+import isMobile from '../utils/isMobile';
 
 const Buttons = styled.div`
   display: grid;
@@ -29,7 +30,9 @@ const getWalletValues = ({
   return {
     privateKey: inputPrivateKey.value,
     alias: inputAlias.value,
-    assets: selectAssets.value.split(','),
+    assets: isMobile
+      ? Array.from(selectAssets.selectedOptions, ({ value }) => value)
+      : selectAssets.value.split(','),
   };
 };
 
