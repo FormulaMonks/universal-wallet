@@ -96,7 +96,6 @@ class Settings extends Component {
               coins={coins}
               assets={assets}
               required={true}
-              onChange={this.onPick}
             />
           </Leaders>
 
