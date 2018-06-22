@@ -114,5 +114,5 @@ export const getBalance = async privateKey => {
 export const getTransactions = async privateKey => {
   const raw = await fetch(URL_API + toPublicAddress(privateKey));
   const { transactions } = await raw.json();
-  return transactions;
+  return transactions || [];
 };
