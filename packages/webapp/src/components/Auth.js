@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Header, BlockstackLink, Spinner } from './';
 import { Button } from '../theme';
 import { QrReader } from '../components';
+import isMobile from '../utils/isMobile';
 
 const Wrap = styled.div`
   & button {
@@ -54,7 +55,7 @@ export default class Auth extends Component {
             <Header />
             <Content>
               <Button onClick={this.onSignIn}>Sign in with Blockstack</Button>
-              {window.orientation > -1 && (
+              {isMobile && (
                 <QrReader>
                   <BlockstackLink />
                 </QrReader>
@@ -68,7 +69,10 @@ export default class Auth extends Component {
 
   onSignIn = () => {
     const url = document.location.href;
-    const manifest = 'https://dirua.exchange/manifest.json'
+    const manifest =
+      process.env.NODE_ENV !== 'development'
+        ? 'https://dirua.exchange/manifest.json'
+        : window.origin + '/manifest.json';
     redirectToSignIn(url, manifest);
   };
 }

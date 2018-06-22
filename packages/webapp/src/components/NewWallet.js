@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Form } from '../components';
+import { Form, Assets, Spinner } from '../components';
 import { SectionHeader, SectionTitle, Button, Leaders, Dots } from '../theme';
 import styled from 'styled-components';
 import { PrivateKey, crypto } from 'bitcore-lib';
@@ -19,7 +19,7 @@ const LeadersForm = Leaders.extend`
 `;
 
 class NewWallet extends Component {
-  state = { alias: null };
+  state = { alias: null, assets: [] };
 
   componentDidUpdate(prevProps) {
     const { qrData } = this.props;
@@ -29,7 +29,12 @@ class NewWallet extends Component {
   }
 
   render() {
-    const { alias } = this.state;
+    const { alias, assets } = this.state;
+    const { tokens, tokensLoading, coins, coinsLoading } = this.props;
+
+    if (coinsLoading || tokensLoading) {
+      return <Spinner />;
+    }
 
     return (
       <Fragment>
@@ -38,13 +43,30 @@ class NewWallet extends Component {
         </SectionHeader>
         <Fragment>
           <LeadersNewWallet>
-            1. Set an alias:
+            1. Pick wallet asset:
             <Dots />
-            <input type="text" placeholder="Alias" onInput={this.aliasInput} />
+            <Assets
+              multiple={true}
+              tokens={tokens}
+              coins={coins}
+              assets={assets}
+              onChange={this.onPick}
+            />
           </LeadersNewWallet>
 
           <LeadersNewWallet>
-            2. Pick one method to create the wallet:
+            2. Set an alias:
+            <Dots />
+            <input
+              disabled={!assets.length}
+              type="text"
+              placeholder="Alias"
+              onInput={this.aliasInput}
+            />
+          </LeadersNewWallet>
+
+          <LeadersNewWallet>
+            3. Pick one method to create the wallet:
           </LeadersNewWallet>
           <DivOptions>
             <Leaders>
@@ -96,32 +118,36 @@ class NewWallet extends Component {
   };
 
   onBlank = form => {
-    const { alias } = this.state;
+    const { alias, assets } = this.state;
     const { inputPrivateKey } = form.elements;
     const privateKey = inputPrivateKey.value;
 
-    this.post({ privateKey, alias, assets: [] });
+    this.post({ privateKey, alias, assets });
   };
 
   onGenerate = () => {
-    const { alias } = this.state;
+    const { alias, assets } = this.state;
     const randBuf = crypto.Random.getRandomBuffer(32);
     const privateKeyBuf = crypto.BN.fromBuffer(randBuf);
     const privateKey = privateKeyBuf.toString('hex');
 
-    this.post({ privateKey, alias, assets: [] });
+    this.post({ privateKey, alias, assets });
   };
 
   onImportWIF = wif => {
-    const { alias } = this.state;
+    const { alias, assets } = this.state;
     const privateKeyObj = PrivateKey.fromWIF(wif);
     const privateKey = privateKeyObj.toString('hex');
 
-    this.post({ privateKey, alias, assets: [] });
+    this.post({ privateKey, alias, assets });
   };
 
   onScan = () => {
     this.props.qrScan();
+  };
+
+  onPick = assets => {
+    this.setState({ assets });
   };
 
   post = async obj => {

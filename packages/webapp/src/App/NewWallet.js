@@ -1,5 +1,12 @@
 import React, { Fragment } from 'react';
-import { NavHeader, NewWallet, QrReader, WalletsStore } from '../components';
+import {
+  NavHeader,
+  NewWallet,
+  QrReader,
+  WalletsStore,
+  CoinsStore,
+  CustomTokensStore,
+} from '../components';
 import { Section } from '../theme';
 
 export default props => (
@@ -7,9 +14,13 @@ export default props => (
     <NavHeader />
     <Section>
       <WalletsStore>
-        <QrReader>
-          <NewWallet {...props} />
-        </QrReader>
+        <CoinsStore>
+          <CustomTokensStore>
+            <QrReader>
+              <NewWallet {...props} />
+            </QrReader>
+          </CustomTokensStore>
+        </CoinsStore>
       </WalletsStore>
     </Section>
   </Fragment>

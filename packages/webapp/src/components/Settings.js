@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Center, Leaders, Dots, Button } from '../theme';
+import { Leaders, Dots, Button } from '../theme';
 import { Form, Assets } from './';
 
-const Centered = Center.extend`
+const Buttons = styled.div`
+  display: grid;
+  grid-template-columns: 150px 150px;
+  grid-gap: 2em;
+  justify-content: center;
   margin: 2em auto;
 `;
 
@@ -11,11 +15,21 @@ const H4 = styled.h4`
   display: inline-block;
 `;
 
-const getWalletValues = ({ inputPrivateKey, inputAlias, selectAssets }) => {
+const DeleteButton = Button.extend`
+  border-color: #b31313;
+  color: #b31313;
+`;
+
+const getWalletValues = ({
+  inputPrivateKey,
+  inputAlias,
+  selectAssets,
+  ...rest
+}) => {
   return {
     privateKey: inputPrivateKey.value,
     alias: inputAlias.value,
-    assets: Array.from(selectAssets.selectedOptions, ({ value }) => value),
+    assets: selectAssets.value.split(','),
   };
 };
 
@@ -47,7 +61,7 @@ class Settings extends Component {
     const modified = new Date(lastModified);
 
     return (
-      <details key={Date.now()}>
+      <details>
         <summary>
           <H4>Settings</H4>
         </summary>
@@ -96,18 +110,16 @@ class Settings extends Component {
               coins={coins}
               assets={assets}
               required={true}
-              onChange={this.onPick}
             />
           </Leaders>
 
-          <Centered>
+          <Buttons>
+            <DeleteButton type="button" onClick={this.onDelete}>
+              Delete wallet
+            </DeleteButton>
             <Button type="submit">Update</Button>
-          </Centered>
+          </Buttons>
         </Form>
-
-        <Centered>
-          <Button onClick={this.onDelete}>Delete wallet</Button>
-        </Centered>
       </details>
     );
   }
@@ -126,6 +138,7 @@ class Settings extends Component {
     const { wallet: { id }, walletsPut } = this.props;
     const newValues = getWalletValues(form);
     if (didSomethingChange(newValues, this.props.wallet)) {
+      form.reset();
       await walletsPut(id, newValues);
     }
   };
