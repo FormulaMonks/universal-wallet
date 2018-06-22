@@ -6,7 +6,7 @@ const { REACT_APP_TESTNET } = process.env;
 
 const URL = REACT_APP_TESTNET
   ? 'https://test-bch-insight.bitpay.com'
-  : 'https://bch-insight.bitpay.com';
+  : 'https://bitcoincash.blockexplorer.com';
 
 const insight = new Insight(URL);
 
@@ -100,9 +100,7 @@ export const broadcast = async ({ to, from, privateKey, amount }) => {
 export const toPublicAddress = privateKey => {
   const pk = new PrivateKey.fromString(privateKey);
   const address = new Address(pk.toAddress(NETWORK));
-  return REACT_APP_TESTNET
-    ? address.toString()
-    : address.toString(Address.CashAddrFormat);
+  return address.toString();
 };
 
 export const getBalance = async privateKey => {
@@ -114,5 +112,5 @@ export const getBalance = async privateKey => {
 export const getTransactions = async privateKey => {
   const raw = await fetch(URL_API + toPublicAddress(privateKey));
   const { transactions } = await raw.json();
-  return transactions;
+  return transactions || [];
 };

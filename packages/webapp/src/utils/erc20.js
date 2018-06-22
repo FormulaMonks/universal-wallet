@@ -15,7 +15,7 @@ const toTokens = (decimals, a) => a * 10 ** decimals;
 
 export const transactionsURL = REACT_APP_TESTNET
   ? `https://api-rinkeby.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`
-  : `https://api.etherscan.io/api?module=account&action=tokentx&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
+  : `https://api.etherscan.io/api?module=account&action=tokentx&startblock=0&endblock=99999999&apikey=${REACT_APP_ETHERSCAN_API_KEY}`;
 
 export const TOKENS = {
   ant: {
@@ -243,7 +243,7 @@ export const getTransactions = symbol => async privateKey => {
       privateKey,
     )}&contractaddress=${contract}`,
   );
-  const { result } = await raw.json();
+  const { result = [] } = await raw.json();
   if (!Array.isArray(result)) {
     throw new Error(result);
   }
