@@ -52,8 +52,8 @@ export default class BtcTx extends Component {
     );
   }
 
-  validDiffAddresses(address1, address2) {
-    if (address1 === address2) {
+  validDiffAddresses(address1, address2, symbol1, symbol2) {
+    if (address1 === address2 && symbol1 === symbol2) {
       this.setState({ error: 'Please choose a different deposit address' });
       return false;
     }
@@ -78,9 +78,9 @@ export default class BtcTx extends Component {
 
   validate = async () => {
     this.setState({ ...INITIAL_STATE, checking: <div>Performing checks</div> });
-    const { to, from, amount, balance } = this.props;
+    const { to, toSymbol, from, fromSymbol, amount, balance } = this.props;
     if (
-      this.validDiffAddresses(to, from) &&
+      this.validDiffAddresses(to, from, toSymbol, fromSymbol) &&
       this.validAmount(amount) &&
       this.validAmounBalance(amount, balance)
     ) {
