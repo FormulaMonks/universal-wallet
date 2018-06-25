@@ -32,7 +32,6 @@ export {
   Store as CustomTokensStore,
   View as CustomTokensView,
 } from './CustomTokens/CustomTokens';
-export { default as ExtraBalance } from './ExtraBalance';
 export { default as Form } from './Form';
 export { default as Header } from './Header';
 export { default as ImgFromSymbol } from './ImgFromSymbol';
