@@ -32,30 +32,37 @@ const DivVal = styled.div`
 
 const INITIAL_STATE = {
   transactions: [],
-  error: null,
-  loading: true,
+  loading: false,
 };
 
 class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    if (this.props.wallet) {
+    const { symbol, wallet, tokens, tokensLoading } = this.props;
+    if (symbol && wallet && tokens && !tokensLoading) {
       this.get();
     }
   }
 
   componentDidUpdate(prevProps) {
+    const { symbol, wallet, tokens, tokensLoading } = this.props;
     if (
-      (!prevProps.wallet && this.props.wallet) ||
-      (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
+      symbol &&
+      wallet &&
+      tokens &&
+      !tokensLoading &&
+      ((!prevProps.wallet && wallet) ||
+        (prevProps.wallet && prevProps.wallet.id !== wallet.id) ||
+        prevProps.tokens.length !== tokens.length ||
+        prevProps.symbol !== symbol)
     ) {
       this.get();
     }
   }
 
   render() {
-    const { transactions, loading, error } = this.state;
+    const { transactions, loading, url } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -64,8 +71,8 @@ class Store extends Component {
           cloneElement(child, {
             ...rest,
             transactions,
+            transactionsURL: url,
             transactionsLoading: loading,
-            transactionsError: error,
           }),
         )}
       </Fragment>
@@ -74,71 +81,54 @@ class Store extends Component {
 
   get = async () => {
     this.setState({ ...INITIAL_STATE, loading: true }, async () => {
-      const { wallet: { privateKey, assets }, tokens } = this.props;
+      const { wallet: { privateKey }, tokens, symbol } = this.props;
 
-      const transactions = await Promise.all(
-        assets.map(async symbol => {
-          // TODO: improve this
-          // was getting errors possible because of too many requests
-          // to same endpoint for all tokens
-          // throttle
-          await new Promise(r => setTimeout(r, 10))
-          const token = tokens.find(t => t.symbol === symbol);
-          const url = token
-            ? getTransactionURLToken(symbol)
-            : getTransactionURL(symbol);
-          try {
-            const transactions = token
-              ? await getTransactionsToken(symbol)({ token, privateKey })
-              : await getTransactions(symbol)(privateKey);
-            return { symbol, transactions, url };
-          } catch (e) {
-            console.warn(
-              `-- Could not get transaction history for ${symbol} error: `,
-              e,
-            );
-            return { symbol, transactions: [], url };
-          }
-        }),
-      );
-
-      this.setState({ transactions, loading: false });
+      let transactions = [];
+      const token = tokens.find(t => t.symbol === symbol);
+      const url = token
+        ? getTransactionURLToken(symbol)
+        : getTransactionURL(symbol);
+      try {
+        transactions = token
+          ? await getTransactionsToken(symbol)({ token, privateKey })
+          : await getTransactions(symbol)(privateKey);
+      } catch (e) {
+        console.warn(
+          `-- Could not get transaction history for ${symbol} error: `,
+          e,
+        );
+      }
+      this.setState({ transactions, url, loading: false });
     });
   };
 }
 
 const View = ({
-  transactions: transactionsAll,
-  transactionsError,
-  coins,
-  tokens,
-  wallet,
-  match: { params: { symbol } },
+  transactions,
+  transactionsURL,
+  transactionsLoading,
+  wallet: { id },
 }) => {
-  const { transactions = [], url } = transactionsAll.find(
-    t => t.symbol === symbol,
-  );
-
   return (
     <details>
       <summary>
         <H4>Transaction History</H4>
       </summary>
 
-      {transactionsError ? (
-        <div>{transactionsError}</div>
+      {transactionsLoading ? (
+        <Spinner />
       ) : (
         <Ul>
           {transactions.map((transaction, index) => {
             return (
-              <Li key={`transactions-${wallet.id}-${index}`}>
+              <Li key={`transactions-${id}-${index}`}>
                 {typeof transaction === 'string' ? (
                   <Leaders>
                     <DivProp>Hash</DivProp>
                     <Dots />
                     <DivVal>
                       <a
-                        href={`${url}${transaction}`}
+                        href={`${transactionsURL}${transaction}`}
                         target="_blank"
                         rel="nofollow"
                       >
@@ -151,16 +141,16 @@ const View = ({
                     <Ul>
                       {Object.keys(transaction).map(prop => {
                         return (
-                          <li
-                            key={`transactions-${wallet.id}-${index}-${prop}`}
-                          >
+                          <li key={`transactions-${id}-${index}-${prop}`}>
                             <Leaders>
                               <DivProp>{prop}</DivProp>
                               <Dots />
                               <DivVal>
                                 {prop.toLowerCase() === 'hash' ? (
                                   <a
-                                    href={`${url}${transaction[prop]}`}
+                                    href={`${transactionsURL}${
+                                      transaction[prop]
+                                    }`}
                                     target="_blank"
                                     rel="nofollow"
                                   >
@@ -186,18 +176,5 @@ const View = ({
   );
 };
 
-const Loaded = ({ children, ...rest }) => {
-  const { transactionsLoading } = rest;
-  if (transactionsLoading) {
-    return <Spinner />;
-  }
-
-  return (
-    <Fragment>
-      {Children.map(children, child => cloneElement(child, { ...rest }))}
-    </Fragment>
-  );
-};
-
-export { Store, View, Loaded };
+export { Store, View };
 export default Compose(Store, View);
