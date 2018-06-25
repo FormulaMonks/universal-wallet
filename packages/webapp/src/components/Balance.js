@@ -15,7 +15,7 @@ class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    const { wallet, symbol, tokens, tokensLoading } = this.props
+    const { wallet, symbol, tokens, tokensLoading } = this.props;
     if (wallet && symbol && tokens && !tokensLoading) {
       this.get();
     }
@@ -33,7 +33,8 @@ class Store extends Component {
         (!prevProps.symbol && symbol) ||
         prevProps.symbol !== symbol ||
         (!prevProps.tokens && tokens) ||
-        prevProps.tokens.length !== tokens.length)
+        prevProps.tokens.length !== tokens.length ||
+        prevProps.tokensLoading !== tokensLoading)
     ) {
       this.get();
     }
@@ -57,7 +58,7 @@ class Store extends Component {
   }
 
   get = async () => {
-    this.setState({ loading: true }, async () => {
+    this.setState({ ...INITIAL_STATE, loading: true }, async () => {
       const { wallet: { privateKey }, symbol, tokens } = this.props;
       const balance = await this.getBalance({ symbol, privateKey, tokens });
       this.setState({ balance, loading: false });
@@ -83,7 +84,7 @@ const View = ({ balance, symbol, balanceLoading, tokensLoading }) => {
   }
 
   if (isNaN(balance)) {
-    return UNAVAILABLE
+    return UNAVAILABLE;
   }
 
   return (
