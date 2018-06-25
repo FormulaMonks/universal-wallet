@@ -55,6 +55,7 @@ class Store extends Component {
       ((!prevProps.wallet && wallet) ||
         (prevProps.wallet && prevProps.wallet.id !== wallet.id) ||
         prevProps.tokens.length !== tokens.length ||
+        prevProps.tokensLoading !== tokensLoading ||
         prevProps.symbol !== symbol)
     ) {
       this.get();
