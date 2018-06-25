@@ -4,7 +4,6 @@ import { getFile, putFile } from 'blockstack';
 import Compose from '../Compose';
 import TokensView from './Tokens';
 import TokenView from './Token';
-import { Spinner } from '../';
 
 const CUSTOM_TOKENS_JSON = 'custom-tokens.json';
 
@@ -171,20 +170,7 @@ class Saga extends Component {
   };
 }
 
-const Loaded = ({ children, ...rest }) => {
-  const { tokensLoading } = rest;
-  if (tokensLoading) {
-    return <Spinner />;
-  }
-
-  return (
-    <Fragment>
-      {Children.map(children, child => cloneElement(child, { ...rest }))}
-    </Fragment>
-  );
-};
-
 const SagaStore = Compose(Store, Saga);
 
-export { SagaStore as Store, View, sort, Loaded };
+export { SagaStore as Store, View };
 export default Compose(SagaStore, View);
