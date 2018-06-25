@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { CoinsTokens, CurrencyStore, CurrencyView, Tx } from './';
+import { BalanceInUSD, CoinsTokens, Tx } from './';
 import { Leaders, LeadersCoins, LeadersQrScan, Dots } from '../theme';
 import { canBroadcast } from '../utils/ss';
 import { toPublicAddress } from '../utils/wallets';
@@ -152,7 +152,7 @@ const filterOut = (coins, tokens, fromSymbol) => ({ symbol }) => {
   return true;
 };
 
-export default class SetupTx extends Component {
+export default class TxSetup extends Component {
   state = { to: '', toSymbol: '', amount: 0 };
 
   componentDidUpdate(prevProps) {
@@ -164,20 +164,23 @@ export default class SetupTx extends Component {
 
   render() {
     const {
-      wallet: { id, privateKey },
-      tokens,
-      match: { params: { symbol } },
-      balances,
-      coins,
       addressBook,
+      balance,
+      coins,
+      tokens,
+      symbol,
+      wallet: { id, privateKey },
       wallets,
+      tokensLoading,
     } = this.props;
+
     const { to, toSymbol, amount } = this.state;
-    const publicAddress = tokens.find(t => t.symbol === symbol)
-      ? toPublicAddressToken(privateKey)
-      : toPublicAddress(symbol)(privateKey);
+    const publicAddress = tokensLoading
+      ? null
+      : tokens.find(t => t.symbol === symbol)
+        ? toPublicAddressToken(privateKey)
+        : toPublicAddress(symbol)(privateKey);
     const token = tokens.find(t => t.symbol === symbol);
-    const { balance } = balances.find(b => b.symbol === symbol);
 
     if (!canBroadcast(symbol) && !token) {
       return (
@@ -226,13 +229,7 @@ export default class SetupTx extends Component {
           <DivToCurrency>USD</DivToCurrency>
           <Dots />
           <DivCurrency>
-            <CurrencyStore
-              balanceSymbol={symbol}
-              balance={amount}
-              coins={coins}
-            >
-              <CurrencyView />
-            </CurrencyStore>
+            <BalanceInUSD {...this.props} balance={amount} />
           </DivCurrency>
         </Leaders>
 

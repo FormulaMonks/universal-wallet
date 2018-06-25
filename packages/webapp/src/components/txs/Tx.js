@@ -69,7 +69,7 @@ export default class BtcTx extends Component {
   }
 
   validAmounBalance(amount, balance) {
-    if (amount >= balance) {
+    if (amount > balance) {
       this.setState({ error: 'Amount exceeds balance' });
       return false;
     }

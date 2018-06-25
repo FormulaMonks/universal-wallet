@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 import { getFile, putFile } from 'blockstack';
 import styled from 'styled-components';
-import { BalancesStore, Spinner, TotalCurrency } from './';
+import { Balances, BalancesInUSD, Spinner } from './';
 import {
   SectionHeader,
   SectionTitle,
@@ -114,9 +114,9 @@ const View = ({
                         <DivLeaders>
                           <div>USD (all assets)</div>
                           <Dots />
-                          <BalancesStore coins={coins} tokens={tokens} wallet={wallet}>
-                            <TotalCurrency />
-                          </BalancesStore>
+                          <Balances coins={coins} tokens={tokens} wallet={wallet}>
+                            <BalancesInUSD />
+                          </Balances>
                         </DivLeaders>
                       </div>
                     </Link>

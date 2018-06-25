@@ -2,7 +2,7 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { Spinner } from './';
 
 class WalletAssetPick extends Component {
-  state = { loading: true };
+  state = { loading: true, symbol: null };
 
   componentDidMount() {
     this.check();
@@ -31,7 +31,7 @@ class WalletAssetPick extends Component {
       history.push(`/wallets/${id}`);
     }
 
-    this.setState({ loading: false });
+    this.setState({ loading: false, symbol });
   };
 }
 

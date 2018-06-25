@@ -1,7 +1,7 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { SHAPESHIFT_GETCOINS } from '../utils/ss';
 import Compose from './Compose';
-import { ImgFromSymbol, Spinner } from './';
+import { ImgFromSymbol } from './';
 import { DivSelect, Select } from '../theme';
 
 const View = ({
@@ -125,20 +125,7 @@ class Saga extends Component {
   }
 }
 
-const Loaded = ({ children, ...rest }) => {
-  const { coinsLoading } = rest;
-  if (coinsLoading) {
-    return <Spinner />;
-  }
-
-  return (
-    <Fragment>
-      {Children.map(children, child => cloneElement(child, { ...rest }))}
-    </Fragment>
-  );
-};
-
 const SagaStore = Compose(Store, Saga);
 
-export { SagaStore as Store, View, Loaded };
+export { SagaStore as Store, View };
 export default Compose(SagaStore, View);
