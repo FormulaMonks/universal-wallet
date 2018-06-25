@@ -1,6 +1,5 @@
 export {
   default as AddressBook,
-  Loaded as AddressBookLoaded,
   Store as AddressBookStore,
   View as AddressBookView,
 } from './AddressBook/AddressBook';
@@ -12,27 +11,24 @@ export {
   View as BalanceView,
 } from './Balance';
 export {
-  default as Balances,
-  Loaded as BalancesLoaded,
-  Store as BalancesStore,
-  View as BalancesView,
-} from './Balances';
+  default as BalanceInUSD,
+  Store as BalanceInUSDStore,
+  View as BalanceInUSDView,
+} from './BalanceInUSD';
+export { default as Balances } from './Balances';
+export {
+  default as BalancesInUSD,
+  Store as BalancesInUSDStore,
+} from './BalancesInUSD';
 export { default as BlockstackLink } from './BlockstackLink';
 export {
   default as Coins,
-  Loaded as CoinsLoaded,
   Store as CoinsStore,
   View as CoinsView,
 } from './Coins';
 export { default as CoinsTokens } from './CoinsTokens';
 export {
-  default as Currency,
-  Store as CurrencyStore,
-  View as CurrencyView,
-} from './Currency';
-export {
   default as CustomTokens,
-  Loaded as CustomTokensLoaded,
   Store as CustomTokensStore,
   View as CustomTokensView,
 } from './CustomTokens/CustomTokens';
@@ -46,14 +42,7 @@ export { default as Settings } from './Settings';
 export { default as Spinner } from './Spinner';
 export { default as QrReader } from './QrReader';
 export {
-  default as TotalCurrency,
-  Loaded as TotalCurrencyLoaded,
-  Store as TotalCurrencyStore,
-  View as TotalCurrencyView,
-} from './TotalCurrency';
-export {
   default as Transactions,
-  Loaded as TransactionsLoaded,
   Store as TransactionsStore,
   View as TransactionsView,
 } from './Transactions';
