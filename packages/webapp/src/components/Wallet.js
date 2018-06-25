@@ -2,14 +2,15 @@ import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import qr from 'qr-encode';
 import { H3Wallet, DivQrPublicAddress, Leaders, Dots } from '../theme';
-import { ImgFromSymbol } from './';
+import { ImgFromSymbol, Balance, BalanceView, BalanceInUSDView } from './';
 import { toPublicAddress } from '../utils/wallets';
 import { toPublicAddress as toPublicAddressToken } from '../utils/tokens';
 import styled from 'styled-components';
 import { TOKENS } from '../utils/erc20';
-import numberToLocale from '../utils/numberToLocale'
 
-const UNAVAILABLE = 'Currently unavailable';
+const Img = styled.img`
+  opacity: ${({ alt }) => (alt ? 1 : 0)};
+`;
 
 const Title = styled.h3`
   padding: 1em 0 0;
@@ -24,24 +25,16 @@ const Title = styled.h3`
   }
 `;
 
-const View = ({
-  wallet,
-  match: { params: { symbol } },
-  coins,
-  tokens,
-  balances,
-  totalCurrency,
-}) => {
+const View = props => {
+  const { wallet, symbol, tokens, tokensLoading, coinsLoading } = props;
+
   const { alias, privateKey, id } = wallet;
   const token = tokens.find(t => t.symbol === symbol);
-  const publicAddressMaybeArray = token
-    ? toPublicAddressToken(privateKey)
-    : toPublicAddress(symbol)(privateKey);
-  const publicAddress = Array.isArray(publicAddressMaybeArray)
-    ? publicAddressMaybeArray
-    : [publicAddressMaybeArray];
-  const { balance } = balances.find(b => b.symbol === symbol);
-  const { currency } = totalCurrency.find(c => c.symbol === symbol);
+  const publicAddress = tokensLoading || coinsLoading
+    ? null
+    : token
+      ? toPublicAddressToken(privateKey)
+      : toPublicAddress(symbol)(privateKey);
 
   return (
     <Fragment>
@@ -49,31 +42,24 @@ const View = ({
         ‹ <Link to={`/wallets/${id}`}>{alias}</Link>
       </Title>
       <H3Wallet>
-        <ImgFromSymbol coins={coins} tokens={tokens} symbol={symbol} />
-        {symbol.toUpperCase()}
+        <ImgFromSymbol {...props} /> {symbol.toUpperCase()}
       </H3Wallet>
 
       <DivQrPublicAddress>
-        {publicAddress.map(address => (
-          <Fragment key={`qr-addresses-${address}`}>
-            <img src={qr(address)} alt={address} />
-            <div>{address}</div>
-          </Fragment>
-        ))}
+        <Img src={qr(publicAddress)} alt={publicAddress} />
+        <div>{publicAddress}</div>
       </DivQrPublicAddress>
 
       <Leaders>
         Balance
         <Dots />
-        {isNaN(balance)
-          ? UNAVAILABLE
-          : `${symbol.toUpperCase()} ${numberToLocale(balance)}`}
+        <BalanceView {...props} />
       </Leaders>
 
       <Leaders>
         <div>USD</div>
         <Dots />
-        {isNaN(currency) ? UNAVAILABLE : '$' + numberToLocale(currency)}
+        <BalanceInUSDView {...props} />
       </Leaders>
 
       {(Object.keys(TOKENS).find(s => s === symbol) ||
@@ -81,7 +67,7 @@ const View = ({
         <Leaders>
           Ether
           <Dots />
-          ETH {numberToLocale(balances.find(b => b.symbol === 'eth').balance)}
+          <Balance wallet={wallet} symbol="eth" tokens={tokens} />
         </Leaders>
       )}
     </Fragment>
