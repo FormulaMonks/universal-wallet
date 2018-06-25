@@ -3,11 +3,15 @@ import styled from 'styled-components';
 
 const Div = styled.div`
   height: 25px;
+  width: 25px;
 `;
 
 const DivI = Div.extend`
   display: inline-block;
   font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ImgFromSymbol = ({
