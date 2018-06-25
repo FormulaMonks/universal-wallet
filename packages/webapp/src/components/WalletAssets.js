@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { UlGrid, LiGrid, Leaders, Dots } from '../theme';
-import { ImgFromSymbol } from './';
+import { ImgFromSymbol, BalanceView, BalanceInUSDView } from './';
 import styled from 'styled-components';
-import numberToLocale from '../utils/numberToLocale'
 
 const UNAVAILABLE = 'Currently unavailable';
 
@@ -15,7 +14,18 @@ const DivAsset = styled.div`
   margin-top: 2px;
 `;
 
-export default ({ wallet, balances, coins, tokens, totalCurrency }) => {
+export default props => {
+  const {
+    wallet,
+    balances,
+    balancesLoading,
+    balancesInUSD,
+    balancesInUSDLoading,
+    coins,
+    coinsLoading,
+    tokens,
+    tokensLoading,
+  } = props;
   const { id, assets } = wallet;
 
   return (
@@ -24,8 +34,10 @@ export default ({ wallet, balances, coins, tokens, totalCurrency }) => {
         const { balance } = balances.find(b => b.symbol === symbol) || {
           balance: UNAVAILABLE,
         };
-        const { currency } = totalCurrency.find(c => c.symbol === symbol) || {
-          currency: UNAVAILABLE,
+        const { balanceInUSD } = balancesInUSD.find(
+          c => c.symbol === symbol,
+        ) || {
+          balanceInUSD: UNAVAILABLE,
         };
 
         return (
@@ -38,17 +50,34 @@ export default ({ wallet, balances, coins, tokens, totalCurrency }) => {
                 <DivLeaders>
                   Balance
                   <Dots />
-                  <div>
-                    {isNaN(balance)
-                      ? balance
-                      : `${symbol.toUpperCase()} ${numberToLocale(balance)}`}
-                  </div>
+                  <BalanceView
+                    {...props}
+                    balanceLoading={
+                      !wallet ||
+                      coinsLoading ||
+                      tokensLoading ||
+                      balancesLoading
+                    }
+                    balance={balance}
+                    symbol={symbol}
+                  />
                 </DivLeaders>
 
                 <DivLeaders>
                   USD
                   <Dots />
-                  <div>{isNaN(currency) ? currency : '$' + numberToLocale(currency)}</div>
+                  <BalanceInUSDView
+                    {...props}
+                    balanceInUSDLoading={
+                      !wallet ||
+                      coinsLoading ||
+                      tokensLoading ||
+                      balancesInUSDLoading ||
+                      balancesLoading
+                    }
+                    balanceInUSD={balanceInUSD}
+                    symbol={symbol}
+                  />
                 </DivLeaders>
               </DivAsset>
             </Link>
