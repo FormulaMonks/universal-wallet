@@ -1,20 +1,14 @@
 import React, { Fragment } from 'react';
 import {
   AddressBookStore,
-  AddressBookLoaded,
-  BalancesStore,
-  BalancesLoaded,
+  BalanceStore,
+  BalanceInUSDStore,
   CoinsStore,
-  CoinsLoaded,
   CustomTokensStore,
-  CustomTokensLoaded,
   NavHeader,
   QrReader,
-  TotalCurrencyStore,
-  TotalCurrencyLoaded,
   TransactionsStore,
   TransactionsView,
-  TransactionsLoaded,
   TxSetup,
   WalletPick,
   WalletAssetPick,
@@ -39,31 +33,19 @@ export default props => (
         <WalletPick>
           <WalletAssetPick>
             <CustomTokensStore>
-              <CustomTokensLoaded>
-                <CoinsStore>
-                  <CoinsLoaded>
-                    <BalancesStore>
-                      <BalancesLoaded>
-                        <TotalCurrencyStore>
-                          <TotalCurrencyLoaded>
-                            <TransactionsStore>
-                              <TransactionsLoaded>
-                                <AddressBookStore>
-                                  <AddressBookLoaded>
-                                    <QrReader>
-                                      <Wallet />
-                                    </QrReader>
-                                  </AddressBookLoaded>
-                                </AddressBookStore>
-                              </TransactionsLoaded>
-                            </TransactionsStore>
-                          </TotalCurrencyLoaded>
-                        </TotalCurrencyStore>
-                      </BalancesLoaded>
-                    </BalancesStore>
-                  </CoinsLoaded>
-                </CoinsStore>
-              </CustomTokensLoaded>
+              <CoinsStore>
+                <BalanceStore>
+                  <BalanceInUSDStore>
+                    <TransactionsStore>
+                      <AddressBookStore>
+                        <QrReader>
+                          <Wallet />
+                        </QrReader>
+                      </AddressBookStore>
+                    </TransactionsStore>
+                  </BalanceInUSDStore>
+                </BalanceStore>
+              </CoinsStore>
             </CustomTokensStore>
           </WalletAssetPick>
         </WalletPick>

@@ -1,53 +1,42 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { getBalance } from '../utils/wallets';
 import { getBalance as getBalanceToken } from '../utils/tokens';
-import Compose from './Compose';
-import { Ul, Leaders, Dots } from '../theme';
-import styled from 'styled-components';
-import { Spinner, ImgFromSymbol, Currency } from './';
 import { TOKENS } from '../utils/erc20';
 
 const UNAVAILABLE = 'Currently unavailable';
 
-const H4 = styled.h4`
-  display: inline-block;
-`;
-
-const ImgWrap = styled.div`
-  display: inline-block;
-  margin-right: 1em;
-`;
-
-const LeadersEstimate = Leaders.extend`
-  margin-left: 2em;
-`;
-
 const INITIAL_STATE = {
   balances: [],
-  error: null,
-  loading: true,
+  loading: false,
 };
 
-class Store extends Component {
+class Balances extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    if (this.props.wallet) {
+    const { wallet, tokens, tokensLoading } = this.props;
+    if (wallet && tokens && !tokensLoading) {
       this.get();
     }
   }
 
   componentDidUpdate(prevProps) {
+    const { wallet, tokens, tokensLoading } = this.props;
     if (
-      (!prevProps.wallet && this.props.wallet) ||
-      (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
+      wallet &&
+      tokens &&
+      !tokensLoading &&
+      ((!prevProps.wallet && wallet) ||
+        (prevProps.wallet && prevProps.wallet.id !== wallet.id) ||
+        prevProps.tokens.length !== tokens.length ||
+        prevProps.tokensLoading !== tokensLoading)
     ) {
       this.get();
     }
   }
 
   render() {
-    const { balances, error, loading } = this.state;
+    const { balances, loading } = this.state;
     const { children, ...rest } = this.props;
 
     return (
@@ -57,7 +46,6 @@ class Store extends Component {
             ...rest,
             balances,
             balancesLoading: loading,
-            balancesError: error,
           }),
         )}
       </Fragment>
@@ -107,82 +95,4 @@ class Store extends Component {
   };
 }
 
-const View = ({
-  coins,
-  tokens,
-  balances,
-  balancesError,
-  balancesLoading,
-  wallet,
-  walletsLoading,
-  coinsLoading,
-  tokensLoading,
-}) => {
-  if (
-    !wallet ||
-    !balances ||
-    balancesError ||
-    balancesLoading ||
-    walletsLoading ||
-    coinsLoading ||
-    tokensLoading
-  ) {
-    return null;
-  }
-
-  return (
-    <details key={Date.now()}>
-      <summary>
-        <H4>Balances</H4>
-      </summary>
-      <Ul>
-        {balances.map(({ symbol, balance }) => {
-          const { name } =
-            tokens.find(t => t.symbol === symbol) ||
-            coins.find(c => c.symbol === symbol);
-          return (
-            <li key={`balances-${symbol}`}>
-              <Leaders>
-                <ImgWrap>
-                  <ImgFromSymbol
-                    coins={coins}
-                    tokens={tokens}
-                    symbol={symbol}
-                  />
-                </ImgWrap>
-                {name}
-                <Dots />
-                {symbol.toUpperCase()} {balance}
-              </Leaders>
-              <LeadersEstimate>
-                USD
-                <Dots />
-                <Currency
-                  balance={balance}
-                  balanceSymbol={symbol}
-                  coins={coins}
-                />
-              </LeadersEstimate>
-            </li>
-          );
-        })}
-      </Ul>
-    </details>
-  );
-};
-
-const Loaded = ({ children, ...rest }) => {
-  const { balancesLoading } = rest;
-  if (balancesLoading) {
-    return <Spinner />;
-  }
-
-  return (
-    <Fragment>
-      {Children.map(children, child => cloneElement(child, { ...rest }))}
-    </Fragment>
-  );
-};
-
-export { View, Store, Loaded };
-export default Compose(Store, View);
+export default Balances

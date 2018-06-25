@@ -159,7 +159,7 @@ export const TOKENS = {
   },
 };
 
-export { validateAddress, URL_TX } from './eth';
+export { validateAddress, URL_TX, toPublicAddress } from './eth';
 
 export const broadcast = async params => {
   const tx = await generateTx(params);
@@ -233,13 +233,11 @@ export const getBalance = symbol => async privateKey => {
   return tokens * 1 / 10 ** decimals;
 };
 
-export const toPublicAddress = toPublicAddressEth;
-
 /* transactions */
 export const getTransactions = symbol => async privateKey => {
   const { contract } = TOKENS[symbol];
   const raw = await fetch(
-    `${transactionsURL}&address=${toPublicAddress(
+    `${transactionsURL}&address=${toPublicAddressEth(
       privateKey,
     )}&contractaddress=${contract}`,
   );
