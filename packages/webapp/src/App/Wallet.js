@@ -1,15 +1,11 @@
 import React, { Fragment } from 'react';
 import {
-  BalancesStore,
-  BalancesLoaded,
+  Balances,
+  BalancesInUSDStore,
   CoinsStore,
-  CoinsLoaded,
   CustomTokensStore,
-  CustomTokensLoaded,
   NavHeader,
   Settings,
-  TotalCurrencyStore,
-  TotalCurrencyLoaded,
   WalletAssets,
   WalletPick,
   WalletsStore,
@@ -37,21 +33,13 @@ export default props => (
       <WalletsStore {...props}>
         <WalletPick>
           <CustomTokensStore>
-            <CustomTokensLoaded>
-              <CoinsStore>
-                <CoinsLoaded>
-                  <BalancesStore>
-                    <BalancesLoaded>
-                      <TotalCurrencyStore>
-                        <TotalCurrencyLoaded>
-                          <Wallet />
-                        </TotalCurrencyLoaded>
-                      </TotalCurrencyStore>
-                    </BalancesLoaded>
-                  </BalancesStore>
-                </CoinsLoaded>
-              </CoinsStore>
-            </CustomTokensLoaded>
+            <CoinsStore>
+              <Balances>
+                <BalancesInUSDStore>
+                  <Wallet />
+                </BalancesInUSDStore>
+              </Balances>
+            </CoinsStore>
           </CustomTokensStore>
         </WalletPick>
       </WalletsStore>
