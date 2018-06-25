@@ -1,11 +1,13 @@
 import React, { Component, Fragment, Children, cloneElement } from 'react';
-import { getBalance, getBalanceAvailable } from '../utils/wallets';
+import { getBalance } from '../utils/wallets';
 import { getBalance as getBalanceToken } from '../utils/tokens';
 import Compose from './Compose';
+import numberToLocale from '../utils/numberToLocale';
+
+const UNAVAILABLE = 'Currently unavailable';
 
 const INITIAL_STATE = {
-  balance: null,
-  error: null,
+  balance: 0,
   loading: false,
 };
 
@@ -13,24 +15,33 @@ class Store extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
-    if (this.props.wallet) {
-      this.check();
+    const { wallet, symbol, tokens, tokensLoading } = this.props
+    if (wallet && symbol && tokens && !tokensLoading) {
+      this.get();
     }
   }
 
   componentDidUpdate(prevProps) {
+    const { symbol, wallet, tokens, tokensLoading } = this.props;
     if (
-      (!prevProps.wallet && this.props.wallet) ||
-      (prevProps.wallet && prevProps.wallet.id !== this.props.wallet.id)
+      wallet &&
+      symbol &&
+      tokens &&
+      !tokensLoading &&
+      ((!prevProps.wallet && wallet) ||
+        (prevProps.wallet && prevProps.wallet.id !== wallet.id) ||
+        (!prevProps.symbol && symbol) ||
+        prevProps.symbol !== symbol ||
+        (!prevProps.tokens && tokens) ||
+        prevProps.tokens.length !== tokens.length)
     ) {
-      this.check();
+      this.get();
     }
   }
 
   render() {
-    const { balance, error, loading } = this.state;
+    const { balance, loading } = this.state;
     const { children, ...rest } = this.props;
-    const { wallet } = rest;
 
     return (
       <Fragment>
@@ -38,98 +49,46 @@ class Store extends Component {
           cloneElement(child, {
             ...rest,
             balance,
-            balanceSymbol: wallet && wallet.symbol,
             balanceLoading: loading,
-            balanceError: error,
           }),
         )}
       </Fragment>
     );
   }
 
-  check = async () => {
-    this.setState({ ...INITIAL_STATE }, () => {
-      const { balanceURL, balanceProp, balanceUnit } = this.props.wallet;
-      if (!balanceURL || !balanceProp || !balanceUnit) {
-        this.setState({
-          error: <div>Currently unavailable</div>,
-          loading: false,
-        });
-        return;
-      }
-      this.get();
+  get = async () => {
+    this.setState({ loading: true }, async () => {
+      const { wallet: { privateKey }, symbol, tokens } = this.props;
+      const balance = await this.getBalance({ symbol, privateKey, tokens });
+      this.setState({ balance, loading: false });
     });
   };
 
-  get = () => {
-    this.setState({ loading: true }, async () => {
-      const { token, wallet } = this.props;
-      const {
-        publicAddress,
-        balanceURL,
-        balanceProp,
-        balanceUnit,
-        symbol,
-      } = wallet;
-
-      try {
-        const res = await fetch(`${balanceURL}${publicAddress}`);
-        const data = await res.json();
-        if (!data.hasOwnProperty(balanceProp)) {
-          this.setState({
-            error: (
-              <div>
-                There was an error getting the wallet balance: the response did
-                not include the balance property
-              </div>
-            ),
-          });
-          return;
-        }
-
-        // TODO: improve this, for the time being tokens have two balances
-        // one for the token itself and another for ether, if the wallet has
-        // a getBalance method in can get the blance for the token
-        // return balance as an array, default view will check and only rener
-        // the first value, and custom views can handle the data as they please
-        let tokenBalance = null;
-        if (getBalanceAvailable().find(o => o.symbol === symbol)) {
-          tokenBalance = await getBalance(symbol)(publicAddress);
-        }
-        if (token) {
-          tokenBalance = await getBalanceToken({ token, publicAddress });
-        }
-
-        const balance = data[balanceProp] * balanceUnit;
-        this.setState({
-          balance: tokenBalance !== null ? [tokenBalance, balance] : balance,
-          loading: false,
-        });
-      } catch (e) {
-        this.setState({
-          error: <div>Currently unavailable</div>,
-          loading: false,
-        });
-      }
-    });
+  getBalance = async ({ symbol, privateKey, tokens }) => {
+    try {
+      const token = tokens.find(t => t.symbol === symbol);
+      return token
+        ? await getBalanceToken({ privateKey, token })
+        : await getBalance(symbol)(privateKey);
+    } catch (e) {
+      console.warn('-- Could not get balance: ', e);
+      return 'Currently unavailable';
+    }
   };
 }
 
-const View = ({ balance, balanceSymbol, balanceError, balanceLoading }) => {
-  if (!balance && balance !== 0 && !balanceError && !balanceLoading) {
-    return null;
+const View = ({ balance, symbol, balanceLoading, tokensLoading }) => {
+  if (balanceLoading || tokensLoading) {
+    return '.';
+  }
+
+  if (isNaN(balance)) {
+    return UNAVAILABLE
   }
 
   return (
     <Fragment>
-      {balanceError}
-      {balanceLoading && '.'}
-      {balance && (
-        <Fragment>
-          {balanceSymbol.toUpperCase()}{' '}
-          {Array.isArray(balance) ? balance[0] : balance}
-        </Fragment>
-      )}
+      {symbol.toUpperCase()} {numberToLocale(balance)}
     </Fragment>
   );
 };
