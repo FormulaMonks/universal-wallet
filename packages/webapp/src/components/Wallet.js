@@ -25,6 +25,10 @@ const Title = styled.h3`
   }
 `;
 
+const Symbol = styled.span`
+  margin-left: 4px;
+`
+
 const View = props => {
   const { wallet, symbol, tokens, tokensLoading, coinsLoading } = props;
 
@@ -42,7 +46,7 @@ const View = props => {
         ‹ <Link to={`/wallets/${id}`}>{alias}</Link>
       </Title>
       <H3Wallet>
-        <ImgFromSymbol {...props} /> {symbol.toUpperCase()}
+        <ImgFromSymbol {...props} /><Symbol>{symbol.toUpperCase()}</Symbol>
       </H3Wallet>
 
       <DivQrPublicAddress>
