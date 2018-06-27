@@ -167,6 +167,8 @@ export default class TxSetup extends Component {
       addressBook,
       balance,
       coins,
+      ordersPost,
+      ordersPut,
       tokens,
       symbol,
       wallet: { id, privateKey },
@@ -328,6 +330,9 @@ export default class TxSetup extends Component {
           balance={balance}
           privateKey={privateKey}
           token={token}
+          walletId={id}
+          ordersPost={ordersPost}
+          ordersPut={ordersPut}
         />
       </details>
     );

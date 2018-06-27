@@ -2,7 +2,6 @@ import React, { Component, Fragment, Children, cloneElement } from 'react';
 import { getBalance } from '../utils/wallets';
 import { getBalance as getBalanceToken } from '../utils/tokens';
 import Compose from './Compose';
-import numberToLocale from '../utils/numberToLocale';
 
 const UNAVAILABLE = 'Currently unavailable';
 
@@ -89,7 +88,7 @@ const View = ({ balance, symbol, balanceLoading, tokensLoading }) => {
 
   return (
     <Fragment>
-      {symbol.toUpperCase()} {numberToLocale(balance)}
+      {symbol.toUpperCase()} {balance}
     </Fragment>
   );
 };

@@ -7,6 +7,7 @@ import {
   fetchMarketInfo,
 } from '../../utils/ss';
 import { propsChanged, validProps } from '../../utils/tx';
+import Compose from '../Compose';
 
 const INITIAL_STATE = {
   checking: false,
@@ -17,10 +18,20 @@ const INITIAL_STATE = {
   info: null,
 };
 
+const txProps = ['amount', 'balance', 'from', 'fromSymbol', 'to', 'toSymbol'];
+
+const txPropsChanged = (p, c) => txProps.find(k => p[k] !== c[k]);
+
+const LOG_INITIAL_STATE = {
+  orderId: null,
+  step: 0,
+  info: { tx: {}, order: {}, broadcast: {} },
+};
+
 const txValidProps = props =>
   validProps(props) && props.toSymbol !== props.fromSymbol;
 
-export default class SsTx extends Component {
+class SsTx extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount() {
@@ -77,7 +88,7 @@ export default class SsTx extends Component {
   //  2.1- if order cannot be broadcasted render details to manually do so
   // 3- if order can be broadcasted do so: broadcastOrder
   placeOrder = async () => {
-    this.setState({ broadcasting: 'Placing order with ShapeShift' });
+    this.setState({ broadcasting: 'Placing order with shapeshift' });
 
     const { to, toSymbol, from, fromSymbol, amount } = this.props;
     const opts = {
@@ -93,7 +104,7 @@ export default class SsTx extends Component {
     } catch (e) {
       console.error('-- Could not place shapeshift order error: ', e);
       this.setState({
-        error: 'Could not place order with shapeshift',
+        error: 'Could not place order with shapeshift. ' + e.message,
         broadcasting: 'Incomplete',
       });
     }
@@ -112,7 +123,7 @@ export default class SsTx extends Component {
 
     const date = new Date(expiration);
     const info = [
-      { label: 'Pair', value: pair },
+      { label: 'Pair', value: pair.toUpperCase() },
       { label: 'Quoted rate', value: quotedRate },
       { label: 'Miner Fee', value: `${fromSymbol.toUpperCase()} ${minerFee}` },
       {
@@ -122,8 +133,8 @@ export default class SsTx extends Component {
       { label: 'Order Id', value: orderId },
       { label: 'ShapeShift address', value: deposit },
     ];
-    this.setState({ info });
-    const manually = `To complete transaction you need to send ${fromSymbol} ${amount} to ShapeShift address manually (expires today ${date.toLocaleTimeString()})`;
+    this.setState({ info, broadcasting: 'ShapeShift order succesful' });
+    const manually = `To complete transaction you need to send ${fromSymbol.toUpperCase()} ${amount} to ShapeShift address manually (expires today ${date.toLocaleTimeString()})`;
 
     if (canBroadcast(fromSymbol)) {
       this.broadcastOrder({
@@ -215,7 +226,7 @@ export default class SsTx extends Component {
           toSymbol,
         );
         const info = [
-          { label: 'Pair', value: pair },
+          { label: 'Pair', value: pair.toUpperCase() },
           { label: 'Rate', value: rate },
           {
             label: 'Miner Fee',
@@ -238,3 +249,48 @@ export default class SsTx extends Component {
     this.setState({ checking: 'Please review errors' });
   };
 }
+
+class SsLog extends Component {
+  state = { ...LOG_INITIAL_STATE };
+
+  async componentDidUpdate(prevProps) {
+    const { orderId, step } = this.state;
+    const { txInfo, txBroadcasting, txError, txId } = this.props;
+    if (orderId && prevProps.txBroadcasting !== txBroadcasting) {
+      const info = { ...this.state.info, order: {} };
+      txProps.forEach(key => (info.tx[key] = this.props[key]));
+      txInfo.forEach(({ label, value }) => (info.order[label] = value));
+      info.broadcast = {
+        status: txBroadcasting,
+        info: txId || txError,
+      };
+
+      await this.props.ordersPut(orderId, info);
+      this.setState({ info, step: step + 1 });
+    }
+    // reset
+    if (txPropsChanged(prevProps, this.props)) {
+      this.setState({ ...LOG_INITIAL_STATE });
+    }
+  }
+
+  render() {
+    const { children, ...rest } = this.props;
+
+    return (
+      <Fragment>
+        {Children.map(children, child =>
+          cloneElement(child, { ...rest, txBroadcast: this.broadcast }),
+        )}
+      </Fragment>
+    );
+  }
+
+  broadcast = async () => {
+    const { walletId, ordersPost, txBroadcast } = this.props;
+    const { id: orderId } = await ordersPost({ walletId });
+    this.setState({ orderId }, txBroadcast);
+  };
+}
+
+export default Compose(SsTx, SsLog);

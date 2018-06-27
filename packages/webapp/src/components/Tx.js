@@ -79,7 +79,7 @@ const View = ({
         <LeadersError>
           <div>Error</div>
           <Dots />
-          {txError}
+          <DivTx>{txError}</DivTx>
         </LeadersError>
       )}
 

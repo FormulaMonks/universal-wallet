@@ -87,7 +87,7 @@ class Store extends Component {
       }));
       this.setState({ coins, loading: false });
     } catch (e) {
-      this.setState({ error: e.toString() });
+      this.setState({ error: e.toString(), loading: false });
     }
   };
 
