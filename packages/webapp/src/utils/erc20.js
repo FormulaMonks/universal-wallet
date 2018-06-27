@@ -161,8 +161,8 @@ export const TOKENS = {
 
 export { validateAddress, URL_TX, toPublicAddress } from './eth';
 
-export const broadcast = async params => {
-  const tx = await generateTx(params);
+export const broadcast = symbol => async params => {
+  const tx = await generateTx({ ...params, symbol });
   return await sendTx(tx);
 };
 

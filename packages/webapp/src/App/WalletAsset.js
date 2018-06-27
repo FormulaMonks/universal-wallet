@@ -7,6 +7,8 @@ import {
   CustomTokensStore,
   NavHeader,
   QrReader,
+  ShapeShiftOrdersStore,
+  ShapeShiftOrdersView,
   TransactionsStore,
   TransactionsView,
   TxSetup,
@@ -22,6 +24,7 @@ const Wallet = props => (
     <WalletView {...props} />
     <TxSetup {...props} />
     <TransactionsView {...props} />
+    <ShapeShiftOrdersView {...props} />
   </Fragment>
 );
 
@@ -38,9 +41,11 @@ export default props => (
                   <BalanceInUSDStore>
                     <TransactionsStore>
                       <AddressBookStore>
-                        <QrReader>
-                          <Wallet />
-                        </QrReader>
+                        <ShapeShiftOrdersStore>
+                          <QrReader>
+                            <Wallet />
+                          </QrReader>
+                        </ShapeShiftOrdersStore>
                       </AddressBookStore>
                     </TransactionsStore>
                   </BalanceInUSDStore>
