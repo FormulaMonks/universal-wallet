@@ -72,7 +72,8 @@ export default class ERC20Tx extends Component {
     this.setState({ broadcasting: 'In progress' });
     try {
       const { toSymbol: symbol } = this.props;
-      const txId = await broadcast({ ...this.props, symbol });
+
+      const txId = await broadcast(symbol)(this.props);
       this.setState({ txId, broadcasting: 'Completed' });
     } catch (e) {
       console.error('-- Could not broadcast transaction error:  ', e);
