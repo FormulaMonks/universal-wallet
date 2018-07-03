@@ -175,6 +175,7 @@ export default class TxSetup extends Component {
       wallets,
       tokensLoading,
     } = this.props;
+    return null
 
     const { to, toSymbol, amount } = this.state;
     const publicAddress = tokensLoading

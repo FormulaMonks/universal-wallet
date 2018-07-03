@@ -9,7 +9,7 @@ npm run start:cors
 
 ### Testnet(s)
 
-In order to test transactions against the `test networks` (be aware Wallets should be created for the test networks too, and currently the app lacks this functionality when generating wallets) use the `env` var `REACT_APP_TESTNET` with the start script: `REACT_APP_TESTNET=1 npm run start:cors`
+In order to test transactions in `test networks` set the `env` var `REACT_APP_TESTNET` when running the `start` script: `REACT_APP_TESTNET=1 npm run start:cors`
 
 ### Error: More than one instance of bitcore-lib found
 

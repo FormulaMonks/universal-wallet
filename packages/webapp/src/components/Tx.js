@@ -6,6 +6,7 @@ import {
   DashTxStore,
   ERC20TxStore,
   EthTxStore,
+  LskTxStore,
   LtcTxStore,
   SsTxStore,
   TokensTxStore,
@@ -132,11 +133,13 @@ const Store = ({ children, ...props }) => (
           <BtgTxStore>
             <EthTxStore>
               <LtcTxStore>
-                <DashTxStore>
-                  <ERC20TxStore>
-                    <TokensTxStore children={children} />
-                  </ERC20TxStore>
-                </DashTxStore>
+                <LskTxStore>
+                  <DashTxStore>
+                    <ERC20TxStore>
+                      <TokensTxStore children={children} />
+                    </ERC20TxStore>
+                  </DashTxStore>
+                </LskTxStore>
               </LtcTxStore>
             </EthTxStore>
           </BtgTxStore>

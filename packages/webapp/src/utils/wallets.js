@@ -4,6 +4,7 @@ import * as eth from './eth';
 import * as btg from './btg';
 import * as ltc from './ltc';
 import * as dash from './dash';
+import * as lsk from './lsk'
 import {
   TOKENS,
   getBalance as getBalanceERC20,
@@ -13,7 +14,7 @@ import {
   URL_TX as URL_TX_TOKEN,
 } from './erc20';
 
-const wallets = [btc, bch, eth, btg, ltc, dash];
+const wallets = [btc, bch, eth, btg, ltc, dash, lsk];
 
 // interface for functions for wallets or tokens
 // two reduces: first one (TOKENS) if there is no hit will return

@@ -110,6 +110,7 @@ const View = ({
   transactionsLoading,
   wallet: { id },
 }) => {
+
   return (
     <details>
       <summary>
@@ -147,7 +148,7 @@ const View = ({
                               <DivProp>{prop}</DivProp>
                               <Dots />
                               <DivVal>
-                                {prop.toLowerCase() === 'hash' ? (
+                                {prop.toLowerCase() === 'hash' || prop.toLowerCase() === 'id' ? (
                                   <a
                                     href={`${transactionsURL}${
                                       transaction[prop]
